@@ -8,7 +8,7 @@ import (
 	"github.com/charmbracelet/log"
 )
 
-func OutputBH_Edge(kind string, startId string, endId string) Edge {
+func GenerateEdge(kind string, startId string, endId string) Edge {
 
 	start := Link{
 		Value:   startId,

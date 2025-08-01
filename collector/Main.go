@@ -176,7 +176,7 @@ func launchGathering(client http.Client, targetUrl *url.URL,
 	for _, organization := range organizationNodes {
 		for _, inventory := range inventoriesNodes {
 			if inventory.Properties["organization"] == organization.Properties["id"] {
-				edges = append(edges, core.OutputBH_Edge(kind, organization.Id, inventory.Id))
+				edges = append(edges, core.GenerateEdge(kind, organization.Id, inventory.Id))
 			}
 		}
 	}
@@ -186,7 +186,7 @@ func launchGathering(client http.Client, targetUrl *url.URL,
 	for _, host := range hostNodes {
 		for _, inventory := range inventoriesNodes {
 			if host.Properties["inventory"] == inventory.Properties["id"] {
-				edges = append(edges, core.OutputBH_Edge(kind, inventory.Id, host.Id))
+				edges = append(edges, core.GenerateEdge(kind, inventory.Id, host.Id))
 			}
 		}
 	}
@@ -196,7 +196,7 @@ func launchGathering(client http.Client, targetUrl *url.URL,
 	for _, job := range jobsNodes {
 		for _, jobTemplate := range jobTemplatesNodes {
 			if job.Properties["unified_job_template"] == jobTemplate.Properties["id"] {
-				edges = append(edges, core.OutputBH_Edge(kind, jobTemplate.Id, job.Id))
+				edges = append(edges, core.GenerateEdge(kind, jobTemplate.Id, job.Id))
 			}
 		}
 	}
@@ -206,7 +206,7 @@ func launchGathering(client http.Client, targetUrl *url.URL,
 	for _, jobTemplate := range jobTemplatesNodes {
 		for _, organization := range organizationNodes {
 			if jobTemplate.Properties["organization"] == organization.Properties["id"] {
-				edges = append(edges, core.OutputBH_Edge(kind, organization.Id, jobTemplate.Id))
+				edges = append(edges, core.GenerateEdge(kind, organization.Id, jobTemplate.Id))
 			}
 		}
 	}
@@ -216,7 +216,7 @@ func launchGathering(client http.Client, targetUrl *url.URL,
 	for _, credential := range credentialNodes {
 		for _, organization := range organizationNodes {
 			if credential.Properties["organization"] == organization.Properties["id"] {
-				edges = append(edges, core.OutputBH_Edge(kind, organization.Id, credential.Id))
+				edges = append(edges, core.GenerateEdge(kind, organization.Id, credential.Id))
 			}
 		}
 	}
@@ -226,7 +226,7 @@ func launchGathering(client http.Client, targetUrl *url.URL,
 	for _, project := range projectNodes {
 		for _, organization := range organizationNodes {
 			if project.Properties["organization"] == organization.Properties["id"] {
-				edges = append(edges, core.OutputBH_Edge(kind, organization.Id, project.Id))
+				edges = append(edges, core.GenerateEdge(kind, organization.Id, project.Id))
 			}
 		}
 	}
@@ -236,7 +236,7 @@ func launchGathering(client http.Client, targetUrl *url.URL,
 	for _, jobTemplate := range jobTemplates {
 		for _, project := range projects {
 			if jobTemplate.Project == project.ID {
-				edges = append(edges, core.OutputBH_Edge(kind, jobTemplate.UUID, project.UUID))
+				edges = append(edges, core.GenerateEdge(kind, jobTemplate.UUID, project.UUID))
 			}
 		}
 	}
@@ -246,7 +246,7 @@ func launchGathering(client http.Client, targetUrl *url.URL,
 	for _, jobTemplate := range jobTemplates {
 		for _, inventory := range inventories {
 			if jobTemplate.Inventory == inventory.ID {
-				edges = append(edges, core.OutputBH_Edge(kind, jobTemplate.UUID, inventory.UUID))
+				edges = append(edges, core.GenerateEdge(kind, jobTemplate.UUID, inventory.UUID))
 			}
 		}
 	}
@@ -262,31 +262,31 @@ func launchGathering(client http.Client, targetUrl *url.URL,
 			case "organization":
 				for _, organization := range organizations {
 					if role.SummaryFields.ResourceId == organization.ID {
-						edges = append(edges, core.OutputBH_Edge(kind, user.UUID, organization.UUID))
+						edges = append(edges, core.GenerateEdge(kind, user.UUID, organization.UUID))
 					}
 				}
 			case "inventory":
 				for _, inventory := range inventories {
 					if role.SummaryFields.ResourceId == inventory.ID {
-						edges = append(edges, core.OutputBH_Edge(kind, user.UUID, inventory.UUID))
+						edges = append(edges, core.GenerateEdge(kind, user.UUID, inventory.UUID))
 					}
 				}
 			case "team":
 				for _, team := range teams {
 					if role.SummaryFields.ResourceId == team.ID {
-						edges = append(edges, core.OutputBH_Edge(kind, user.UUID, team.UUID))
+						edges = append(edges, core.GenerateEdge(kind, user.UUID, team.UUID))
 					}
 				}
 			case "credential":
 				for _, credential := range credentials {
 					if role.SummaryFields.ResourceId == credential.ID {
-						edges = append(edges, core.OutputBH_Edge(kind, user.UUID, credential.UUID))
+						edges = append(edges, core.GenerateEdge(kind, user.UUID, credential.UUID))
 					}
 				}
 			case "job_template":
 				for _, jobTemplate := range jobTemplates {
 					if role.SummaryFields.ResourceId == jobTemplate.ID {
-						edges = append(edges, core.OutputBH_Edge(kind, user.UUID, jobTemplate.UUID))
+						edges = append(edges, core.GenerateEdge(kind, user.UUID, jobTemplate.UUID))
 					}
 				}
 			}
@@ -303,31 +303,31 @@ func launchGathering(client http.Client, targetUrl *url.URL,
 			case "organization":
 				for _, organization := range organizations {
 					if role.SummaryFields.ResourceId == organization.ID {
-						edges = append(edges, core.OutputBH_Edge(kind, team.UUID, organization.UUID))
+						edges = append(edges, core.GenerateEdge(kind, team.UUID, organization.UUID))
 					}
 				}
 			case "inventory":
 				for _, inventory := range inventories {
 					if role.SummaryFields.ResourceId == inventory.ID {
-						edges = append(edges, core.OutputBH_Edge(kind, team.UUID, inventory.UUID))
+						edges = append(edges, core.GenerateEdge(kind, team.UUID, inventory.UUID))
 					}
 				}
 			case "user":
 				for _, user := range users {
 					if role.SummaryFields.ResourceId == user.ID {
-						edges = append(edges, core.OutputBH_Edge(kind, team.UUID, user.UUID))
+						edges = append(edges, core.GenerateEdge(kind, team.UUID, user.UUID))
 					}
 				}
 			case "credential":
 				for _, credential := range credentials {
 					if role.SummaryFields.ResourceId == credential.ID {
-						edges = append(edges, core.OutputBH_Edge(kind, team.UUID, credential.UUID))
+						edges = append(edges, core.GenerateEdge(kind, team.UUID, credential.UUID))
 					}
 				}
 			case "job_template":
 				for _, jobTemplate := range jobTemplates {
 					if role.SummaryFields.ResourceId == jobTemplate.ID {
-						edges = append(edges, core.OutputBH_Edge(kind, team.UUID, jobTemplate.UUID))
+						edges = append(edges, core.GenerateEdge(kind, team.UUID, jobTemplate.UUID))
 					}
 				}
 			}
