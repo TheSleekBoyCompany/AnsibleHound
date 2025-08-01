@@ -31,7 +31,7 @@ func launchGathering(client http.Client, targetUrl *url.URL,
 	// -- Gathering all nodes --
 
 	log.Info("Gathering Users.")
-	users, err := core.GatherObject[core.User](
+	users, err := core.GatherObject[*core.User](
 		client, *targetUrl, token, core.USERS_ENDPOINT,
 	)
 	if err != nil {
@@ -42,9 +42,7 @@ func launchGathering(client http.Client, targetUrl *url.URL,
 	log.Info("Gathering User Roles.")
 	for i, user := range users {
 		userRolesEndpoint := fmt.Sprintf(core.USER_ROLES_ENDPOINT, user.ID)
-		roles, err := core.GatherObject[core.Role](
-			client, *targetUrl, token, userRolesEndpoint,
-		)
+		roles, err := core.GatherObject[*core.Role](client, *targetUrl, token, userRolesEndpoint)
 		if err != nil {
 			log.Error("An error occured while gathering Team Roles.")
 			log.Error(err)
@@ -53,88 +51,88 @@ func launchGathering(client http.Client, targetUrl *url.URL,
 		user.Roles = roles
 		users[i] = user
 	}
-	userNodes := core.OutputBH_Node(users)
+	userNodes := core.GenerateNodes(users)
 	nodes = append(nodes, userNodes...)
 
 	log.Info("Gathering Hosts.")
-	hosts, err := core.GatherObject[core.Host](
+	hosts, err := core.GatherObject[*core.Host](
 		client, *targetUrl, token, core.HOSTS_ENDPOINT,
 	)
 	if err != nil {
 		log.Error("An error occured while gathering Users, skipping.")
 		log.Error(err)
 	}
-	hostNodes := core.OutputBH_Node(hosts)
+	hostNodes := core.GenerateNodes(hosts)
 	nodes = append(nodes, hostNodes...)
 
 	log.Info("Gathering Jobs.")
-	jobs, err := core.GatherObject[core.Job](
+	jobs, err := core.GatherObject[*core.Job](
 		client, *targetUrl, token, core.JOBS_ENDPOINT,
 	)
 	if err != nil {
 		log.Error("An error occured while gathering jobs, skipping.")
 		log.Error(err)
 	}
-	jobsNodes := core.OutputBH_Node(jobs)
+	jobsNodes := core.GenerateNodes(jobs)
 	nodes = append(nodes, jobsNodes...)
 
 	log.Info("Gathering Job Templates.")
-	jobTemplates, err := core.GatherObject[core.JobTemplate](
+	jobTemplates, err := core.GatherObject[*core.JobTemplate](
 		client, *targetUrl, token, core.JOB_TEMPLATE_ENDPOINT,
 	)
 	if err != nil {
 		log.Error("An error occured while gathering jobs, skipping.")
 		log.Error(err)
 	}
-	jobTemplatesNodes := core.OutputBH_Node(jobTemplates)
+	jobTemplatesNodes := core.GenerateNodes(jobTemplates)
 	nodes = append(nodes, jobTemplatesNodes...)
 
 	log.Info("Gathering Inventories.")
-	inventories, err := core.GatherObject[core.Inventory](
+	inventories, err := core.GatherObject[*core.Inventory](
 		client, *targetUrl, token, core.INVENTORIES_ENDPOINT,
 	)
 	if err != nil {
 		log.Error("An error occured while gathering jobs, skipping.")
 		log.Error(err)
 	}
-	inventoriesNodes := core.OutputBH_Node(inventories)
+	inventoriesNodes := core.GenerateNodes(inventories)
 	nodes = append(nodes, inventoriesNodes...)
 
 	log.Info("Gathering Organizations.")
-	organizations, err := core.GatherObject[core.Organization](
+	organizations, err := core.GatherObject[*core.Organization](
 		client, *targetUrl, token, core.ORGANIZATIONS_ENDPOINT,
 	)
 	if err != nil {
 		log.Error("An error occured while gathering jobs, skipping.")
 		log.Error(err)
 	}
-	organizationNodes := core.OutputBH_Node(organizations)
+	organizationNodes := core.GenerateNodes(organizations)
 	nodes = append(nodes, organizationNodes...)
 
 	log.Info("Gathering Credentials.")
-	credentials, err := core.GatherObject[core.Credential](
+	credentials, err := core.GatherObject[*core.Credential](
 		client, *targetUrl, token, core.CREDENTIALS_ENDPOINT,
 	)
 	if err != nil {
 		log.Error("An error occured while gathering jobs, skipping.")
 		log.Error(err)
 	}
-	credentialNodes := core.OutputBH_Node(credentials)
+	credentialNodes := core.GenerateNodes(credentials)
 	nodes = append(nodes, credentialNodes...)
 
 	log.Info("Gathering Projects.")
-	projects, err := core.GatherObject[core.Project](
+	projects, err := core.GatherObject[*core.Project](
 		client, *targetUrl, token, core.PROJECTS_ENDPOINT,
 	)
 	if err != nil {
 		log.Error("An error occured while gathering jobs, skipping.")
 		log.Error(err)
 	}
-	projectNodes := core.OutputBH_Node(projects)
+	projectNodes := core.GenerateNodes(projects)
 	nodes = append(nodes, projectNodes...)
 
 	log.Info("Gathering Teams.")
-	teams, err := core.GatherObject[core.Team](
+	teams, err := core.GatherObject[*core.Team](
 		client, *targetUrl, token, core.TEAMS_ENDPOINT,
 	)
 	if err != nil {
@@ -146,7 +144,7 @@ func launchGathering(client http.Client, targetUrl *url.URL,
 	for i, team := range teams {
 
 		teamRolesEndpoint := fmt.Sprintf(core.TEAM_ROLES_ENDPOINT, team.ID)
-		roles, err := core.GatherObject[core.Role](
+		roles, err := core.GatherObject[*core.Role](
 			client, *targetUrl, token, teamRolesEndpoint,
 		)
 		if err != nil {
@@ -156,7 +154,7 @@ func launchGathering(client http.Client, targetUrl *url.URL,
 		}
 
 		teamMembersEndpoint := fmt.Sprintf(core.TEAM_USERS_ENDPOINT, team.ID)
-		members, err := core.GatherObject[core.User](
+		members, err := core.GatherObject[*core.User](
 			client, *targetUrl, token, teamMembersEndpoint,
 		)
 		if err != nil {
@@ -168,7 +166,7 @@ func launchGathering(client http.Client, targetUrl *url.URL,
 		team.Members = members
 		teams[i] = team
 	}
-	teamNodes := core.OutputBH_Node(teams)
+	teamNodes := core.GenerateNodes(teams)
 	nodes = append(nodes, teamNodes...)
 
 	// -- Creating all edges --

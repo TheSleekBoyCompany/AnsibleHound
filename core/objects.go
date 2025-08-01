@@ -6,17 +6,16 @@ import (
 )
 
 type AnsibleTypeList interface {
-	[]User | []Job | []JobTemplate | []Inventory |
-		[]Project | []Organization | []Role | []Credential |
-		[]Host | []Team | []RoleDefinition | []RoleTeamAssignments |
-		[]RoleUserAssignments
+	[]*User | []*Job | []*JobTemplate | []*Inventory |
+		[]*Project | []*Organization | []*Role | []*Credential |
+		[]*Host | []*Team | []*RoleDefinition | []*RoleTeamAssignments |
+		[]*RoleUserAssignments
 }
 
 type AnsibleType interface {
-	User | Job | JobTemplate | Inventory |
-		Project | Organization | Role | Credential |
-		Host | Team | RoleDefinition | RoleTeamAssignments |
-		RoleUserAssignments
+	GetUUID() string
+	SetUUID(string)
+	ToBHNode() Node
 }
 
 type Object struct {
@@ -30,23 +29,31 @@ type Object struct {
 	Modified    string `json:"modified,omitempty"`
 }
 
-type Response[T AnsibleType] struct {
+func (o Object) GetUUID() (uuid string) {
+	return o.UUID
+}
+
+func (o *Object) SetUUID(uuid string) {
+	o.UUID = uuid
+}
+
+type Response[T any] struct {
 	Count   int `json:"count"`
 	Results []T `json:"results"`
 }
 
 type User struct {
 	Object
-	Username        string `json:"username"`
-	FirstName       string `json:"first_name,omitempty"`
-	LastName        string `json:"last_name,omitempty"`
-	Email           string `json:"email,omitempty"`
-	IsSuperUser     bool   `json:"is_superuser,omitempty"`
-	IsSystemAuditor bool   `json:"is_sytem_auditor,omitempty"`
-	LdapDn          string `json:"ldap_dn,omitempty"`
-	LastLogin       string `json:"last_login,omitempty"`
-	ExternalAccount string `json:"external_account,omitempty"`
-	Roles           []Role `json:"roles"`
+	Username        string  `json:"username"`
+	FirstName       string  `json:"first_name,omitempty"`
+	LastName        string  `json:"last_name,omitempty"`
+	Email           string  `json:"email,omitempty"`
+	IsSuperUser     bool    `json:"is_superuser,omitempty"`
+	IsSystemAuditor bool    `json:"is_sytem_auditor,omitempty"`
+	LdapDn          string  `json:"ldap_dn,omitempty"`
+	LastLogin       string  `json:"last_login,omitempty"`
+	ExternalAccount string  `json:"external_account,omitempty"`
+	Roles           []*Role `json:"roles"`
 }
 
 func (u *User) MarshalJSON() ([]byte, error) {
@@ -78,9 +85,9 @@ func (u *User) ToBHNode() (node Node) {
 
 type Team struct {
 	Object
-	Organization int    `json:"organization,omitempty"`
-	Members      []User `json:"members"`
-	Roles        []Role `json:"roles"`
+	Organization int     `json:"organization,omitempty"`
+	Members      []*User `json:"members"`
+	Roles        []*Role `json:"roles"`
 }
 
 func (u *Team) MarshalJSON() ([]byte, error) {
@@ -121,6 +128,10 @@ type RoleSummaryFields struct {
 func (r Role) MarshalJSON() ([]byte, error) {
 	type role Role
 	return json.MarshalIndent((role)(r), "", "  ")
+}
+
+func (r *Role) ToBHNode() (node Node) {
+	return Node{}
 }
 
 type Organization struct {
