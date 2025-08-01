@@ -29,7 +29,7 @@ func GenerateEdge(kind string, startId string, endId string) Edge {
 	return edge
 }
 
-func GenerateNodes[T AnsibleType](objects []T) (nodes []Node) {
+func GenerateNodes[T AnsibleType](objects map[int]T) (nodes []Node) {
 	for _, object := range objects {
 		nodes = append(nodes, object.ToBHNode())
 	}

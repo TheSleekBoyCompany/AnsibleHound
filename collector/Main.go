@@ -173,82 +173,60 @@ func launchGathering(client http.Client, targetUrl *url.URL,
 
 	log.Info("Linking Organizations and Inventories.")
 	kind := "ATContains"
-	for _, organization := range organizationNodes {
-		for _, inventory := range inventoriesNodes {
-			if inventory.Properties["organization"] == organization.Properties["id"] {
-				edges = append(edges, core.GenerateEdge(kind, organization.Id, inventory.Id))
-			}
-		}
+	for _, inventory := range inventories {
+		edge := core.GenerateEdge(kind, organizations[inventory.Organization].UUID, inventory.UUID)
+		edges = append(edges, edge)
 	}
 
 	log.Info("Linking Inventories and Hosts.")
 	kind = "ATContains"
-	for _, host := range hostNodes {
-		for _, inventory := range inventoriesNodes {
-			if host.Properties["inventory"] == inventory.Properties["id"] {
-				edges = append(edges, core.GenerateEdge(kind, inventory.Id, host.Id))
-			}
-		}
+	for _, host := range hosts {
+		edge := core.GenerateEdge(kind, inventories[host.Inventory].UUID, host.UUID)
+		edges = append(edges, edge)
 	}
 
 	log.Info("Linking Job Templates and Jobs.")
 	kind = "ATContains"
-	for _, job := range jobsNodes {
-		for _, jobTemplate := range jobTemplatesNodes {
-			if job.Properties["unified_job_template"] == jobTemplate.Properties["id"] {
-				edges = append(edges, core.GenerateEdge(kind, jobTemplate.Id, job.Id))
-			}
-		}
+	for _, job := range jobs {
+		edge := core.GenerateEdge(kind, jobTemplates[job.UnifiedJobTemplate].UUID, job.UUID)
+		edges = append(edges, edge)
 	}
 
 	log.Info("Linking Organizations and Job Templates.")
 	kind = "ATContains"
-	for _, jobTemplate := range jobTemplatesNodes {
-		for _, organization := range organizationNodes {
-			if jobTemplate.Properties["organization"] == organization.Properties["id"] {
-				edges = append(edges, core.GenerateEdge(kind, organization.Id, jobTemplate.Id))
-			}
-		}
+	for _, jobTemplate := range jobTemplates {
+		edge := core.GenerateEdge(kind, organizations[jobTemplate.Organization].UUID, jobTemplate.UUID)
+		edges = append(edges, edge)
 	}
 
 	log.Info("Linking Organizations and Credentials.")
 	kind = "ATContains"
-	for _, credential := range credentialNodes {
-		for _, organization := range organizationNodes {
-			if credential.Properties["organization"] == organization.Properties["id"] {
-				edges = append(edges, core.GenerateEdge(kind, organization.Id, credential.Id))
-			}
+	for _, credential := range credentials {
+		if credential.Organization != 0 {
+			edge := core.GenerateEdge(kind, organizations[credential.Organization].UUID, credential.UUID)
+			edges = append(edges, edge)
 		}
 	}
 
 	log.Info("Linking Organizations and Projects")
 	kind = "ATContains"
-	for _, project := range projectNodes {
-		for _, organization := range organizationNodes {
-			if project.Properties["organization"] == organization.Properties["id"] {
-				edges = append(edges, core.GenerateEdge(kind, organization.Id, project.Id))
-			}
-		}
+	for _, project := range projects {
+		edge := core.GenerateEdge(kind, organizations[project.Organization].UUID, project.UUID)
+		edges = append(edges, edge)
 	}
 
 	log.Info("Linking Job Templates and Projects.")
 	kind = "ATUses"
 	for _, jobTemplate := range jobTemplates {
-		for _, project := range projects {
-			if jobTemplate.Project == project.ID {
-				edges = append(edges, core.GenerateEdge(kind, jobTemplate.UUID, project.UUID))
-			}
-		}
+		edge := core.GenerateEdge(kind, jobTemplate.UUID, projects[jobTemplate.Project].UUID)
+		edges = append(edges, edge)
 	}
 
 	log.Info("Linking Job Template and Inventories.")
 	kind = "ATUses"
 	for _, jobTemplate := range jobTemplates {
-		for _, inventory := range inventories {
-			if jobTemplate.Inventory == inventory.ID {
-				edges = append(edges, core.GenerateEdge(kind, jobTemplate.UUID, inventory.UUID))
-			}
-		}
+		edge := core.GenerateEdge(kind, jobTemplate.UUID, inventories[jobTemplate.Inventory].UUID)
+		edges = append(edges, edge)
 	}
 
 	log.Info("Linking User Roles.")
@@ -260,35 +238,20 @@ func launchGathering(client http.Client, targetUrl *url.URL,
 			switch role.SummaryFields.ResourceType {
 
 			case "organization":
-				for _, organization := range organizations {
-					if role.SummaryFields.ResourceId == organization.ID {
-						edges = append(edges, core.GenerateEdge(kind, user.UUID, organization.UUID))
-					}
-				}
+				edge := core.GenerateEdge(kind, user.UUID, organizations[role.SummaryFields.ResourceId].UUID)
+				edges = append(edges, edge)
 			case "inventory":
-				for _, inventory := range inventories {
-					if role.SummaryFields.ResourceId == inventory.ID {
-						edges = append(edges, core.GenerateEdge(kind, user.UUID, inventory.UUID))
-					}
-				}
+				edge := core.GenerateEdge(kind, user.UUID, inventories[role.SummaryFields.ResourceId].UUID)
+				edges = append(edges, edge)
 			case "team":
-				for _, team := range teams {
-					if role.SummaryFields.ResourceId == team.ID {
-						edges = append(edges, core.GenerateEdge(kind, user.UUID, team.UUID))
-					}
-				}
+				edge := core.GenerateEdge(kind, user.UUID, teams[role.SummaryFields.ResourceId].UUID)
+				edges = append(edges, edge)
 			case "credential":
-				for _, credential := range credentials {
-					if role.SummaryFields.ResourceId == credential.ID {
-						edges = append(edges, core.GenerateEdge(kind, user.UUID, credential.UUID))
-					}
-				}
+				edge := core.GenerateEdge(kind, user.UUID, credentials[role.SummaryFields.ResourceId].UUID)
+				edges = append(edges, edge)
 			case "job_template":
-				for _, jobTemplate := range jobTemplates {
-					if role.SummaryFields.ResourceId == jobTemplate.ID {
-						edges = append(edges, core.GenerateEdge(kind, user.UUID, jobTemplate.UUID))
-					}
-				}
+				edge := core.GenerateEdge(kind, user.UUID, jobTemplates[role.SummaryFields.ResourceId].UUID)
+				edges = append(edges, edge)
 			}
 		}
 	}
@@ -301,36 +264,22 @@ func launchGathering(client http.Client, targetUrl *url.URL,
 			switch role.SummaryFields.ResourceType {
 
 			case "organization":
-				for _, organization := range organizations {
-					if role.SummaryFields.ResourceId == organization.ID {
-						edges = append(edges, core.GenerateEdge(kind, team.UUID, organization.UUID))
-					}
-				}
+				edge := core.GenerateEdge(kind, team.UUID, organizations[role.SummaryFields.ResourceId].UUID)
+				edges = append(edges, edge)
 			case "inventory":
-				for _, inventory := range inventories {
-					if role.SummaryFields.ResourceId == inventory.ID {
-						edges = append(edges, core.GenerateEdge(kind, team.UUID, inventory.UUID))
-					}
-				}
-			case "user":
-				for _, user := range users {
-					if role.SummaryFields.ResourceId == user.ID {
-						edges = append(edges, core.GenerateEdge(kind, team.UUID, user.UUID))
-					}
-				}
+				edge := core.GenerateEdge(kind, team.UUID, inventories[role.SummaryFields.ResourceId].UUID)
+				edges = append(edges, edge)
+			case "team":
+				edge := core.GenerateEdge(kind, team.UUID, teams[role.SummaryFields.ResourceId].UUID)
+				edges = append(edges, edge)
 			case "credential":
-				for _, credential := range credentials {
-					if role.SummaryFields.ResourceId == credential.ID {
-						edges = append(edges, core.GenerateEdge(kind, team.UUID, credential.UUID))
-					}
-				}
+				edge := core.GenerateEdge(kind, team.UUID, credentials[role.SummaryFields.ResourceId].UUID)
+				edges = append(edges, edge)
 			case "job_template":
-				for _, jobTemplate := range jobTemplates {
-					if role.SummaryFields.ResourceId == jobTemplate.ID {
-						edges = append(edges, core.GenerateEdge(kind, team.UUID, jobTemplate.UUID))
-					}
-				}
+				edge := core.GenerateEdge(kind, team.UUID, jobTemplates[role.SummaryFields.ResourceId].UUID)
+				edges = append(edges, edge)
 			}
+
 		}
 	}
 

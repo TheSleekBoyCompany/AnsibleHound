@@ -126,17 +126,19 @@ func Gather[T AnsibleType](client http.Client, target url.URL,
 }
 
 func GatherObject[T AnsibleType](client http.Client, target url.URL,
-	token string, endpoint string) ([]T, error) {
+	token string, endpoint string) (objectMap map[int]T, err error) {
+
+	objectMap = make(map[int]T)
 
 	objects, err := Gather[T](client, target, token, endpoint)
 	if err != nil {
-		return []T{}, err
+		return nil, err
 	}
 
 	for _, object := range objects {
 		object.SetUUID(uuid.NewString())
+		objectMap[object.GetID()] = object
 	}
 
-	return objects, nil
-
+	return objectMap, nil
 }
