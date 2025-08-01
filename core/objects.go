@@ -1,6 +1,9 @@
 package core
 
-import "encoding/json"
+import (
+	"encoding/json"
+	"strconv"
+)
 
 type AnsibleTypeList interface {
 	[]User | []Job | []JobTemplate | []Inventory |
@@ -51,6 +54,28 @@ func (u *User) MarshalJSON() ([]byte, error) {
 	return json.MarshalIndent((*user)(u), "", "  ")
 }
 
+func (u *User) ToBHNode() (node Node) {
+	node.Kinds = []string{
+		"ATUser",
+	}
+	node.Id = u.UUID
+	node.Properties = map[string]string{
+		"id":                strconv.Itoa(u.ID),
+		"name":              u.Username,
+		"description":       u.Description,
+		"url":               u.Url,
+		"firstname":         u.FirstName,
+		"lastname":          u.LastName,
+		"email":             u.Email,
+		"is_super_user":     strconv.FormatBool(u.IsSuperUser),
+		"is_system_auditor": strconv.FormatBool(u.IsSystemAuditor),
+		"ldap_dn":           u.LdapDn,
+		"last_login":        u.LastLogin,
+		"external_account":  u.ExternalAccount,
+	}
+	return node
+}
+
 type Team struct {
 	Object
 	Organization int    `json:"organization,omitempty"`
@@ -61,6 +86,23 @@ type Team struct {
 func (u *Team) MarshalJSON() ([]byte, error) {
 	type team Team
 	return json.MarshalIndent((*team)(u), "", "  ")
+}
+
+func (t *Team) ToBHNode() (node Node) {
+	node.Kinds = []string{
+		"ATTeam",
+	}
+	node.Id = t.UUID
+	node.Properties = map[string]string{
+		"id":          strconv.Itoa(t.ID),
+		"name":        t.Name,
+		"description": t.Description,
+		"url":         t.Url,
+		"type":        t.Type,
+		"created":     t.Created,
+		"modified":    t.Modified,
+	}
+	return node
 }
 
 type Role struct {
@@ -91,6 +133,23 @@ type Organization struct {
 func (o Organization) MarshalJSON() ([]byte, error) {
 	type organization Organization
 	return json.MarshalIndent((organization)(o), "", "  ")
+}
+
+func (o *Organization) ToBHNode() (node Node) {
+	node.Kinds = []string{
+		"ATOrganization",
+	}
+	node.Id = o.UUID
+	node.Properties = map[string]string{
+		"id":                  strconv.Itoa(o.ID),
+		"name":                o.Name,
+		"description":         o.Description,
+		"url":                 o.Url,
+		"max_hosts":           strconv.FormatInt(int64(o.MaxHosts), 10),
+		"custom_virtualenv":   o.CustomVirtualenv,
+		"default_environment": strconv.FormatInt(int64(o.DefaultEnvironment), 10),
+	}
+	return node
 }
 
 type JobTemplate struct {
@@ -148,56 +207,171 @@ func (j JobTemplate) MarshalJSON() ([]byte, error) {
 	return json.MarshalIndent((jobTemplate)(j), "", "  ")
 }
 
+func (j *JobTemplate) ToBHNode() (node Node) {
+	node.Kinds = []string{
+		"ATJobTemplate",
+	}
+	node.Id = j.UUID
+	node.Properties = map[string]string{
+		"id":                                  strconv.Itoa(j.ID),
+		"name":                                j.Name,
+		"description":                         j.Description,
+		"url":                                 j.Url,
+		"job_type":                            j.JobType,
+		"project":                             strconv.FormatInt(int64(j.Project), 10),
+		"organization":                        strconv.FormatInt(int64(j.Organization), 10),
+		"playbook":                            j.Playbook,
+		"scm_branch":                          j.SCMBranch,
+		"limit":                               j.Limit,
+		"verbosity":                           strconv.FormatInt(int64(j.Verbosity), 10),
+		"extra_vars":                          j.ExtraVars,
+		"status":                              j.Status,
+		"job_tags":                            j.JobTags,
+		"forks":                               strconv.FormatInt(int64(j.Forks), 10),
+		"skip_tags":                           j.SkipTags,
+		"start_at_task":                       j.StartAtTask,
+		"timeout":                             strconv.FormatInt(int64(j.Timeout), 10),
+		"use_fact_cache":                      strconv.FormatBool(j.UseFactCache),
+		"force_handler":                       strconv.FormatBool(j.ForceHandler),
+		"last_job_run":                        j.LastJobRun,
+		"next_job_run":                        j.NextJobRun,
+		"last_job_failed":                     strconv.FormatBool(j.LastJobFailed),
+		"execution_environment":               strconv.FormatInt(int64(j.ExecutionEnvironment), 10),
+		"host_config_key":                     j.HostConfigKey,
+		"ask_scm_branch_on_launch":            strconv.FormatBool(j.AskScmBranchOnLaunch),
+		"ask_diff_mode_on_launch":             strconv.FormatBool(j.AskDiffModeOnLaunch),
+		"ask_variables_on_launch":             strconv.FormatBool(j.AskVariablesOnLaunch),
+		"ask_limit_on_launch":                 strconv.FormatBool(j.AskLimitOnLaunch),
+		"ask_tags_on_launch":                  strconv.FormatBool(j.AskTagsOnLaunch),
+		"ask_job_type_on_launch":              strconv.FormatBool(j.AskJobTypeOnLaunch),
+		"ask_verbosity_on_launch":             strconv.FormatBool(j.AskVerbosityOnLaunch),
+		"ask_inventory_on_launch":             strconv.FormatBool(j.AskInventoryOnLaunch),
+		"ask_credential_on_launch":            strconv.FormatBool(j.AskCredentialOnLaunch),
+		"ask_execution_environment_on_launch": strconv.FormatBool(j.AskExecutionEnvironmentOnLaunch),
+		"ask_labels_on_launch":                strconv.FormatBool(j.AskLabelsOnLaunch),
+		"ask_forks_on_launch":                 strconv.FormatBool(j.AskForksOnLaunch),
+		"ask_job_slice_count_on_launch":       strconv.FormatBool(j.AskJobSliceCountOnLaunch),
+		"ask_timeout_on_launch":               strconv.FormatBool(j.AskTimeoutOnLaunch),
+		"ask_instance_groups_on_launch":       strconv.FormatBool(j.AskInstanceGroupsOnLaunch),
+		"survey_enabled":                      strconv.FormatBool(j.SurveyEnabled),
+		"become_enabled":                      strconv.FormatBool(j.BecomeEnabled),
+		"diff_mode":                           strconv.FormatBool(j.DiffMode),
+		"allow_simultaneous":                  strconv.FormatBool(j.AllowSimultaneous),
+		"custom_virtualenv":                   j.CustomVirtualenv,
+		"job_slice_count":                     strconv.FormatInt(int64(j.JobSliceCount), 10),
+		"webhook_service":                     j.WebhookService,
+		"webhook_credential":                  strconv.FormatInt(int64(j.WebhookCredential), 10),
+		"prevent_instance_group_fallback":     strconv.FormatBool(j.PreventInstanceGroupFallback),
+	}
+	return node
+}
+
 type Job struct {
 	Object
-	Inventory             int                    `json:"inventory"`
-	Project               int                    `json:"project"`
-	Organization          int                    `json:"organization,omitempty"`
-	Playbook              string                 `json:"playbook"`
-	ScmBranch             string                 `json:"scm_branch,omitempty"`
-	Forks                 int                    `json:"forks,omitempty"`
-	Limit                 string                 `json:"limit,omitempty"`
-	Verbosity             int                    `json:"verbosity,omitempty"`
-	ExtraVars             string                 `json:"extra_vars,omitempty"`
-	Started               string                 `json:"started,omitempty"`
-	Finished              string                 `json:"finished,omitempty"`
-	CanceledOn            string                 `json:"canceled_on,omitempty"`
-	Elapsed               float32                `json:"elapsed,omitempty"`
-	JobExplanation        string                 `json:"job_explanation,omitempty"`
-	Created               string                 `json:"created,omitempty"`
-	Modified              string                 `json:"modified,omitempty"`
-	UnifiedJobTemplate    int                    `json:"unified_job_template"`
-	LaunchType            string                 `json:"launch_type"`
-	Failed                bool                   `json:"failed"`
-	Status                string                 `json:"status,omitempty"`
-	ExecutionEnvironment  int                    `json:"execution_environment,omitempty"`
-	ExecutionNode         string                 `json:"execution_node,omitempty"`
-	ControllerNode        string                 `json:"controller_node,omitempty"`
-	LaunchedBy            map[string]interface{} `json:"launched_by,omitempty"`
-	WorkUnitId            string                 `json:"work_unit_id,omitempty"`
-	JobTags               string                 `json:"job_tags,omitempty"`
-	JobType               string                 `json:"job_type,omitempty"`
-	ForceHandler          bool                   `json:"force_handlers,omitempty"`
-	SkipTags              string                 `json:"skip_tags,omitempty"`
-	StartAtTask           string                 `json:"start_at_task,omitempty"`
-	Timeout               int                    `json:"timeout,omitempty"`
-	UseFactCache          bool                   `json:"use_fact_cache,omitempty"`
-	PasswordNeededToStart string                 `json:"password_needed_to_start,omitempty"`
-	AllowSimultaneous     bool                   `json:"allow_simultaneous,omitempty"`
-	Artifacts             map[string]interface{} `json:"artifacts,omitempty"`
-	ScmRevision           string                 `json:"scm_revision,omitempty"`
-	InstanceGroup         int                    `json:"instance_group,omitempty"`
-	DiffMode              bool                   `json:"diff_mode,omitempty"`
-	JobSliceNumber        int                    `json:"job_slice_number,omitempty"`
-	JobSliceCount         int                    `json:"job_slice_count,omitempty"`
-	WebhookGuid           string                 `json:"webhook_guid,omitempty"`
-	WebhookService        string                 `json:"webhook_service,omitempty"`
-	WebhookCredential     int                    `json:"webhook_credential,omitempty"`
+	Inventory             int            `json:"inventory"`
+	Project               int            `json:"project"`
+	Organization          int            `json:"organization,omitempty"`
+	Playbook              string         `json:"playbook"`
+	ScmBranch             string         `json:"scm_branch,omitempty"`
+	Forks                 int            `json:"forks,omitempty"`
+	Limit                 string         `json:"limit,omitempty"`
+	Verbosity             int            `json:"verbosity,omitempty"`
+	ExtraVars             string         `json:"extra_vars,omitempty"`
+	Started               string         `json:"started,omitempty"`
+	Finished              string         `json:"finished,omitempty"`
+	CanceledOn            string         `json:"canceled_on,omitempty"`
+	Elapsed               float32        `json:"elapsed,omitempty"`
+	JobExplanation        string         `json:"job_explanation,omitempty"`
+	Created               string         `json:"created,omitempty"`
+	Modified              string         `json:"modified,omitempty"`
+	UnifiedJobTemplate    int            `json:"unified_job_template"`
+	LaunchType            string         `json:"launch_type"`
+	Failed                bool           `json:"failed"`
+	Status                string         `json:"status,omitempty"`
+	ExecutionEnvironment  int            `json:"execution_environment,omitempty"`
+	ExecutionNode         string         `json:"execution_node,omitempty"`
+	ControllerNode        string         `json:"controller_node,omitempty"`
+	LaunchedBy            map[string]any `json:"launched_by,omitempty"`
+	WorkUnitId            string         `json:"work_unit_id,omitempty"`
+	JobTags               string         `json:"job_tags,omitempty"`
+	JobType               string         `json:"job_type,omitempty"`
+	ForceHandler          bool           `json:"force_handlers,omitempty"`
+	SkipTags              string         `json:"skip_tags,omitempty"`
+	StartAtTask           string         `json:"start_at_task,omitempty"`
+	Timeout               int            `json:"timeout,omitempty"`
+	UseFactCache          bool           `json:"use_fact_cache,omitempty"`
+	PasswordNeededToStart string         `json:"password_needed_to_start,omitempty"`
+	AllowSimultaneous     bool           `json:"allow_simultaneous,omitempty"`
+	Artifacts             map[string]any `json:"artifacts,omitempty"`
+	ScmRevision           string         `json:"scm_revision,omitempty"`
+	InstanceGroup         int            `json:"instance_group,omitempty"`
+	DiffMode              bool           `json:"diff_mode,omitempty"`
+	JobSliceNumber        int            `json:"job_slice_number,omitempty"`
+	JobSliceCount         int            `json:"job_slice_count,omitempty"`
+	WebhookGuid           string         `json:"webhook_guid,omitempty"`
+	WebhookService        string         `json:"webhook_service,omitempty"`
+	WebhookCredential     int            `json:"webhook_credential,omitempty"`
 }
 
 func (j Job) MarshalJSON() ([]byte, error) {
 	type job Job
 	return json.MarshalIndent((job)(j), "", "  ")
+}
+
+func (j *Job) ToBHNode() (node Node) {
+	node.Kinds = []string{
+		"ATJob",
+	}
+	node.Id = j.UUID
+	node.Properties = map[string]string{
+		"id":                       strconv.FormatInt(int64(j.ID), 10),
+		"name":                     j.Name,
+		"description":              j.Description,
+		"url":                      j.Url,
+		"type":                     j.Type,
+		"created":                  j.Created,
+		"modified":                 j.Modified,
+		"playbook":                 j.Playbook,
+		"scm_branch":               j.ScmBranch,
+		"forks":                    strconv.FormatInt(int64(j.Forks), 10),
+		"limit":                    j.Limit,
+		"verbosity":                strconv.FormatInt(int64(j.Verbosity), 10),
+		"extra_vars":               j.ExtraVars,
+		"started":                  j.Started,
+		"finished":                 j.Finished,
+		"canceled_on":              j.CanceledOn,
+		"elapsed":                  strconv.FormatFloat(float64(j.Elapsed), 'e', 10, 32),
+		"job_explanation":          j.JobExplanation,
+		"launch_type":              j.LaunchType,
+		"unified_job_template":     strconv.FormatInt(int64(j.UnifiedJobTemplate), 10),
+		"organization":             strconv.FormatInt(int64(j.Organization), 10),
+		"inventory":                strconv.FormatInt(int64(j.Inventory), 10),
+		"project":                  strconv.FormatInt(int64(j.Project), 10),
+		"failed":                   strconv.FormatBool(j.Failed),
+		"status":                   j.Status,
+		"execution_environment":    strconv.FormatInt(int64(j.ExecutionEnvironment), 10),
+		"execution_node":           j.ExecutionNode,
+		"controller_node":          j.ControllerNode,
+		"work_unit_id":             j.WorkUnitId,
+		"job_tags":                 j.JobTags,
+		"job_type":                 j.JobType,
+		"force_handler":            strconv.FormatBool(j.ForceHandler),
+		"skip_tags":                j.SkipTags,
+		"start_at_task":            j.StartAtTask,
+		"timeout":                  strconv.FormatInt(int64(j.Timeout), 10),
+		"use_fact_cache":           strconv.FormatBool(j.UseFactCache),
+		"password_needed_to_start": j.PasswordNeededToStart,
+		"allow_simultaneous":       strconv.FormatBool(j.AllowSimultaneous),
+		"scm_revision":             j.ScmRevision,
+		"instance_group":           strconv.FormatInt(int64(j.InstanceGroup), 10),
+		"diff_mode":                strconv.FormatBool(j.DiffMode),
+		"job_slice_number":         strconv.FormatInt(int64(j.JobSliceNumber), 10),
+		"job_slice_count":          strconv.FormatInt(int64(j.JobSliceCount), 10),
+		"webhook_guid":             j.WebhookGuid,
+		"webhook_service":          j.WebhookService,
+		"webhook_credential":       strconv.FormatInt(int64(j.WebhookCredential), 10),
+	}
+	return node
 }
 
 type Project struct {
@@ -233,6 +407,44 @@ func (p Project) MarshalJSON() ([]byte, error) {
 	return json.MarshalIndent((project)(p), "", "  ")
 }
 
+func (p *Project) ToBHNode() (node Node) {
+	node.Kinds = []string{
+		"ATProject",
+	}
+	node.Id = p.UUID
+	node.Properties = map[string]string{
+		"id":                              strconv.Itoa(p.ID),
+		"name":                            p.Name,
+		"description":                     p.Description,
+		"url":                             p.Url,
+		"organization":                    strconv.FormatInt(int64(p.Organization), 10),
+		"credential":                      strconv.FormatInt(int64(p.Credential), 10),
+		"timeout":                         strconv.FormatInt(int64(p.Timeout), 10),
+		"status":                          p.Status,
+		"local_path":                      p.LocalPath,
+		"scm_type":                        p.ScmType,
+		"scm_url":                         p.ScmUrl,
+		"scm_branch":                      p.ScmBranch,
+		"scm_ref_spec":                    p.ScmRefSpec,
+		"scm_clean":                       strconv.FormatBool(p.ScmClean),
+		"scm_track_submodules":            strconv.FormatBool(p.ScmTrackSubmodules),
+		"scm_delete_on_update":            strconv.FormatBool(p.ScmDeleteOnUpdate),
+		"scm_revision":                    p.ScmRevision,
+		"last_job_run":                    p.LastJobRun,
+		"next_job_run":                    p.NextJobRun,
+		"last_job_failed":                 strconv.FormatBool(p.LastJobFailed),
+		"scm_update_on_launch":            strconv.FormatBool(p.ScmUpdateOnLaunch),
+		"scm_update_cache_timeout":        strconv.FormatInt(int64(p.ScmUpdateCacheTimeout), 10),
+		"allow_override":                  strconv.FormatBool(p.AllowOverride),
+		"custom_virtualenv":               p.CustomVirtualenv,
+		"default_environment":             strconv.FormatInt(int64(p.DefaultEnvironment), 10),
+		"signature_validation_credential": strconv.FormatInt(int64(p.SignatureValidationCredential), 10),
+		"last_update_failed":              strconv.FormatBool(p.LastUpdateFailed),
+		"last_update":                     p.LastUpdate,
+	}
+	return node
+}
+
 type Credential struct {
 	Object
 	Organization   int            `json:"organization"`
@@ -247,6 +459,25 @@ type Credential struct {
 func (c Credential) MarshalJSON() ([]byte, error) {
 	type credential Credential
 	return json.MarshalIndent((credential)(c), "", "  ")
+}
+
+func (c *Credential) ToBHNode() (node Node) {
+	node.Kinds = []string{
+		"ATCredential",
+	}
+	node.Id = c.UUID
+	node.Properties = map[string]string{
+		"id":              strconv.Itoa(c.ID),
+		"name":            c.Name,
+		"description":     c.Description,
+		"url":             c.Url,
+		"organization":    strconv.FormatInt(int64(c.Organization), 10),
+		"credential_type": strconv.FormatInt(int64(c.CredentialType), 10),
+		"managed":         strconv.FormatBool(c.Managed),
+		"cloud":           strconv.FormatBool(c.Cloud),
+		"kubernetes":      strconv.FormatBool(c.Kubernetes),
+	}
+	return node
 }
 
 type Inventory struct {
@@ -271,6 +502,30 @@ func (i Inventory) MarshalJSON() ([]byte, error) {
 	return json.MarshalIndent((inventory)(i), "", "  ")
 }
 
+func (i *Inventory) ToBHNode() (node Node) {
+	node.Id = i.UUID
+	node.Kinds = []string{"ATInventory"}
+	node.Properties = map[string]string{
+		"id":                              strconv.FormatInt(int64(i.ID), 10),
+		"name":                            i.Name,
+		"description":                     i.Description,
+		"url":                             i.Url,
+		"organization":                    strconv.FormatInt(int64(i.Organization), 10),
+		"kind":                            i.Kind,
+		"host_filter":                     i.HostFilter,
+		"has_active_failures":             strconv.FormatBool(i.HasActiveFailures),
+		"has_inventory_source":            strconv.FormatBool(i.HasInventorySources),
+		"total_hosts":                     strconv.FormatInt(int64(i.TotalHosts), 10),
+		"hosts_with_active_failures":      strconv.FormatInt(int64(i.HostsWithActiveFailures), 10),
+		"total_groups":                    strconv.FormatInt(int64(i.TotalGroups), 10),
+		"total_inventory_sources":         strconv.FormatInt(int64(i.TotalInventorySources), 10),
+		"inventory_sources_with_failures": strconv.FormatInt(int64(i.InventorySourcesWithFailures), 10),
+		"pending_deletion":                strconv.FormatBool(i.PendingDeletion),
+		"prevent_instance_group_fallback": strconv.FormatBool(i.PreventInstanceGroupFallback),
+	}
+	return node
+}
+
 type Host struct {
 	Object
 	Inventory            int    `json:"inventory,omitempty"`
@@ -286,6 +541,31 @@ type Host struct {
 func (i Host) MarshalJSON() ([]byte, error) {
 	type host Host
 	return json.MarshalIndent((host)(i), "", "  ")
+}
+
+func (h *Host) ToBHNode() (node Node) {
+	node.Kinds = []string{
+		"ATHost",
+	}
+	node.Id = h.UUID
+	node.Properties = map[string]string{
+		"id":                     strconv.Itoa(h.ID),
+		"name":                   h.Name,
+		"description":            h.Description,
+		"url":                    h.Url,
+		"type":                   h.Type,
+		"created":                h.Created,
+		"modified":               h.Modified,
+		"inventory":              strconv.FormatInt(int64(h.Inventory), 10),
+		"enabled":                strconv.FormatBool(h.Enabled),
+		"instance_id":            h.InstanceId,
+		"variables":              h.Variables,
+		"has_active_failures":    strconv.FormatBool(h.HasActiveFailures),
+		"last_job":               strconv.FormatInt(int64(h.LastJob), 10),
+		"last_job_host_summary":  strconv.FormatInt(int64(h.LastJobHostSummary), 10),
+		"ansible_facts_modified": h.AnsibleFactsModified,
+	}
+	return node
 }
 
 // -- Future proofing, curernt RBAC APIs has been deprecated, it will eventually switch to these APIs --
