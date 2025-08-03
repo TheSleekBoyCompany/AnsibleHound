@@ -1,6 +1,7 @@
 package core
 
 import (
+	"crypto/tls"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -10,11 +11,18 @@ import (
 	"github.com/google/uuid"
 )
 
-func InitClient(proxyURL *url.URL) http.Client {
+func InitClient(proxyURL *url.URL, skipVerifySSL bool) http.Client {
 	// Returns a client configured for the gatherer.
 	// For now, this only configures the Proxy, might be useful to handle SSL verification too.
 
 	transport := &http.Transport{}
+
+	if skipVerifySSL {
+		TLSClientConfig := &tls.Config{
+			InsecureSkipVerify: true,
+		}
+		transport.TLSClientConfig = TLSClientConfig
+	}
 
 	if proxyURL != nil {
 		transport.Proxy = http.ProxyURL(proxyURL)

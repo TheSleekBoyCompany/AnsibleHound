@@ -330,6 +330,8 @@ var ingestCmd = &cobra.Command{
 			os.Exit(1)
 		}
 
+		skipVerifySSL, _ := cmd.Flags().GetBool("skip-verify-ssl")
+
 		var proxyURL *url.URL
 		proxy, _ := cmd.Flags().GetString("proxy")
 		if proxy != "" {
@@ -340,7 +342,7 @@ var ingestCmd = &cobra.Command{
 			}
 		}
 
-		client := core.InitClient(proxyURL)
+		client := core.InitClient(proxyURL, skipVerifySSL)
 
 		launchGathering(client, targetUrl, token, outdir)
 
@@ -358,6 +360,7 @@ func main() {
 	ingestCmd.Flags().StringP("proxy", "p", "", "(optional) Configure HTTP/HTTPS proxy.")
 	ingestCmd.Flags().StringP("outdir", "", "", "(optional) Output directory for the json files.")
 	ingestCmd.Flags().BoolP("verbose", "v", false, "(optional) Enable debug logs.")
+	ingestCmd.Flags().BoolP("skip-verify-ssl", "k", false, "(optional) Skips SSL/TLS verification.")
 
 	if err := ingestCmd.Execute(); err != nil {
 		msg := fmt.Sprintf("CLI error: %v\n", err)
