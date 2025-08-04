@@ -18,7 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Moved `ToBHNode` to the objects themselves and now uses an interface to interact with it.
 - Remodeled the object system to enable better code patterns.
-- Changed Data Structure to handle nodes and edge from []AnsibleType to map[int]AnsibleType to enable direct mapping using the Ansible ID.
+- Changed Data Structure to handle nodes and edge from `[]AnsibleType` to `map[int]AnsibleType` to enable direct mapping using the Ansible ID.
 - Renamed Edge generation function.
 - OID for nodes is now based on the following data: `sha1(INSTALL_UUID + ID + RESOURCE_TYPE)`, allowing reproducible OIDs that stay different between Ansible instances.
 
