@@ -148,3 +148,15 @@ func GatherObject[T AnsibleType](client http.Client, target url.URL,
 
 	return objectMap, nil
 }
+
+func HasAccessTo[T AnsibleType](objectMap map[int]T, ID int) (result bool) {
+	// TODO: If ID = 0, then the resource is not bound to a resource of this type.
+	// EX: A Credential can exist without being bound to an Organization.
+	// This might also mean a resource is used, but your user cannot read it.
+	if ID != 0 {
+		if _, ok := objectMap[ID]; ok {
+			result = true
+		}
+	}
+	return result
+}

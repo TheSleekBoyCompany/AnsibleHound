@@ -40,6 +40,7 @@ func (o Object) GetID() (id int) {
 	return o.ID
 }
 
+// TODO: Find a way to specify the Tower Host in the OID.
 func (o *Object) InitOID() {
 	data := strconv.Itoa(o.ID) + o.Type
 	hasher := sha1.New()
