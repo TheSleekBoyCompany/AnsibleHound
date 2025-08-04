@@ -1,6 +1,8 @@
 package core
 
 import (
+	"crypto/sha1"
+	"encoding/hex"
 	"encoding/json"
 	"strconv"
 )
@@ -14,13 +16,13 @@ type AnsibleTypeList interface {
 
 type AnsibleType interface {
 	GetID() int
-	GetUUID() string
-	SetUUID(string)
+	GetOID() string
+	InitOID()
 	ToBHNode() Node
 }
 
 type Object struct {
-	UUID        string `json:"uuid,omitempty"`
+	OID         string `json:"uuid,omitempty"`
 	ID          int    `json:"id"`
 	Name        string `json:"name"`
 	Description string `json:"description,omitempty"`
@@ -30,16 +32,20 @@ type Object struct {
 	Modified    string `json:"modified,omitempty"`
 }
 
-func (o Object) GetUUID() (uuid string) {
-	return o.UUID
+func (o Object) GetOID() (uuid string) {
+	return o.OID
 }
 
 func (o Object) GetID() (id int) {
 	return o.ID
 }
 
-func (o *Object) SetUUID(uuid string) {
-	o.UUID = uuid
+func (o *Object) InitOID() {
+	data := strconv.Itoa(o.ID) + o.Type
+	hasher := sha1.New()
+	hasher.Write([]byte(data))
+	hashBytes := hasher.Sum(nil)
+	o.OID = hex.EncodeToString(hashBytes)
 }
 
 type Response[T any] struct {
@@ -70,7 +76,7 @@ func (u *User) ToBHNode() (node Node) {
 	node.Kinds = []string{
 		"ATUser",
 	}
-	node.Id = u.UUID
+	node.Id = u.OID
 	node.Properties = map[string]string{
 		"id":                strconv.Itoa(u.ID),
 		"name":              u.Username,
@@ -104,7 +110,7 @@ func (t *Team) ToBHNode() (node Node) {
 	node.Kinds = []string{
 		"ATTeam",
 	}
-	node.Id = t.UUID
+	node.Id = t.OID
 	node.Properties = map[string]string{
 		"id":          strconv.Itoa(t.ID),
 		"name":        t.Name,
@@ -155,7 +161,7 @@ func (o *Organization) ToBHNode() (node Node) {
 	node.Kinds = []string{
 		"ATOrganization",
 	}
-	node.Id = o.UUID
+	node.Id = o.OID
 	node.Properties = map[string]string{
 		"id":                  strconv.Itoa(o.ID),
 		"name":                o.Name,
@@ -170,52 +176,53 @@ func (o *Organization) ToBHNode() (node Node) {
 
 type JobTemplate struct {
 	Object
-	JobType                         string `json:"job_type"`
-	Inventory                       int    `json:"inventory"`
-	Project                         int    `json:"project"`
-	Organization                    int    `json:"organization,omitempty"`
-	Playbook                        string `json:"playbook"`
-	SCMBranch                       string `json:"scm_branch,omitempty"`
-	Limit                           string `json:"limit"`
-	Verbosity                       int    `json:"verbosity"`
-	ExtraVars                       string `json:"extra_vars"`
-	Status                          string `json:"status,omitempty"`
-	JobTags                         string `json:"job_tags,omitempty"`
-	Forks                           int    `json:"forks"`
-	SkipTags                        string `json:"skip_tags,omitempty"`
-	StartAtTask                     string `json:"start_at_task,omitempty"`
-	Timeout                         int    `json:"timeout,omitempty"`
-	UseFactCache                    bool   `json:"use_fact_cache,omitempty"`
-	ForceHandler                    bool   `json:"force_handlers,omitempty"`
-	LastJobRun                      string `json:"last_job_run,omitempty"`
-	NextJobRun                      string `json:"next_job_run,omitempty"`
-	LastJobFailed                   bool   `json:"last_job_failed,omitempty"`
-	ExecutionEnvironment            int    `json:"execution_environment,omitempty"`
-	HostConfigKey                   string `json:"host_config_key,omitempty"`
-	AskScmBranchOnLaunch            bool   `json:"ask_scm_branch_on_launch,omitempty"`
-	AskDiffModeOnLaunch             bool   `json:"ask_diff_mode_on_launch,omitempty"`
-	AskVariablesOnLaunch            bool   `json:"ask_variables_on_launch,omitempty"`
-	AskLimitOnLaunch                bool   `json:"ask_limit_on_launch,omitempty"`
-	AskTagsOnLaunch                 bool   `json:"ask_tags_on_launch,omitempty"`
-	AskJobTypeOnLaunch              bool   `json:"ask_job_type_on_launch,omitempty"`
-	AskVerbosityOnLaunch            bool   `json:"ask_verbosity_on_launch,omitempty"`
-	AskInventoryOnLaunch            bool   `json:"ask_inventory_on_launch,omitempty"`
-	AskCredentialOnLaunch           bool   `json:"ask_credential_on_launch,omitempty"`
-	AskExecutionEnvironmentOnLaunch bool   `json:"ask_execution_environment_on_launch,omitempty"`
-	AskLabelsOnLaunch               bool   `json:"ask_labels_on_launch,omitempty"`
-	AskForksOnLaunch                bool   `json:"ask_forks_on_launch,omitempty"`
-	AskJobSliceCountOnLaunch        bool   `json:"ask_job_slice_count_on_launch,omitempty"`
-	AskTimeoutOnLaunch              bool   `json:"ask_timeout_on_launch,omitempty"`
-	AskInstanceGroupsOnLaunch       bool   `json:"ask_instance_groups_on_launch,omitempty"`
-	SurveyEnabled                   bool   `json:"survey_enabled,omitempty"`
-	BecomeEnabled                   bool   `json:"become_enabled,omitempty"`
-	DiffMode                        bool   `json:"diff_mode,omitempty"`
-	AllowSimultaneous               bool   `json:"allow_simultaneous,omitempty"`
-	CustomVirtualenv                string `json:"custom_virtualenv,omitempty"`
-	JobSliceCount                   int    `json:"job_slice_count,omitempty"`
-	WebhookService                  string `json:"webhook_service,omitempty"`
-	WebhookCredential               int    `json:"webhook_credential,omitempty"`
-	PreventInstanceGroupFallback    bool   `json:"prevent_instance_group_fallback,omitempty"`
+	JobType                         string              `json:"job_type"`
+	Inventory                       int                 `json:"inventory"`
+	Project                         int                 `json:"project"`
+	Organization                    int                 `json:"organization,omitempty"`
+	Playbook                        string              `json:"playbook"`
+	SCMBranch                       string              `json:"scm_branch,omitempty"`
+	Limit                           string              `json:"limit"`
+	Verbosity                       int                 `json:"verbosity"`
+	Credentials                     map[int]*Credential `json:"credentials"`
+	ExtraVars                       string              `json:"extra_vars"`
+	Status                          string              `json:"status,omitempty"`
+	JobTags                         string              `json:"job_tags,omitempty"`
+	Forks                           int                 `json:"forks"`
+	SkipTags                        string              `json:"skip_tags,omitempty"`
+	StartAtTask                     string              `json:"start_at_task,omitempty"`
+	Timeout                         int                 `json:"timeout,omitempty"`
+	UseFactCache                    bool                `json:"use_fact_cache,omitempty"`
+	ForceHandler                    bool                `json:"force_handlers,omitempty"`
+	LastJobRun                      string              `json:"last_job_run,omitempty"`
+	NextJobRun                      string              `json:"next_job_run,omitempty"`
+	LastJobFailed                   bool                `json:"last_job_failed,omitempty"`
+	ExecutionEnvironment            int                 `json:"execution_environment,omitempty"`
+	HostConfigKey                   string              `json:"host_config_key,omitempty"`
+	AskScmBranchOnLaunch            bool                `json:"ask_scm_branch_on_launch,omitempty"`
+	AskDiffModeOnLaunch             bool                `json:"ask_diff_mode_on_launch,omitempty"`
+	AskVariablesOnLaunch            bool                `json:"ask_variables_on_launch,omitempty"`
+	AskLimitOnLaunch                bool                `json:"ask_limit_on_launch,omitempty"`
+	AskTagsOnLaunch                 bool                `json:"ask_tags_on_launch,omitempty"`
+	AskJobTypeOnLaunch              bool                `json:"ask_job_type_on_launch,omitempty"`
+	AskVerbosityOnLaunch            bool                `json:"ask_verbosity_on_launch,omitempty"`
+	AskInventoryOnLaunch            bool                `json:"ask_inventory_on_launch,omitempty"`
+	AskCredentialOnLaunch           bool                `json:"ask_credential_on_launch,omitempty"`
+	AskExecutionEnvironmentOnLaunch bool                `json:"ask_execution_environment_on_launch,omitempty"`
+	AskLabelsOnLaunch               bool                `json:"ask_labels_on_launch,omitempty"`
+	AskForksOnLaunch                bool                `json:"ask_forks_on_launch,omitempty"`
+	AskJobSliceCountOnLaunch        bool                `json:"ask_job_slice_count_on_launch,omitempty"`
+	AskTimeoutOnLaunch              bool                `json:"ask_timeout_on_launch,omitempty"`
+	AskInstanceGroupsOnLaunch       bool                `json:"ask_instance_groups_on_launch,omitempty"`
+	SurveyEnabled                   bool                `json:"survey_enabled,omitempty"`
+	BecomeEnabled                   bool                `json:"become_enabled,omitempty"`
+	DiffMode                        bool                `json:"diff_mode,omitempty"`
+	AllowSimultaneous               bool                `json:"allow_simultaneous,omitempty"`
+	CustomVirtualenv                string              `json:"custom_virtualenv,omitempty"`
+	JobSliceCount                   int                 `json:"job_slice_count,omitempty"`
+	WebhookService                  string              `json:"webhook_service,omitempty"`
+	WebhookCredential               int                 `json:"webhook_credential,omitempty"`
+	PreventInstanceGroupFallback    bool                `json:"prevent_instance_group_fallback,omitempty"`
 }
 
 func (j JobTemplate) MarshalJSON() ([]byte, error) {
@@ -227,7 +234,7 @@ func (j *JobTemplate) ToBHNode() (node Node) {
 	node.Kinds = []string{
 		"ATJobTemplate",
 	}
-	node.Id = j.UUID
+	node.Id = j.OID
 	node.Properties = map[string]string{
 		"id":                                  strconv.Itoa(j.ID),
 		"name":                                j.Name,
@@ -338,7 +345,7 @@ func (j *Job) ToBHNode() (node Node) {
 	node.Kinds = []string{
 		"ATJob",
 	}
-	node.Id = j.UUID
+	node.Id = j.OID
 	node.Properties = map[string]string{
 		"id":                       strconv.FormatInt(int64(j.ID), 10),
 		"name":                     j.Name,
@@ -427,7 +434,7 @@ func (p *Project) ToBHNode() (node Node) {
 	node.Kinds = []string{
 		"ATProject",
 	}
-	node.Id = p.UUID
+	node.Id = p.OID
 	node.Properties = map[string]string{
 		"id":                              strconv.Itoa(p.ID),
 		"name":                            p.Name,
@@ -481,7 +488,7 @@ func (c *Credential) ToBHNode() (node Node) {
 	node.Kinds = []string{
 		"ATCredential",
 	}
-	node.Id = c.UUID
+	node.Id = c.OID
 	node.Properties = map[string]string{
 		"id":              strconv.Itoa(c.ID),
 		"name":            c.Name,
@@ -519,7 +526,7 @@ func (i Inventory) MarshalJSON() ([]byte, error) {
 }
 
 func (i *Inventory) ToBHNode() (node Node) {
-	node.Id = i.UUID
+	node.Id = i.OID
 	node.Kinds = []string{"ATInventory"}
 	node.Properties = map[string]string{
 		"id":                              strconv.FormatInt(int64(i.ID), 10),
@@ -563,7 +570,7 @@ func (h *Host) ToBHNode() (node Node) {
 	node.Kinds = []string{
 		"ATHost",
 	}
-	node.Id = h.UUID
+	node.Id = h.OID
 	node.Properties = map[string]string{
 		"id":                     strconv.Itoa(h.ID),
 		"name":                   h.Name,

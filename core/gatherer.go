@@ -7,8 +7,6 @@ import (
 	"io"
 	"net/http"
 	"net/url"
-
-	"github.com/google/uuid"
 )
 
 func InitClient(proxyURL *url.URL, skipVerifySSL bool) http.Client {
@@ -144,7 +142,7 @@ func GatherObject[T AnsibleType](client http.Client, target url.URL,
 	}
 
 	for _, object := range objects {
-		object.SetUUID(uuid.NewString())
+		object.InitOID()
 		objectMap[object.GetID()] = object
 	}
 
