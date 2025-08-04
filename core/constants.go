@@ -18,6 +18,7 @@ const TEAMS_ENDPOINT = API_ENDPOINT + "teams/"
 const TEAM_ROLES_ENDPOINT = API_ENDPOINT + "teams/%d/roles/"
 const TEAM_USERS_ENDPOINT = API_ENDPOINT + "teams/%d/users/"
 const JOB_TEMPLATE_CREDENTIALS_ENDPOINT = API_ENDPOINT + "job_templates/%d/credentials/"
+const PING_ENDPOINT = API_ENDPOINT + "ping"
 const PAGE_SIZE = 200
 
 var PAGE_SIZE_ARG = fmt.Sprintf("?page_size=%d", PAGE_SIZE)

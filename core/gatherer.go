@@ -131,8 +131,9 @@ func Gather[T AnsibleType](client http.Client, target url.URL,
 
 }
 
-func GatherObject[T AnsibleType](client http.Client, target url.URL,
-	token string, endpoint string) (objectMap map[int]T, err error) {
+func GatherObject[T AnsibleType](instance AnsibleInstance, client http.Client,
+	target url.URL, token string, endpoint string) (
+	objectMap map[int]T, err error) {
 
 	objectMap = make(map[int]T)
 
@@ -142,15 +143,44 @@ func GatherObject[T AnsibleType](client http.Client, target url.URL,
 	}
 
 	for _, object := range objects {
-		object.InitOID()
+		object.InitOID(instance)
 		objectMap[object.GetID()] = object
 	}
 
 	return objectMap, nil
 }
 
+func GatherAnsibleInstance(client http.Client, target url.URL) (instance AnsibleInstance, err error) {
+
+	url := target.String() + PING_ENDPOINT
+
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		return instance, err
+	}
+
+	resp, err := client.Do(req)
+	if err != nil {
+		return instance, err
+	}
+	defer resp.Body.Close()
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return instance, err
+	}
+
+	err = json.Unmarshal(body, &instance)
+	if err != nil {
+		return instance, err
+	}
+
+	return instance, nil
+
+}
+
 func HasAccessTo[T AnsibleType](objectMap map[int]T, ID int) (result bool) {
-	// TODO: If ID = 0, then the resource is not bound to a resource of this type.
+	// NOTE: If ID = 0, then the resource is not bound to a resource of this type.
 	// EX: A Credential can exist without being bound to an Organization.
 	// This might also mean a resource is used, but your user cannot read it.
 	if ID != 0 {

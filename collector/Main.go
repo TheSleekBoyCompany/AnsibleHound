@@ -26,11 +26,19 @@ func launchGathering(client http.Client, targetUrl *url.URL,
 	nodes := []core.Node{}
 	edges := []core.Edge{}
 
+	// -- Gathering Ansible Instance information --
+
+	log.Info("Gathering Ansible Worx/Tower instance information.")
+	instance, err := core.GatherAnsibleInstance(client, *targetUrl)
+	if err != nil {
+		log.Fatalf("Unable to gather Ansible WorX/Tower information (%s).", targetUrl)
+	}
+
 	// -- Gathering all nodes --
 
 	log.Info("Gathering Users.")
 	users, err := core.GatherObject[*core.User](
-		client, *targetUrl, token, core.USERS_ENDPOINT,
+		instance, client, *targetUrl, token, core.USERS_ENDPOINT,
 	)
 	if err != nil {
 		log.Error("An error occured while gathering Users, skipping.")
@@ -40,7 +48,8 @@ func launchGathering(client http.Client, targetUrl *url.URL,
 	log.Info("Gathering User Roles.")
 	for i, user := range users {
 		userRolesEndpoint := fmt.Sprintf(core.USER_ROLES_ENDPOINT, user.ID)
-		roles, err := core.GatherObject[*core.Role](client, *targetUrl, token, userRolesEndpoint)
+		roles, err := core.GatherObject[*core.Role](
+			instance, client, *targetUrl, token, userRolesEndpoint)
 		if err != nil {
 			log.Error("An error occured while gathering Team Roles.")
 			log.Error(err)
@@ -54,7 +63,7 @@ func launchGathering(client http.Client, targetUrl *url.URL,
 
 	log.Info("Gathering Hosts.")
 	hosts, err := core.GatherObject[*core.Host](
-		client, *targetUrl, token, core.HOSTS_ENDPOINT,
+		instance, client, *targetUrl, token, core.HOSTS_ENDPOINT,
 	)
 	if err != nil {
 		log.Error("An error occured while gathering Users, skipping.")
@@ -65,7 +74,7 @@ func launchGathering(client http.Client, targetUrl *url.URL,
 
 	log.Info("Gathering Jobs.")
 	jobs, err := core.GatherObject[*core.Job](
-		client, *targetUrl, token, core.JOBS_ENDPOINT,
+		instance, client, *targetUrl, token, core.JOBS_ENDPOINT,
 	)
 	if err != nil {
 		log.Error("An error occured while gathering jobs, skipping.")
@@ -76,7 +85,7 @@ func launchGathering(client http.Client, targetUrl *url.URL,
 
 	log.Info("Gathering Job Templates.")
 	jobTemplates, err := core.GatherObject[*core.JobTemplate](
-		client, *targetUrl, token, core.JOB_TEMPLATE_ENDPOINT,
+		instance, client, *targetUrl, token, core.JOB_TEMPLATE_ENDPOINT,
 	)
 	if err != nil {
 		log.Error("An error occured while gathering jobs, skipping.")
@@ -88,7 +97,7 @@ func launchGathering(client http.Client, targetUrl *url.URL,
 		jobTemplatesCredentialsEndpoint := fmt.Sprintf(core.
 			JOB_TEMPLATE_CREDENTIALS_ENDPOINT, jobTemplate.ID)
 		credentials, err := core.GatherObject[*core.Credential](
-			client, *targetUrl, token, jobTemplatesCredentialsEndpoint,
+			instance, client, *targetUrl, token, jobTemplatesCredentialsEndpoint,
 		)
 		if err != nil {
 			log.Error("An error occured while gathering Team Roles.")
@@ -104,7 +113,7 @@ func launchGathering(client http.Client, targetUrl *url.URL,
 
 	log.Info("Gathering Inventories.")
 	inventories, err := core.GatherObject[*core.Inventory](
-		client, *targetUrl, token, core.INVENTORIES_ENDPOINT,
+		instance, client, *targetUrl, token, core.INVENTORIES_ENDPOINT,
 	)
 	if err != nil {
 		log.Error("An error occured while gathering jobs, skipping.")
@@ -115,7 +124,7 @@ func launchGathering(client http.Client, targetUrl *url.URL,
 
 	log.Info("Gathering Organizations.")
 	organizations, err := core.GatherObject[*core.Organization](
-		client, *targetUrl, token, core.ORGANIZATIONS_ENDPOINT,
+		instance, client, *targetUrl, token, core.ORGANIZATIONS_ENDPOINT,
 	)
 	if err != nil {
 		log.Error("An error occured while gathering jobs, skipping.")
@@ -126,7 +135,7 @@ func launchGathering(client http.Client, targetUrl *url.URL,
 
 	log.Info("Gathering Credentials.")
 	credentials, err := core.GatherObject[*core.Credential](
-		client, *targetUrl, token, core.CREDENTIALS_ENDPOINT,
+		instance, client, *targetUrl, token, core.CREDENTIALS_ENDPOINT,
 	)
 	if err != nil {
 		log.Error("An error occured while gathering jobs, skipping.")
@@ -137,7 +146,7 @@ func launchGathering(client http.Client, targetUrl *url.URL,
 
 	log.Info("Gathering Projects.")
 	projects, err := core.GatherObject[*core.Project](
-		client, *targetUrl, token, core.PROJECTS_ENDPOINT,
+		instance, client, *targetUrl, token, core.PROJECTS_ENDPOINT,
 	)
 	if err != nil {
 		log.Error("An error occured while gathering jobs, skipping.")
@@ -148,7 +157,7 @@ func launchGathering(client http.Client, targetUrl *url.URL,
 
 	log.Info("Gathering Teams.")
 	teams, err := core.GatherObject[*core.Team](
-		client, *targetUrl, token, core.TEAMS_ENDPOINT,
+		instance, client, *targetUrl, token, core.TEAMS_ENDPOINT,
 	)
 	if err != nil {
 		log.Error("An error occured while gathering Teams, skipping.")
@@ -160,7 +169,7 @@ func launchGathering(client http.Client, targetUrl *url.URL,
 
 		teamRolesEndpoint := fmt.Sprintf(core.TEAM_ROLES_ENDPOINT, team.ID)
 		roles, err := core.GatherObject[*core.Role](
-			client, *targetUrl, token, teamRolesEndpoint,
+			instance, client, *targetUrl, token, teamRolesEndpoint,
 		)
 		if err != nil {
 			log.Error("An error occured while gathering Team Roles.")
@@ -170,7 +179,7 @@ func launchGathering(client http.Client, targetUrl *url.URL,
 
 		teamMembersEndpoint := fmt.Sprintf(core.TEAM_USERS_ENDPOINT, team.ID)
 		members, err := core.GatherObject[*core.User](
-			client, *targetUrl, token, teamMembersEndpoint,
+			instance, client, *targetUrl, token, teamMembersEndpoint,
 		)
 		if err != nil {
 			log.Error("An error occured while gathering Team Members.")
@@ -371,8 +380,7 @@ var ingestCmd = &cobra.Command{
 
 		token, _ := cmd.Flags().GetString("token")
 		if token == "" {
-			log.Error("Empty token provided.")
-			os.Exit(1)
+			log.Fatal("Empty token provided.")
 		}
 
 		verbose, _ := cmd.Flags().GetBool("verbose")
@@ -382,14 +390,12 @@ var ingestCmd = &cobra.Command{
 
 		target, _ := cmd.Flags().GetString("target")
 		if target == "" {
-			log.Error("Empty target provided.")
-			os.Exit(1)
+			log.Fatal("Empty target provided.")
 		}
 
 		targetUrl, err := url.Parse(target)
 		if err != nil {
-			log.Error("Invalid target URL specified.\n%s", err)
-			os.Exit(1)
+			log.Fatal("Invalid target URL specified.\n%s", err)
 		}
 
 		skipVerifySSL, _ := cmd.Flags().GetBool("skip-verify-ssl")
@@ -399,8 +405,7 @@ var ingestCmd = &cobra.Command{
 		if proxy != "" {
 			proxyURL, err = url.Parse(proxy)
 			if err != nil {
-				log.Errorf("Invalid proxy URL specified.\n%s", err)
-				os.Exit(1)
+				log.Fatalf("Invalid proxy URL specified.\n%s", err)
 			}
 		}
 

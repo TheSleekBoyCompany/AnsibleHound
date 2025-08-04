@@ -4,8 +4,11 @@ import (
 	"crypto/sha1"
 	"encoding/hex"
 	"encoding/json"
+	"fmt"
 	"strconv"
 )
+
+var Instance AnsibleInstance
 
 type AnsibleTypeList interface {
 	[]*User | []*Job | []*JobTemplate | []*Inventory |
@@ -17,8 +20,14 @@ type AnsibleTypeList interface {
 type AnsibleType interface {
 	GetID() int
 	GetOID() string
-	InitOID()
+	InitOID(AnsibleInstance)
 	ToBHNode() Node
+}
+
+type AnsibleInstance struct {
+	Version     string `json:"version"`
+	ActiveNode  string `json:"active_node"`
+	InstallUUID string `json:"install_uuid"`
 }
 
 type Object struct {
@@ -40,9 +49,8 @@ func (o Object) GetID() (id int) {
 	return o.ID
 }
 
-// TODO: Find a way to specify the Tower Host in the OID.
-func (o *Object) InitOID() {
-	data := strconv.Itoa(o.ID) + o.Type
+func (o *Object) InitOID(instance AnsibleInstance) {
+	data := fmt.Sprintf("%s_%s_%s", instance.InstallUUID, strconv.Itoa(o.ID), o.Type)
 	hasher := sha1.New()
 	hasher.Write([]byte(data))
 	hashBytes := hasher.Sum(nil)
