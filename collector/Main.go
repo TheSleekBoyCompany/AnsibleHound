@@ -15,8 +15,6 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// TODO: Implement some map[int]AnsibleType object, allowing to instantly find the right ID.
-
 func launchGathering(client http.Client, targetUrl *url.URL,
 	token string, outdir string) {
 
@@ -28,11 +26,19 @@ func launchGathering(client http.Client, targetUrl *url.URL,
 	nodes := []core.Node{}
 	edges := []core.Edge{}
 
+	// -- Gathering Ansible Instance information --
+
+	log.Info("Gathering Ansible Worx/Tower instance information.")
+	instance, err := core.GatherAnsibleInstance(client, *targetUrl)
+	if err != nil {
+		log.Fatalf("Unable to gather Ansible WorX/Tower information (%s).", targetUrl)
+	}
+
 	// -- Gathering all nodes --
 
 	log.Info("Gathering Users.")
-	users, err := core.GatherObject[core.User](
-		client, *targetUrl, token, core.USERS_ENDPOINT,
+	users, err := core.GatherObject[*core.User](
+		instance, client, *targetUrl, token, core.USERS_ENDPOINT,
 	)
 	if err != nil {
 		log.Error("An error occured while gathering Users, skipping.")
@@ -42,9 +48,8 @@ func launchGathering(client http.Client, targetUrl *url.URL,
 	log.Info("Gathering User Roles.")
 	for i, user := range users {
 		userRolesEndpoint := fmt.Sprintf(core.USER_ROLES_ENDPOINT, user.ID)
-		roles, err := core.GatherObject[core.Role](
-			client, *targetUrl, token, userRolesEndpoint,
-		)
+		roles, err := core.GatherObject[*core.Role](
+			instance, client, *targetUrl, token, userRolesEndpoint)
 		if err != nil {
 			log.Error("An error occured while gathering Team Roles.")
 			log.Error(err)
@@ -53,89 +58,106 @@ func launchGathering(client http.Client, targetUrl *url.URL,
 		user.Roles = roles
 		users[i] = user
 	}
-	userNodes := core.OutputBH_Node(users)
+	userNodes := core.GenerateNodes(users)
 	nodes = append(nodes, userNodes...)
 
 	log.Info("Gathering Hosts.")
-	hosts, err := core.GatherObject[core.Host](
-		client, *targetUrl, token, core.HOSTS_ENDPOINT,
+	hosts, err := core.GatherObject[*core.Host](
+		instance, client, *targetUrl, token, core.HOSTS_ENDPOINT,
 	)
 	if err != nil {
 		log.Error("An error occured while gathering Users, skipping.")
 		log.Error(err)
 	}
-	hostNodes := core.OutputBH_Node(hosts)
+	hostNodes := core.GenerateNodes(hosts)
 	nodes = append(nodes, hostNodes...)
 
 	log.Info("Gathering Jobs.")
-	jobs, err := core.GatherObject[core.Job](
-		client, *targetUrl, token, core.JOBS_ENDPOINT,
+	jobs, err := core.GatherObject[*core.Job](
+		instance, client, *targetUrl, token, core.JOBS_ENDPOINT,
 	)
 	if err != nil {
 		log.Error("An error occured while gathering jobs, skipping.")
 		log.Error(err)
 	}
-	jobsNodes := core.OutputBH_Node(jobs)
+	jobsNodes := core.GenerateNodes(jobs)
 	nodes = append(nodes, jobsNodes...)
 
 	log.Info("Gathering Job Templates.")
-	jobTemplates, err := core.GatherObject[core.JobTemplate](
-		client, *targetUrl, token, core.JOB_TEMPLATE_ENDPOINT,
+	jobTemplates, err := core.GatherObject[*core.JobTemplate](
+		instance, client, *targetUrl, token, core.JOB_TEMPLATE_ENDPOINT,
 	)
 	if err != nil {
 		log.Error("An error occured while gathering jobs, skipping.")
 		log.Error(err)
 	}
-	jobTemplatesNodes := core.OutputBH_Node(jobTemplates)
+	log.Info("Gathering Job Templates Credentials.")
+	for i, jobTemplate := range jobTemplates {
+
+		jobTemplatesCredentialsEndpoint := fmt.Sprintf(core.
+			JOB_TEMPLATE_CREDENTIALS_ENDPOINT, jobTemplate.ID)
+		credentials, err := core.GatherObject[*core.Credential](
+			instance, client, *targetUrl, token, jobTemplatesCredentialsEndpoint,
+		)
+		if err != nil {
+			log.Error("An error occured while gathering Team Roles.")
+			log.Error(err)
+			continue
+		}
+
+		jobTemplate.Credentials = credentials
+		jobTemplates[i] = jobTemplate
+	}
+	jobTemplatesNodes := core.GenerateNodes(jobTemplates)
 	nodes = append(nodes, jobTemplatesNodes...)
 
 	log.Info("Gathering Inventories.")
-	inventories, err := core.GatherObject[core.Inventory](
-		client, *targetUrl, token, core.INVENTORIES_ENDPOINT,
+	inventories, err := core.GatherObject[*core.Inventory](
+		instance, client, *targetUrl, token, core.INVENTORIES_ENDPOINT,
 	)
 	if err != nil {
 		log.Error("An error occured while gathering jobs, skipping.")
 		log.Error(err)
 	}
-	inventoriesNodes := core.OutputBH_Node(inventories)
+	inventoriesNodes := core.GenerateNodes(inventories)
 	nodes = append(nodes, inventoriesNodes...)
 
 	log.Info("Gathering Organizations.")
-	organizations, err := core.GatherObject[core.Organization](
-		client, *targetUrl, token, core.ORGANIZATIONS_ENDPOINT,
+	organizations, err := core.GatherObject[*core.Organization](
+		instance, client, *targetUrl, token, core.ORGANIZATIONS_ENDPOINT,
 	)
 	if err != nil {
 		log.Error("An error occured while gathering jobs, skipping.")
 		log.Error(err)
 	}
-	organizationNodes := core.OutputBH_Node(organizations)
+	organizationNodes := core.GenerateNodes(organizations)
 	nodes = append(nodes, organizationNodes...)
 
 	log.Info("Gathering Credentials.")
-	credentials, err := core.GatherObject[core.Credential](
-		client, *targetUrl, token, core.CREDENTIALS_ENDPOINT,
+	credentials, err := core.GatherObject[*core.Credential](
+		instance, client, *targetUrl, token, core.CREDENTIALS_ENDPOINT,
 	)
 	if err != nil {
 		log.Error("An error occured while gathering jobs, skipping.")
 		log.Error(err)
 	}
-	credentialNodes := core.OutputBH_Node(credentials)
+	credentialNodes := core.GenerateNodes(credentials)
 	nodes = append(nodes, credentialNodes...)
 
 	log.Info("Gathering Projects.")
-	projects, err := core.GatherObject[core.Project](
-		client, *targetUrl, token, core.PROJECTS_ENDPOINT,
+	projects, err := core.GatherObject[*core.Project](
+		instance, client, *targetUrl, token, core.PROJECTS_ENDPOINT,
 	)
 	if err != nil {
 		log.Error("An error occured while gathering jobs, skipping.")
 		log.Error(err)
 	}
-	projectNodes := core.OutputBH_Node(projects)
+	projectNodes := core.GenerateNodes(projects)
 	nodes = append(nodes, projectNodes...)
 
 	log.Info("Gathering Teams.")
-	teams, err := core.GatherObject[core.Team](
-		client, *targetUrl, token, core.TEAMS_ENDPOINT,
+	teams, err := core.GatherObject[*core.Team](
+		instance, client, *targetUrl, token, core.TEAMS_ENDPOINT,
 	)
 	if err != nil {
 		log.Error("An error occured while gathering Teams, skipping.")
@@ -146,8 +168,8 @@ func launchGathering(client http.Client, targetUrl *url.URL,
 	for i, team := range teams {
 
 		teamRolesEndpoint := fmt.Sprintf(core.TEAM_ROLES_ENDPOINT, team.ID)
-		roles, err := core.GatherObject[core.Role](
-			client, *targetUrl, token, teamRolesEndpoint,
+		roles, err := core.GatherObject[*core.Role](
+			instance, client, *targetUrl, token, teamRolesEndpoint,
 		)
 		if err != nil {
 			log.Error("An error occured while gathering Team Roles.")
@@ -156,8 +178,8 @@ func launchGathering(client http.Client, targetUrl *url.URL,
 		}
 
 		teamMembersEndpoint := fmt.Sprintf(core.TEAM_USERS_ENDPOINT, team.ID)
-		members, err := core.GatherObject[core.User](
-			client, *targetUrl, token, teamMembersEndpoint,
+		members, err := core.GatherObject[*core.User](
+			instance, client, *targetUrl, token, teamMembersEndpoint,
 		)
 		if err != nil {
 			log.Error("An error occured while gathering Team Members.")
@@ -168,88 +190,89 @@ func launchGathering(client http.Client, targetUrl *url.URL,
 		team.Members = members
 		teams[i] = team
 	}
-	teamNodes := core.OutputBH_Node(teams)
+	teamNodes := core.GenerateNodes(teams)
 	nodes = append(nodes, teamNodes...)
 
 	// -- Creating all edges --
 
 	log.Info("Linking Organizations and Inventories.")
 	kind := "ATContains"
-	for _, organization := range organizationNodes {
-		for _, inventory := range inventoriesNodes {
-			if inventory.Properties["organization"] == organization.Properties["id"] {
-				edges = append(edges, core.OutputBH_Edge(kind, organization.Id, inventory.Id))
-			}
+	for _, inventory := range inventories {
+		if core.HasAccessTo(organizations, inventory.Organization) {
+			edge := core.GenerateEdge(kind, organizations[inventory.Organization].OID, inventory.OID)
+			edges = append(edges, edge)
 		}
 	}
 
 	log.Info("Linking Inventories and Hosts.")
 	kind = "ATContains"
-	for _, host := range hostNodes {
-		for _, inventory := range inventoriesNodes {
-			if host.Properties["inventory"] == inventory.Properties["id"] {
-				edges = append(edges, core.OutputBH_Edge(kind, inventory.Id, host.Id))
-			}
+	for _, host := range hosts {
+		if core.HasAccessTo(inventories, host.Inventory) {
+			edge := core.GenerateEdge(kind, inventories[host.Inventory].OID, host.OID)
+			edges = append(edges, edge)
 		}
 	}
 
 	log.Info("Linking Job Templates and Jobs.")
 	kind = "ATContains"
-	for _, job := range jobsNodes {
-		for _, jobTemplate := range jobTemplatesNodes {
-			if job.Properties["unified_job_template"] == jobTemplate.Properties["id"] {
-				edges = append(edges, core.OutputBH_Edge(kind, jobTemplate.Id, job.Id))
-			}
+	for _, job := range jobs {
+		if core.HasAccessTo(jobTemplates, job.UnifiedJobTemplate) {
+			edge := core.GenerateEdge(kind, jobTemplates[job.UnifiedJobTemplate].OID, job.OID)
+			edges = append(edges, edge)
 		}
 	}
 
 	log.Info("Linking Organizations and Job Templates.")
 	kind = "ATContains"
-	for _, jobTemplate := range jobTemplatesNodes {
-		for _, organization := range organizationNodes {
-			if jobTemplate.Properties["organization"] == organization.Properties["id"] {
-				edges = append(edges, core.OutputBH_Edge(kind, organization.Id, jobTemplate.Id))
-			}
+	for _, jobTemplate := range jobTemplates {
+		if core.HasAccessTo(organizations, jobTemplate.Organization) {
+			edge := core.GenerateEdge(kind, organizations[jobTemplate.Organization].OID, jobTemplate.OID)
+			edges = append(edges, edge)
 		}
 	}
 
 	log.Info("Linking Organizations and Credentials.")
 	kind = "ATContains"
-	for _, credential := range credentialNodes {
-		for _, organization := range organizationNodes {
-			if credential.Properties["organization"] == organization.Properties["id"] {
-				edges = append(edges, core.OutputBH_Edge(kind, organization.Id, credential.Id))
-			}
+	for _, credential := range credentials {
+		if core.HasAccessTo(organizations, credential.Organization) {
+			edge := core.GenerateEdge(kind, organizations[credential.Organization].OID, credential.OID)
+			edges = append(edges, edge)
 		}
 	}
 
 	log.Info("Linking Organizations and Projects")
 	kind = "ATContains"
-	for _, project := range projectNodes {
-		for _, organization := range organizationNodes {
-			if project.Properties["organization"] == organization.Properties["id"] {
-				edges = append(edges, core.OutputBH_Edge(kind, organization.Id, project.Id))
-			}
+	for _, project := range projects {
+		if core.HasAccessTo(organizations, project.Organization) {
+			edge := core.GenerateEdge(kind, organizations[project.Organization].OID, project.OID)
+			edges = append(edges, edge)
 		}
 	}
 
 	log.Info("Linking Job Templates and Projects.")
 	kind = "ATUses"
 	for _, jobTemplate := range jobTemplates {
-		for _, project := range projects {
-			if jobTemplate.Project == project.ID {
-				edges = append(edges, core.OutputBH_Edge(kind, jobTemplate.UUID, project.UUID))
-			}
+		if core.HasAccessTo(projects, jobTemplate.Project) {
+			edge := core.GenerateEdge(kind, jobTemplate.OID, projects[jobTemplate.Project].OID)
+			edges = append(edges, edge)
 		}
 	}
 
 	log.Info("Linking Job Template and Inventories.")
 	kind = "ATUses"
 	for _, jobTemplate := range jobTemplates {
-		for _, inventory := range inventories {
-			if jobTemplate.Inventory == inventory.ID {
-				edges = append(edges, core.OutputBH_Edge(kind, jobTemplate.UUID, inventory.UUID))
-			}
+		if core.HasAccessTo(inventories, jobTemplate.Inventory) {
+			edge := core.GenerateEdge(kind, jobTemplate.OID, inventories[jobTemplate.Inventory].OID)
+			edges = append(edges, edge)
+		}
+	}
+
+	log.Info("Linking Job Template and Credentials.")
+	kind = "ATUses"
+	for _, jobTemplate := range jobTemplates {
+		for _, credential := range jobTemplate.Credentials {
+			edge := core.GenerateEdge(kind, jobTemplate.OID, credential.OID)
+			edges = append(edges, edge)
 		}
 	}
 
@@ -259,39 +282,37 @@ func launchGathering(client http.Client, targetUrl *url.URL,
 		for _, role := range user.Roles {
 			kind := "AT" + strings.ReplaceAll(role.Name, " ", "")
 
+			var edge core.Edge
+
 			switch role.SummaryFields.ResourceType {
 
 			case "organization":
-				for _, organization := range organizations {
-					if role.SummaryFields.ResourceId == organization.ID {
-						edges = append(edges, core.OutputBH_Edge(kind, user.UUID, organization.UUID))
-					}
+				if core.HasAccessTo(organizations, role.SummaryFields.ResourceId) {
+					edge = core.GenerateEdge(kind, user.OID, organizations[role.SummaryFields.ResourceId].OID)
+					edges = append(edges, edge)
 				}
 			case "inventory":
-				for _, inventory := range inventories {
-					if role.SummaryFields.ResourceId == inventory.ID {
-						edges = append(edges, core.OutputBH_Edge(kind, user.UUID, inventory.UUID))
-					}
+				if core.HasAccessTo(inventories, role.SummaryFields.ResourceId) {
+					edge = core.GenerateEdge(kind, user.OID, inventories[role.SummaryFields.ResourceId].OID)
+					edges = append(edges, edge)
 				}
 			case "team":
-				for _, team := range teams {
-					if role.SummaryFields.ResourceId == team.ID {
-						edges = append(edges, core.OutputBH_Edge(kind, user.UUID, team.UUID))
-					}
+				if core.HasAccessTo(teams, role.SummaryFields.ResourceId) {
+					edge = core.GenerateEdge(kind, user.OID, teams[role.SummaryFields.ResourceId].OID)
+					edges = append(edges, edge)
 				}
 			case "credential":
-				for _, credential := range credentials {
-					if role.SummaryFields.ResourceId == credential.ID {
-						edges = append(edges, core.OutputBH_Edge(kind, user.UUID, credential.UUID))
-					}
+				if core.HasAccessTo(credentials, role.SummaryFields.ResourceId) {
+					edge = core.GenerateEdge(kind, user.OID, credentials[role.SummaryFields.ResourceId].OID)
+					edges = append(edges, edge)
 				}
 			case "job_template":
-				for _, jobTemplate := range jobTemplates {
-					if role.SummaryFields.ResourceId == jobTemplate.ID {
-						edges = append(edges, core.OutputBH_Edge(kind, user.UUID, jobTemplate.UUID))
-					}
+				if core.HasAccessTo(jobTemplates, role.SummaryFields.ResourceId) {
+					edge = core.GenerateEdge(kind, user.OID, jobTemplates[role.SummaryFields.ResourceId].OID)
+					edges = append(edges, edge)
 				}
 			}
+
 		}
 	}
 
@@ -300,37 +321,34 @@ func launchGathering(client http.Client, targetUrl *url.URL,
 		for _, role := range team.Roles {
 			kind := "AT" + strings.ReplaceAll(role.Name, " ", "")
 
+			var edge core.Edge
+
 			switch role.SummaryFields.ResourceType {
 
 			case "organization":
-				for _, organization := range organizations {
-					if role.SummaryFields.ResourceId == organization.ID {
-						edges = append(edges, core.OutputBH_Edge(kind, team.UUID, organization.UUID))
-					}
+				if core.HasAccessTo(organizations, role.SummaryFields.ResourceId) {
+					edge = core.GenerateEdge(kind, team.OID, organizations[role.SummaryFields.ResourceId].OID)
+					edges = append(edges, edge)
 				}
 			case "inventory":
-				for _, inventory := range inventories {
-					if role.SummaryFields.ResourceId == inventory.ID {
-						edges = append(edges, core.OutputBH_Edge(kind, team.UUID, inventory.UUID))
-					}
+				if core.HasAccessTo(inventories, role.SummaryFields.ResourceId) {
+					edge = core.GenerateEdge(kind, team.OID, inventories[role.SummaryFields.ResourceId].OID)
+					edges = append(edges, edge)
 				}
-			case "user":
-				for _, user := range users {
-					if role.SummaryFields.ResourceId == user.ID {
-						edges = append(edges, core.OutputBH_Edge(kind, team.UUID, user.UUID))
-					}
+			case "team":
+				if core.HasAccessTo(teams, role.SummaryFields.ResourceId) {
+					edge = core.GenerateEdge(kind, team.OID, teams[role.SummaryFields.ResourceId].OID)
+					edges = append(edges, edge)
 				}
 			case "credential":
-				for _, credential := range credentials {
-					if role.SummaryFields.ResourceId == credential.ID {
-						edges = append(edges, core.OutputBH_Edge(kind, team.UUID, credential.UUID))
-					}
+				if core.HasAccessTo(credentials, role.SummaryFields.ResourceId) {
+					edge = core.GenerateEdge(kind, team.OID, credentials[role.SummaryFields.ResourceId].OID)
+					edges = append(edges, edge)
 				}
 			case "job_template":
-				for _, jobTemplate := range jobTemplates {
-					if role.SummaryFields.ResourceId == jobTemplate.ID {
-						edges = append(edges, core.OutputBH_Edge(kind, team.UUID, jobTemplate.UUID))
-					}
+				if core.HasAccessTo(jobTemplates, role.SummaryFields.ResourceId) {
+					edge = core.GenerateEdge(kind, team.OID, jobTemplates[role.SummaryFields.ResourceId].OID)
+					edges = append(edges, edge)
 				}
 			}
 		}
@@ -362,8 +380,7 @@ var ingestCmd = &cobra.Command{
 
 		token, _ := cmd.Flags().GetString("token")
 		if token == "" {
-			log.Error("Empty token provided.")
-			os.Exit(1)
+			log.Fatal("Empty token provided.")
 		}
 
 		verbose, _ := cmd.Flags().GetBool("verbose")
@@ -373,27 +390,26 @@ var ingestCmd = &cobra.Command{
 
 		target, _ := cmd.Flags().GetString("target")
 		if target == "" {
-			log.Error("Empty target provided.")
-			os.Exit(1)
+			log.Fatal("Empty target provided.")
 		}
 
 		targetUrl, err := url.Parse(target)
 		if err != nil {
-			log.Error("Invalid target URL specified.\n%s", err)
-			os.Exit(1)
+			log.Fatal("Invalid target URL specified.\n%s", err)
 		}
+
+		skipVerifySSL, _ := cmd.Flags().GetBool("skip-verify-ssl")
 
 		var proxyURL *url.URL
 		proxy, _ := cmd.Flags().GetString("proxy")
 		if proxy != "" {
 			proxyURL, err = url.Parse(proxy)
 			if err != nil {
-				log.Errorf("Invalid proxy URL specified.\n%s", err)
-				os.Exit(1)
+				log.Fatalf("Invalid proxy URL specified.\n%s", err)
 			}
 		}
 
-		client := core.InitClient(proxyURL)
+		client := core.InitClient(proxyURL, skipVerifySSL)
 
 		launchGathering(client, targetUrl, token, outdir)
 
@@ -411,6 +427,7 @@ func main() {
 	ingestCmd.Flags().StringP("proxy", "p", "", "(optional) Configure HTTP/HTTPS proxy.")
 	ingestCmd.Flags().StringP("outdir", "", "", "(optional) Output directory for the json files.")
 	ingestCmd.Flags().BoolP("verbose", "v", false, "(optional) Enable debug logs.")
+	ingestCmd.Flags().BoolP("skip-verify-ssl", "k", false, "(optional) Skips SSL/TLS verification.")
 
 	if err := ingestCmd.Execute(); err != nil {
 		msg := fmt.Sprintf("CLI error: %v\n", err)

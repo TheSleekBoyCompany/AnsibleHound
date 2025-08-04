@@ -1,6 +1,7 @@
 package core
 
 import (
+	"crypto/tls"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -8,11 +9,18 @@ import (
 	"net/url"
 )
 
-func InitClient(proxyURL *url.URL) http.Client {
+func InitClient(proxyURL *url.URL, skipVerifySSL bool) http.Client {
 	// Returns a client configured for the gatherer.
 	// For now, this only configures the Proxy, might be useful to handle SSL verification too.
 
 	transport := &http.Transport{}
+
+	if skipVerifySSL {
+		TLSClientConfig := &tls.Config{
+			InsecureSkipVerify: true,
+		}
+		transport.TLSClientConfig = TLSClientConfig
+	}
 
 	if proxyURL != nil {
 		transport.Proxy = http.ProxyURL(proxyURL)
@@ -123,14 +131,62 @@ func Gather[T AnsibleType](client http.Client, target url.URL,
 
 }
 
-func GatherObject[T AnsibleType](client http.Client, target url.URL,
-	token string, endpoint string) ([]T, error) {
+func GatherObject[T AnsibleType](instance AnsibleInstance, client http.Client,
+	target url.URL, token string, endpoint string) (
+	objectMap map[int]T, err error) {
+
+	objectMap = make(map[int]T)
 
 	objects, err := Gather[T](client, target, token, endpoint)
 	if err != nil {
-		return []T{}, err
+		return nil, err
 	}
 
-	return objects, nil
+	for _, object := range objects {
+		object.InitOID(instance)
+		objectMap[object.GetID()] = object
+	}
 
+	return objectMap, nil
+}
+
+func GatherAnsibleInstance(client http.Client, target url.URL) (instance AnsibleInstance, err error) {
+
+	url := target.String() + PING_ENDPOINT
+
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		return instance, err
+	}
+
+	resp, err := client.Do(req)
+	if err != nil {
+		return instance, err
+	}
+	defer resp.Body.Close()
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return instance, err
+	}
+
+	err = json.Unmarshal(body, &instance)
+	if err != nil {
+		return instance, err
+	}
+
+	return instance, nil
+
+}
+
+func HasAccessTo[T AnsibleType](objectMap map[int]T, ID int) (result bool) {
+	// NOTE: If ID = 0, then the resource is not bound to a resource of this type.
+	// EX: A Credential can exist without being bound to an Organization.
+	// This might also mean a resource is used, but your user cannot read it.
+	if ID != 0 {
+		if _, ok := objectMap[ID]; ok {
+			result = true
+		}
+	}
+	return result
 }
