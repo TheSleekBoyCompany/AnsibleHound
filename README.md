@@ -86,23 +86,24 @@ Nodes correspond to each object type.
 
 All the edges are prefixed by `AT` to make it distinct from other collectors edges.
 
-| Edge Type    | Source           | Target                                                                                       |
-| ------------ | ---------------- | -------------------------------------------------------------------------------------------- |
-| `ATContains` | `ATOrganization` | `ATInventory`                                                                                |
-| `ATContains` | `ATInventory`    | `ATHost`                                                                                     |
-| `ATContains` | `ATJobTemplate`  | `ATJob`                                                                                      |
-| `ATContains` | `ATOrganization` | `ATJobTemplate`                                                                              |
-| `ATContains` | `ATOrganization` | `ATCredential`                                                                               |
-| `ATContains` | `ATOrganization` | `ATProject`                                                                                  |
-| `ATUses`     | `ATJobTemplate`  | `ATProject`                                                                                  |
-| `ATUses`     | `ATJobTemplate`  | `ATInventory`                                                                                |
-| `ATExecute`  | `ATUser`         | `ATJobTemplate`                                                                              |
-| `ATExecute`  | `ATTeam`         | `ATJobTemplate`                                                                              |
-| `ATMember`   | `ATUser`         | `ATOrganization` - `ATTeam`                                                                  |
-| `ATRead`     | `ATUser`         | `ATOrganization` - `ATTeam` - `ATInventory` - `ATProject` - `ATJobTemplate`                  |
-| `ATRead`     | `ATTeam`         | `ATOrganization` - `ATUser` - `ATInventory` - `ATProject` - `ATJobTemplate`                  |
-| `ATAuditor`  | `ATUser`         | `ATOrganization` - `ATProject` - `ATInventory` - `ATJobTemplate`                             |
-| `ATAdmin`    | `ATUser`         | `ATOrganization` - `ATTeam` - `ATInventory` - `ATProject` - `ATJobTemplate` - `ATCredential` |
+| Edge Type    | Source              | Target                                                                                       |
+| ------------ | ------------------- | -------------------------------------------------------------------------------------------- |
+| `ATContains` | `ATAnsibleInstance` | `ATOrganization`                                                                             |
+| `ATContains` | `ATOrganization`    | `ATInventory`                                                                                |
+| `ATContains` | `ATInventory`       | `ATHost`                                                                                     |
+| `ATContains` | `ATJobTemplate`     | `ATJob`                                                                                      |
+| `ATContains` | `ATOrganization`    | `ATJobTemplate`                                                                              |
+| `ATContains` | `ATOrganization`    | `ATCredential`                                                                               |
+| `ATContains` | `ATOrganization`    | `ATProject`                                                                                  |
+| `ATUses`     | `ATJobTemplate`     | `ATProject`                                                                                  |
+| `ATUses`     | `ATJobTemplate`     | `ATInventory`                                                                                |
+| `ATExecute`  | `ATUser`            | `ATJobTemplate`                                                                              |
+| `ATExecute`  | `ATTeam`            | `ATJobTemplate`                                                                              |
+| `ATMember`   | `ATUser`            | `ATOrganization` - `ATTeam`                                                                  |
+| `ATRead`     | `ATUser`            | `ATOrganization` - `ATTeam` - `ATInventory` - `ATProject` - `ATJobTemplate`                  |
+| `ATRead`     | `ATTeam`            | `ATOrganization` - `ATUser` - `ATInventory` - `ATProject` - `ATJobTemplate`                  |
+| `ATAuditor`  | `ATUser`            | `ATOrganization` - `ATProject` - `ATInventory` - `ATJobTemplate`                             |
+| `ATAdmin`    | `ATUser`            | `ATOrganization` - `ATTeam` - `ATInventory` - `ATProject` - `ATJobTemplate` - `ATCredential` |
 
 > **Note** : This is a work in progress
 
