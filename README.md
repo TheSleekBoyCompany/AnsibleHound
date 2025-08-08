@@ -41,6 +41,8 @@ You can run the collector by providing it a **target** and a **token**. It will 
 ./collector -u 'http://localhost:8080/' -t '56KOmh...'
 ```
 
+> Note : If you have multiple instances of Ansible you need to run the collector against each of them
+
 ### Load Icons
 
 A script is provided to import the icon for the custom nodes used by AnsibleHound.
@@ -65,17 +67,18 @@ If you don't have any Ansible WorX or Tower environment, you can just drop `./sa
 
 Nodes correspond to each object type.
 
-| Node           | Description                                                                                                           | Icon          | Color   |
-| -------------- | --------------------------------------------------------------------------------------------------------------------- | ------------- | ------- |
-| ATOrganization | Logical collection of users, teams, projects, and inventories. It is the highest-level object in the object hierarchy | building      | #F59C36 |
-| ATInventory    | Collection of hosts and groups                                                                                        | network-wired | #FF78F2 |
-| ATUser         | An individual user account                                                                                            | user          | #7ADEE9 |
-| ATJob          | Instance launching a playbook against an inventory of hosts                                                           | gears         | #7CAAFF |
-| ATJobTemplate  | Combines an Ansible playbook from a project and the settings required to launch it                                    | code          | #493EB0 |
-| ATProject      | Logical collection of Ansible playbooks                                                                               | folder-open   | #EC7589 |
-| ATCredential   | Authenticate the user to launch playbooks (passwords - SSH keys) against inventory hosts                              | key           | #94E16A |
-| ATHost         | These are the target devices (servers, network appliances or any computer) you aim to manage                          | desktop       | #E9E350 |
-| ATTeam         | A group of users                                                                                                      | people-group  | #724752 |
+| Node              | Description                                                                                                           | Icon          | Color   |
+| ----------------- | --------------------------------------------------------------------------------------------------------------------- | ------------- | ------- |
+| ATAnsibleInstance | Complete installation of Ansible                                                                                      | sitemap       | #F59C36 |
+| ATOrganization    | Logical collection of users, teams, projects, and inventories. It is the highest-level object in the object hierarchy | building      | #F59C36 |
+| ATInventory       | Collection of hosts and groups                                                                                        | network-wired | #FF78F2 |
+| ATUser            | An individual user account                                                                                            | user          | #7ADEE9 |
+| ATJob             | Instance launching a playbook against an inventory of hosts                                                           | gears         | #7CAAFF |
+| ATJobTemplate     | Combines an Ansible playbook from a project and the settings required to launch it                                    | code          | #493EB0 |
+| ATProject         | Logical collection of Ansible playbooks                                                                               | folder-open   | #EC7589 |
+| ATCredential      | Authenticate the user to launch playbooks (passwords - SSH keys) against inventory hosts                              | key           | #94E16A |
+| ATHost            | These are the target devices (servers, network appliances or any computer) you aim to manage                          | desktop       | #E9E350 |
+| ATTeam            | A group of users                                                                                                      | people-group  | #724752 |
 
 > **Note** : This is a work in progress
 

@@ -131,7 +131,7 @@ func Gather[T AnsibleType](client http.Client, target url.URL,
 
 }
 
-func GatherObject[T AnsibleType](instance AnsibleInstance, client http.Client,
+func GatherObject[T AnsibleType](installUUID string, client http.Client,
 	target url.URL, token string, endpoint string) (
 	objectMap map[int]T, err error) {
 
@@ -143,7 +143,7 @@ func GatherObject[T AnsibleType](instance AnsibleInstance, client http.Client,
 	}
 
 	for _, object := range objects {
-		object.InitOID(instance)
+		object.InitOID(installUUID)
 		objectMap[object.GetID()] = object
 	}
 
@@ -175,8 +175,9 @@ func GatherAnsibleInstance(client http.Client, target url.URL) (instance Ansible
 		return instance, err
 	}
 
-	return instance, nil
+	instance.InitOID(instance.InstallUUID)
 
+	return instance, nil
 }
 
 func HasAccessTo[T AnsibleType](objectMap map[int]T, ID int) (result bool) {
