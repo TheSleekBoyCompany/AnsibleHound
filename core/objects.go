@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"strconv"
+	"strings"
 )
 
 var Instance AnsibleInstance
@@ -554,18 +555,6 @@ func (ct *CredentialType) ToBHNode() (node Node) {
 	}
 	node.Id = ct.OID
 
-	inputsBytes, err := json.MarshalIndent(ct.Inputs, "", "  ")
-	if err != nil {
-		panic(err)
-	}
-	inputs := string(inputsBytes)
-
-	injectorsBytes, err := json.MarshalIndent(ct.Injectors, "", "  ")
-	if err != nil {
-		panic(err)
-	}
-	injectors := string(injectorsBytes)
-
 	node.Properties = map[string]string{
 		"id":          strconv.Itoa(ct.ID),
 		"name":        ct.Name,
@@ -575,8 +564,63 @@ func (ct *CredentialType) ToBHNode() (node Node) {
 		"managed":     strconv.FormatBool(ct.Managed),
 		"cloud":       strconv.FormatBool(ct.Cloud),
 		"kubernetes":  strconv.FormatBool(ct.Kubernetes),
-		"inputs":      inputs,
-		"injectors":   injectors,
+	}
+
+	var ok bool
+	// TODO: Create object to manage `inputs`, the any is getting annoying to manage.
+	// Most of these fields are documented and hardcoded.
+	if _, ok = ct.Inputs["fields"]; ok {
+		fields := ct.Inputs["fields"].([]any)
+		for _, field := range fields {
+
+			// There is type checking for these values on AWX/Tower's side.
+			field := field.(map[string]any)
+			id := field["id"].(string) // ID and Label are needed fields and should never be missing empty.
+
+			if _, ok = field["help_text"]; ok {
+				node.Properties["field_"+id+"_help"] = field["help_text"].(string)
+			}
+			if _, ok = field["type"]; ok {
+				node.Properties["field_"+id+"_type"] = field["type"].(string)
+			}
+			if _, ok = field["secret"]; ok {
+				node.Properties["field_"+id+"_secret"] = strconv.FormatBool(field["secret"].(bool))
+			}
+			if _, ok = field["help_text"]; ok {
+				node.Properties["field_"+id+"_help"] = field["help_text"].(string)
+			}
+		}
+
+		var requiredAny []any
+		var required []string
+		if _, ok = ct.Inputs["required"]; ok {
+			requiredAny = ct.Inputs["required"].([]any)
+			for _, entry := range requiredAny {
+				entry := entry.(string)
+				required = append(required, entry)
+			}
+		}
+		node.Properties["fields_required"] = strings.Join(required, ", ")
+
+	}
+
+	if _, ok = ct.Injectors["file"]; ok {
+		fileInjectors := ct.Injectors["file"].(map[string]any)
+		for k, v := range fileInjectors {
+			node.Properties["injector_file_"+k] = v.(string)
+		}
+	}
+	if _, ok = ct.Injectors["extra_vars"]; ok {
+		fileInjectors := ct.Injectors["extra_vars"].(map[string]any)
+		for k, v := range fileInjectors {
+			node.Properties["injector_extra_vars_"+k] = v.(string)
+		}
+	}
+	if _, ok = ct.Injectors["env"]; ok {
+		fileInjectors := ct.Injectors["env"].(map[string]any)
+		for k, v := range fileInjectors {
+			node.Properties["injector_env_"+k] = v.(string)
+		}
 	}
 	return node
 }
