@@ -56,7 +56,7 @@ func launchGathering(client http.Client, targetUrl *url.URL,
 		roles, err := core.GatherObject[*core.Role](
 			instance.InstallUUID, client, *targetUrl, token, userRolesEndpoint)
 		if err != nil {
-			log.Error("An error occured while gathering Team Roles.")
+			log.Error("An error occured while gathering User Roles.")
 			log.Error(err)
 			continue
 		}
@@ -71,7 +71,7 @@ func launchGathering(client http.Client, targetUrl *url.URL,
 		instance.InstallUUID, client, *targetUrl, token, core.HOSTS_ENDPOINT,
 	)
 	if err != nil {
-		log.Error("An error occured while gathering Users, skipping.")
+		log.Error("An error occured while gathering Hosts, skipping.")
 		log.Error(err)
 	}
 	hostNodes := core.GenerateNodes(hosts)
@@ -82,7 +82,7 @@ func launchGathering(client http.Client, targetUrl *url.URL,
 		instance.InstallUUID, client, *targetUrl, token, core.JOBS_ENDPOINT,
 	)
 	if err != nil {
-		log.Error("An error occured while gathering jobs, skipping.")
+		log.Error("An error occured while gathering Jobs, skipping.")
 		log.Error(err)
 	}
 	jobsNodes := core.GenerateNodes(jobs)
@@ -93,7 +93,7 @@ func launchGathering(client http.Client, targetUrl *url.URL,
 		instance.InstallUUID, client, *targetUrl, token, core.JOB_TEMPLATE_ENDPOINT,
 	)
 	if err != nil {
-		log.Error("An error occured while gathering jobs, skipping.")
+		log.Error("An error occured while gathering Job Templates, skipping.")
 		log.Error(err)
 	}
 	log.Info("Gathering Job Templates Credentials.")
@@ -105,7 +105,7 @@ func launchGathering(client http.Client, targetUrl *url.URL,
 			instance.InstallUUID, client, *targetUrl, token, jobTemplatesCredentialsEndpoint,
 		)
 		if err != nil {
-			log.Error("An error occured while gathering Team Roles.")
+			log.Error("An error occured while gathering Job Template Credentials.")
 			log.Error(err)
 			continue
 		}
@@ -121,7 +121,7 @@ func launchGathering(client http.Client, targetUrl *url.URL,
 		instance.InstallUUID, client, *targetUrl, token, core.INVENTORIES_ENDPOINT,
 	)
 	if err != nil {
-		log.Error("An error occured while gathering jobs, skipping.")
+		log.Error("An error occured while gathering Inventories, skipping.")
 		log.Error(err)
 	}
 	inventoriesNodes := core.GenerateNodes(inventories)
@@ -132,7 +132,7 @@ func launchGathering(client http.Client, targetUrl *url.URL,
 		instance.InstallUUID, client, *targetUrl, token, core.ORGANIZATIONS_ENDPOINT,
 	)
 	if err != nil {
-		log.Error("An error occured while gathering jobs, skipping.")
+		log.Error("An error occured while gathering Organizations, skipping.")
 		log.Error(err)
 	}
 	organizationNodes := core.GenerateNodes(organizations)
@@ -143,18 +143,29 @@ func launchGathering(client http.Client, targetUrl *url.URL,
 		instance.InstallUUID, client, *targetUrl, token, core.CREDENTIALS_ENDPOINT,
 	)
 	if err != nil {
-		log.Error("An error occured while gathering jobs, skipping.")
+		log.Error("An error occured while gathering Credentials, skipping.")
 		log.Error(err)
 	}
 	credentialNodes := core.GenerateNodes(credentials)
 	nodes = append(nodes, credentialNodes...)
+
+	log.Info("Gathering Credential Types.")
+	credentialTypes, err := core.GatherObject[*core.CredentialType](
+		instance.InstallUUID, client, *targetUrl, token, core.CREDENTIAL_TYPES_ENDPOINT,
+	)
+	if err != nil {
+		log.Error("An error occured while gathering Credential Types, skipping.")
+		log.Error(err)
+	}
+	credentialTypesNodes := core.GenerateNodes(credentialTypes)
+	nodes = append(nodes, credentialTypesNodes...)
 
 	log.Info("Gathering Projects.")
 	projects, err := core.GatherObject[*core.Project](
 		instance.InstallUUID, client, *targetUrl, token, core.PROJECTS_ENDPOINT,
 	)
 	if err != nil {
-		log.Error("An error occured while gathering jobs, skipping.")
+		log.Error("An error occured while gathering Projects, skipping.")
 		log.Error(err)
 	}
 	projectNodes := core.GenerateNodes(projects)
@@ -275,6 +286,15 @@ func launchGathering(client http.Client, targetUrl *url.URL,
 	for _, jobTemplate := range jobTemplates {
 		if core.HasAccessTo(inventories, jobTemplate.Inventory) {
 			edge := core.GenerateEdge(kind, jobTemplate.OID, inventories[jobTemplate.Inventory].OID)
+			edges = append(edges, edge)
+		}
+	}
+
+	log.Info("Credentials to Credential Type.")
+	kind = "ATUsesType"
+	for _, credential := range credentials {
+		if core.HasAccessTo(credentialTypes, credential.CredentialType) {
+			edge := core.GenerateEdge(kind, credential.OID, credentialTypes[credential.CredentialType].OID)
 			edges = append(edges, edge)
 		}
 	}

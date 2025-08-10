@@ -532,6 +532,55 @@ func (c *Credential) ToBHNode() (node Node) {
 	return node
 }
 
+type CredentialType struct {
+	Object
+	Managed    bool           `json:"managed,omitempty"`
+	Inputs     map[string]any `json:"inputs,omitempty"`
+	Injectors  map[string]any `json:"injectors,omitempty"`
+	Cloud      bool           `json:"cloud,omitempty"`
+	Kubernetes bool           `json:"kubernetes,omitempty"`
+	Namespace  string         `json:"namespace,omitempty"`
+	Kind       string         `json:"kind,omitempty"`
+}
+
+func (ct CredentialType) MarshalJSON() ([]byte, error) {
+	type credentialType CredentialType
+	return json.MarshalIndent((credentialType)(ct), "", "  ")
+}
+
+func (ct *CredentialType) ToBHNode() (node Node) {
+	node.Kinds = []string{
+		"ATCredentialType",
+	}
+	node.Id = ct.OID
+
+	inputsBytes, err := json.MarshalIndent(ct.Inputs, "", "  ")
+	if err != nil {
+		panic(err)
+	}
+	inputs := string(inputsBytes)
+
+	injectorsBytes, err := json.MarshalIndent(ct.Injectors, "", "  ")
+	if err != nil {
+		panic(err)
+	}
+	injectors := string(injectorsBytes)
+
+	node.Properties = map[string]string{
+		"id":          strconv.Itoa(ct.ID),
+		"name":        ct.Name,
+		"description": ct.Description,
+		"url":         ct.Url,
+		"namespace":   ct.Namespace,
+		"managed":     strconv.FormatBool(ct.Managed),
+		"cloud":       strconv.FormatBool(ct.Cloud),
+		"kubernetes":  strconv.FormatBool(ct.Kubernetes),
+		"inputs":      inputs,
+		"injectors":   injectors,
+	}
+	return node
+}
+
 type Inventory struct {
 	Object
 	Organization                 int    `json:"organization"`
