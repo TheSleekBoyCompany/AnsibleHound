@@ -20,14 +20,8 @@ type AnsibleTypeList interface {
 type AnsibleType interface {
 	GetID() int
 	GetOID() string
-	InitOID(AnsibleInstance)
+	InitOID(string)
 	ToBHNode() Node
-}
-
-type AnsibleInstance struct {
-	Version     string `json:"version"`
-	ActiveNode  string `json:"active_node"`
-	InstallUUID string `json:"install_uuid"`
 }
 
 type Object struct {
@@ -49,8 +43,8 @@ func (o Object) GetID() (id int) {
 	return o.ID
 }
 
-func (o *Object) InitOID(instance AnsibleInstance) {
-	data := fmt.Sprintf("%s_%s_%s", instance.InstallUUID, strconv.Itoa(o.ID), o.Type)
+func (o *Object) InitOID(installUUID string) {
+	data := fmt.Sprintf("%s_%s_%s", installUUID, strconv.Itoa(o.ID), o.Type)
 	hasher := sha1.New()
 	hasher.Write([]byte(data))
 	hashBytes := hasher.Sum(nil)
@@ -60,6 +54,32 @@ func (o *Object) InitOID(instance AnsibleInstance) {
 type Response[T any] struct {
 	Count   int `json:"count"`
 	Results []T `json:"results"`
+}
+
+type AnsibleInstance struct {
+	Object
+	Version     string `json:"version"`
+	ActiveNode  string `json:"active_node"`
+	InstallUUID string `json:"install_uuid"`
+}
+
+func (i *AnsibleInstance) MarshalJSON() ([]byte, error) {
+	type instance AnsibleInstance
+	return json.MarshalIndent((*instance)(i), "", "  ")
+}
+
+func (i *AnsibleInstance) ToBHNode() (node Node) {
+	node.Kinds = []string{
+		"ATAnsibleInstance",
+	}
+	node.Id = i.OID
+	node.Properties = map[string]string{
+		"name":         i.Name,
+		"version":      i.Version,
+		"active_node":  i.ActiveNode,
+		"install_uuid": i.InstallUUID,
+	}
+	return node
 }
 
 type User struct {

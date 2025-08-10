@@ -34,11 +34,16 @@ func launchGathering(client http.Client, targetUrl *url.URL,
 		log.Fatalf("Unable to gather Ansible WorX/Tower information (%s).", targetUrl)
 	}
 
+	instance.Name = targetUrl.Host
+
+	instanceNode := instance.ToBHNode()
+	nodes = append(nodes, instanceNode)
+
 	// -- Gathering all nodes --
 
 	log.Info("Gathering Users.")
 	users, err := core.GatherObject[*core.User](
-		instance, client, *targetUrl, token, core.USERS_ENDPOINT,
+		instance.InstallUUID, client, *targetUrl, token, core.USERS_ENDPOINT,
 	)
 	if err != nil {
 		log.Error("An error occured while gathering Users, skipping.")
@@ -49,7 +54,7 @@ func launchGathering(client http.Client, targetUrl *url.URL,
 	for i, user := range users {
 		userRolesEndpoint := fmt.Sprintf(core.USER_ROLES_ENDPOINT, user.ID)
 		roles, err := core.GatherObject[*core.Role](
-			instance, client, *targetUrl, token, userRolesEndpoint)
+			instance.InstallUUID, client, *targetUrl, token, userRolesEndpoint)
 		if err != nil {
 			log.Error("An error occured while gathering Team Roles.")
 			log.Error(err)
@@ -63,7 +68,7 @@ func launchGathering(client http.Client, targetUrl *url.URL,
 
 	log.Info("Gathering Hosts.")
 	hosts, err := core.GatherObject[*core.Host](
-		instance, client, *targetUrl, token, core.HOSTS_ENDPOINT,
+		instance.InstallUUID, client, *targetUrl, token, core.HOSTS_ENDPOINT,
 	)
 	if err != nil {
 		log.Error("An error occured while gathering Users, skipping.")
@@ -74,7 +79,7 @@ func launchGathering(client http.Client, targetUrl *url.URL,
 
 	log.Info("Gathering Jobs.")
 	jobs, err := core.GatherObject[*core.Job](
-		instance, client, *targetUrl, token, core.JOBS_ENDPOINT,
+		instance.InstallUUID, client, *targetUrl, token, core.JOBS_ENDPOINT,
 	)
 	if err != nil {
 		log.Error("An error occured while gathering jobs, skipping.")
@@ -85,7 +90,7 @@ func launchGathering(client http.Client, targetUrl *url.URL,
 
 	log.Info("Gathering Job Templates.")
 	jobTemplates, err := core.GatherObject[*core.JobTemplate](
-		instance, client, *targetUrl, token, core.JOB_TEMPLATE_ENDPOINT,
+		instance.InstallUUID, client, *targetUrl, token, core.JOB_TEMPLATE_ENDPOINT,
 	)
 	if err != nil {
 		log.Error("An error occured while gathering jobs, skipping.")
@@ -97,7 +102,7 @@ func launchGathering(client http.Client, targetUrl *url.URL,
 		jobTemplatesCredentialsEndpoint := fmt.Sprintf(core.
 			JOB_TEMPLATE_CREDENTIALS_ENDPOINT, jobTemplate.ID)
 		credentials, err := core.GatherObject[*core.Credential](
-			instance, client, *targetUrl, token, jobTemplatesCredentialsEndpoint,
+			instance.InstallUUID, client, *targetUrl, token, jobTemplatesCredentialsEndpoint,
 		)
 		if err != nil {
 			log.Error("An error occured while gathering Team Roles.")
@@ -113,7 +118,7 @@ func launchGathering(client http.Client, targetUrl *url.URL,
 
 	log.Info("Gathering Inventories.")
 	inventories, err := core.GatherObject[*core.Inventory](
-		instance, client, *targetUrl, token, core.INVENTORIES_ENDPOINT,
+		instance.InstallUUID, client, *targetUrl, token, core.INVENTORIES_ENDPOINT,
 	)
 	if err != nil {
 		log.Error("An error occured while gathering jobs, skipping.")
@@ -124,7 +129,7 @@ func launchGathering(client http.Client, targetUrl *url.URL,
 
 	log.Info("Gathering Organizations.")
 	organizations, err := core.GatherObject[*core.Organization](
-		instance, client, *targetUrl, token, core.ORGANIZATIONS_ENDPOINT,
+		instance.InstallUUID, client, *targetUrl, token, core.ORGANIZATIONS_ENDPOINT,
 	)
 	if err != nil {
 		log.Error("An error occured while gathering jobs, skipping.")
@@ -135,7 +140,7 @@ func launchGathering(client http.Client, targetUrl *url.URL,
 
 	log.Info("Gathering Credentials.")
 	credentials, err := core.GatherObject[*core.Credential](
-		instance, client, *targetUrl, token, core.CREDENTIALS_ENDPOINT,
+		instance.InstallUUID, client, *targetUrl, token, core.CREDENTIALS_ENDPOINT,
 	)
 	if err != nil {
 		log.Error("An error occured while gathering jobs, skipping.")
@@ -146,7 +151,7 @@ func launchGathering(client http.Client, targetUrl *url.URL,
 
 	log.Info("Gathering Projects.")
 	projects, err := core.GatherObject[*core.Project](
-		instance, client, *targetUrl, token, core.PROJECTS_ENDPOINT,
+		instance.InstallUUID, client, *targetUrl, token, core.PROJECTS_ENDPOINT,
 	)
 	if err != nil {
 		log.Error("An error occured while gathering jobs, skipping.")
@@ -157,7 +162,7 @@ func launchGathering(client http.Client, targetUrl *url.URL,
 
 	log.Info("Gathering Teams.")
 	teams, err := core.GatherObject[*core.Team](
-		instance, client, *targetUrl, token, core.TEAMS_ENDPOINT,
+		instance.InstallUUID, client, *targetUrl, token, core.TEAMS_ENDPOINT,
 	)
 	if err != nil {
 		log.Error("An error occured while gathering Teams, skipping.")
@@ -169,7 +174,7 @@ func launchGathering(client http.Client, targetUrl *url.URL,
 
 		teamRolesEndpoint := fmt.Sprintf(core.TEAM_ROLES_ENDPOINT, team.ID)
 		roles, err := core.GatherObject[*core.Role](
-			instance, client, *targetUrl, token, teamRolesEndpoint,
+			instance.InstallUUID, client, *targetUrl, token, teamRolesEndpoint,
 		)
 		if err != nil {
 			log.Error("An error occured while gathering Team Roles.")
@@ -179,7 +184,7 @@ func launchGathering(client http.Client, targetUrl *url.URL,
 
 		teamMembersEndpoint := fmt.Sprintf(core.TEAM_USERS_ENDPOINT, team.ID)
 		members, err := core.GatherObject[*core.User](
-			instance, client, *targetUrl, token, teamMembersEndpoint,
+			instance.InstallUUID, client, *targetUrl, token, teamMembersEndpoint,
 		)
 		if err != nil {
 			log.Error("An error occured while gathering Team Members.")
@@ -195,8 +200,15 @@ func launchGathering(client http.Client, targetUrl *url.URL,
 
 	// -- Creating all edges --
 
-	log.Info("Linking Organizations and Inventories.")
+	log.Info("Linking Instance and Organizations.")
 	kind := "ATContains"
+	for _, organization := range organizations {
+		edge := core.GenerateEdge(kind, instance.OID, organization.OID)
+		edges = append(edges, edge)
+	}
+
+	log.Info("Linking Organizations and Inventories.")
+	kind = "ATContains"
 	for _, inventory := range inventories {
 		if core.HasAccessTo(organizations, inventory.Organization) {
 			edge := core.GenerateEdge(kind, organizations[inventory.Organization].OID, inventory.OID)

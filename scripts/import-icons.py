@@ -49,6 +49,7 @@ if __name__ == "__main__":
     jwt_token = sys.argv[2]
 
     # Call function for each icon type you want to send
+    define_icon(url, jwt_token, "ATAnsibleInstance", "sitemap", "#E43131")
     define_icon(url, jwt_token, "ATOrganization", "building", "#F59C36")
     define_icon(url, jwt_token, "ATInventory", "network-wired", "#FF78F2")
     define_icon(url, jwt_token, "ATUser", "user", "#7ADEE9")
