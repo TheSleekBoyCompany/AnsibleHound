@@ -17,6 +17,46 @@
         }
       },
       {
+        "id": "2e25345f4e80234aa18e13a142029b03b3dc2919",
+        "kinds": [
+          "ATUser"
+        ],
+        "properties": {
+          "description": "",
+          "email": "test@example.com",
+          "external_account": "",
+          "firstname": "",
+          "id": "1",
+          "is_super_user": "true",
+          "is_system_auditor": "false",
+          "last_login": "2025-08-10T17:19:17.060803Z",
+          "lastname": "",
+          "ldap_dn": "",
+          "name": "admin",
+          "url": "/api/v2/users/1/"
+        }
+      },
+      {
+        "id": "0200d454b16e5a187a9c227c9228894910aa6326",
+        "kinds": [
+          "ATUser"
+        ],
+        "properties": {
+          "description": "",
+          "email": "",
+          "external_account": "",
+          "firstname": "Alice",
+          "id": "92",
+          "is_super_user": "false",
+          "is_system_auditor": "false",
+          "last_login": "",
+          "lastname": "",
+          "ldap_dn": "",
+          "name": "alice",
+          "url": "/api/v2/users/92/"
+        }
+      },
+      {
         "id": "270996d0f6eba477cc9ebbab8039468a0989204e",
         "kinds": [
           "ATUser"
@@ -114,46 +154,6 @@
           "ldap_dn": "",
           "name": "timmy",
           "url": "/api/v2/users/97/"
-        }
-      },
-      {
-        "id": "2e25345f4e80234aa18e13a142029b03b3dc2919",
-        "kinds": [
-          "ATUser"
-        ],
-        "properties": {
-          "description": "",
-          "email": "test@example.com",
-          "external_account": "",
-          "firstname": "",
-          "id": "1",
-          "is_super_user": "true",
-          "is_system_auditor": "false",
-          "last_login": "2025-08-10T13:13:01.725161Z",
-          "lastname": "",
-          "ldap_dn": "",
-          "name": "admin",
-          "url": "/api/v2/users/1/"
-        }
-      },
-      {
-        "id": "0200d454b16e5a187a9c227c9228894910aa6326",
-        "kinds": [
-          "ATUser"
-        ],
-        "properties": {
-          "description": "",
-          "email": "",
-          "external_account": "",
-          "firstname": "Alice",
-          "id": "92",
-          "is_super_user": "false",
-          "is_system_auditor": "false",
-          "last_login": "",
-          "lastname": "",
-          "ldap_dn": "",
-          "name": "alice",
-          "url": "/api/v2/users/92/"
         }
       },
       {
@@ -272,60 +272,6 @@
         }
       },
       {
-        "id": "594bb965968920d3af722e2e5a73e17a1dc71318",
-        "kinds": [
-          "ATJob"
-        ],
-        "properties": {
-          "allow_simultaneous": "false",
-          "canceled_on": "",
-          "controller_node": "awx-operator-research-task-6794dc494c-5xlqz",
-          "created": "2025-08-04T12:50:47.979868Z",
-          "description": "",
-          "diff_mode": "false",
-          "elapsed": "3.6687000275e+01",
-          "execution_environment": "2",
-          "execution_node": "",
-          "extra_vars": "{}",
-          "failed": "true",
-          "finished": "2025-08-04T12:51:24.936242Z",
-          "force_handler": "false",
-          "forks": "0",
-          "id": "83",
-          "instance_group": "2",
-          "inventory": "75",
-          "job_explanation": "",
-          "job_slice_count": "1",
-          "job_slice_number": "0",
-          "job_tags": "",
-          "job_type": "run",
-          "launch_type": "manual",
-          "limit": "prod-backup.example.tld",
-          "modified": "2025-08-04T12:50:48.146666Z",
-          "name": "Backup Prod",
-          "organization": "15",
-          "password_needed_to_start": "",
-          "playbook": "helloworld.yml",
-          "project": "88",
-          "scm_branch": "",
-          "scm_revision": "42c93829ab9f566db2a05e5e2444279f697549a5",
-          "skip_tags": "",
-          "start_at_task": "",
-          "started": "2025-08-04T12:50:48.249450Z",
-          "status": "failed",
-          "timeout": "0",
-          "type": "job",
-          "unified_job_template": "91",
-          "url": "/api/v2/jobs/83/",
-          "use_fact_cache": "false",
-          "verbosity": "0",
-          "webhook_credential": "0",
-          "webhook_guid": "",
-          "webhook_service": "",
-          "work_unit_id": "ZnqVBRF5"
-        }
-      },
-      {
         "id": "3024d461aec4c4f22df80ffa145909b123e1ae9c",
         "kinds": [
           "ATJob"
@@ -431,6 +377,60 @@
           "webhook_guid": "",
           "webhook_service": "",
           "work_unit_id": "G9NSZnHn"
+        }
+      },
+      {
+        "id": "594bb965968920d3af722e2e5a73e17a1dc71318",
+        "kinds": [
+          "ATJob"
+        ],
+        "properties": {
+          "allow_simultaneous": "false",
+          "canceled_on": "",
+          "controller_node": "awx-operator-research-task-6794dc494c-5xlqz",
+          "created": "2025-08-04T12:50:47.979868Z",
+          "description": "",
+          "diff_mode": "false",
+          "elapsed": "3.6687000275e+01",
+          "execution_environment": "2",
+          "execution_node": "",
+          "extra_vars": "{}",
+          "failed": "true",
+          "finished": "2025-08-04T12:51:24.936242Z",
+          "force_handler": "false",
+          "forks": "0",
+          "id": "83",
+          "instance_group": "2",
+          "inventory": "75",
+          "job_explanation": "",
+          "job_slice_count": "1",
+          "job_slice_number": "0",
+          "job_tags": "",
+          "job_type": "run",
+          "launch_type": "manual",
+          "limit": "prod-backup.example.tld",
+          "modified": "2025-08-04T12:50:48.146666Z",
+          "name": "Backup Prod",
+          "organization": "15",
+          "password_needed_to_start": "",
+          "playbook": "helloworld.yml",
+          "project": "88",
+          "scm_branch": "",
+          "scm_revision": "42c93829ab9f566db2a05e5e2444279f697549a5",
+          "skip_tags": "",
+          "start_at_task": "",
+          "started": "2025-08-04T12:50:48.249450Z",
+          "status": "failed",
+          "timeout": "0",
+          "type": "job",
+          "unified_job_template": "91",
+          "url": "/api/v2/jobs/83/",
+          "use_fact_cache": "false",
+          "verbosity": "0",
+          "webhook_credential": "0",
+          "webhook_guid": "",
+          "webhook_service": "",
+          "work_unit_id": "ZnqVBRF5"
         }
       },
       {
@@ -646,7 +646,7 @@
           "organization": "15",
           "pending_deletion": "false",
           "prevent_instance_group_fallback": "false",
-          "total_groups": "0",
+          "total_groups": "2",
           "total_hosts": "3",
           "total_inventory_sources": "0",
           "url": "/api/v2/inventories/75/"
@@ -700,23 +700,6 @@
         }
       },
       {
-        "id": "381f90fde10f3f53614041fd43fd63b36db18994",
-        "kinds": [
-          "ATCredential"
-        ],
-        "properties": {
-          "cloud": "false",
-          "credential_type": "1",
-          "description": "",
-          "id": "94",
-          "kubernetes": "false",
-          "managed": "false",
-          "name": "Backup",
-          "organization": "15",
-          "url": "/api/v2/credentials/94/"
-        }
-      },
-      {
         "id": "2269964c910971bd3c23c847a2487314222ac117",
         "kinds": [
           "ATCredential"
@@ -731,6 +714,57 @@
           "name": "Dev",
           "organization": "14",
           "url": "/api/v2/credentials/91/"
+        }
+      },
+      {
+        "id": "11c6d92c8c1ad62649584e6289d93dfdcf9e860f",
+        "kinds": [
+          "ATCredential"
+        ],
+        "properties": {
+          "cloud": "false",
+          "credential_type": "3",
+          "description": "",
+          "id": "97",
+          "kubernetes": "false",
+          "managed": "false",
+          "name": "PROD Ansible Vault",
+          "organization": "15",
+          "url": "/api/v2/credentials/97/"
+        }
+      },
+      {
+        "id": "5de872773808ad07583e05324946670532f8df26",
+        "kinds": [
+          "ATCredential"
+        ],
+        "properties": {
+          "cloud": "false",
+          "credential_type": "30",
+          "description": "",
+          "id": "96",
+          "kubernetes": "false",
+          "managed": "false",
+          "name": "PROD Secret Server",
+          "organization": "15",
+          "url": "/api/v2/credentials/96/"
+        }
+      },
+      {
+        "id": "381f90fde10f3f53614041fd43fd63b36db18994",
+        "kinds": [
+          "ATCredential"
+        ],
+        "properties": {
+          "cloud": "false",
+          "credential_type": "1",
+          "description": "",
+          "id": "94",
+          "kubernetes": "false",
+          "managed": "false",
+          "name": "Backup",
+          "organization": "15",
+          "url": "/api/v2/credentials/94/"
         }
       },
       {
@@ -785,37 +819,823 @@
         }
       },
       {
-        "id": "11c6d92c8c1ad62649584e6289d93dfdcf9e860f",
+        "id": "626618b124bb6e6349428db214ce9133aa8a64af",
         "kinds": [
           "ATCredential"
         ],
         "properties": {
-          "cloud": "false",
-          "credential_type": "3",
+          "cloud": "true",
+          "credential_type": "16",
           "description": "",
-          "id": "97",
+          "id": "98",
           "kubernetes": "false",
           "managed": "false",
-          "name": "PROD Ansible Vault",
-          "organization": "15",
-          "url": "/api/v2/credentials/97/"
+          "name": "Red hat token",
+          "organization": "0",
+          "url": "/api/v2/credentials/98/"
         }
       },
       {
-        "id": "5de872773808ad07583e05324946670532f8df26",
+        "id": "7557d8ec81969a84f8bced2af7f38a764d46a1f4",
         "kinds": [
-          "ATCredential"
+          "ATCredentialType"
         ],
         "properties": {
           "cloud": "false",
-          "credential_type": "30",
           "description": "",
-          "id": "96",
+          "field_project_help": "The Project ID is the GCE assigned identification. It is often constructed as three words or two words followed by a three-digit number. Examples: project-id-000 and another-project-id",
+          "field_project_type": "string",
+          "field_ssh_key_data_help": "Paste the contents of the PEM file associated with the service account email.",
+          "field_ssh_key_data_secret": "true",
+          "field_ssh_key_data_type": "string",
+          "field_username_help": "The email address assigned to the Google Compute Engine service account.",
+          "field_username_type": "string",
+          "fields_required": "username, ssh_key_data",
+          "id": "9",
+          "kubernetes": "false",
+          "managed": "true",
+          "name": "Google Compute Engine",
+          "namespace": "gce",
+          "url": "/api/v2/credential_types/9/"
+        }
+      },
+      {
+        "id": "7eb01afb0695af2a914cd438d3b78a7184f35a54",
+        "kinds": [
+          "ATCredentialType"
+        ],
+        "properties": {
+          "cloud": "false",
+          "description": "",
+          "field_cacert_help": "The CA certificate used to verify the SSL certificate of the Vault server",
+          "field_cacert_type": "string",
+          "field_client_cert_private_help": "The certificate private key used for TLS client authentication.",
+          "field_client_cert_private_secret": "true",
+          "field_client_cert_private_type": "string",
+          "field_client_cert_public_help": "The PEM-encoded client certificate used for TLS client authentication. This should include the certificate and any intermediate certififcates.",
+          "field_client_cert_public_type": "string",
+          "field_client_cert_role_help": "The role configured in Hashicorp Vault for TLS client authentication. If not provided, Hashicorp Vault may assign roles based on the certificate used.",
+          "field_client_cert_role_type": "string",
+          "field_default_auth_path_help": "The Authentication path to use if one isn't provided in the metadata when linking to an input field. Defaults to 'approle'",
+          "field_default_auth_path_type": "string",
+          "field_kubernetes_role_help": "The Role for Kubernetes Authentication. This is the named role, configured in Vault server, for AWX pod auth policies. see https://www.vaultproject.io/docs/auth/kubernetes#configuration",
+          "field_kubernetes_role_type": "string",
+          "field_namespace_help": "Name of the namespace to use when authenticate and retrieve secrets",
+          "field_namespace_type": "string",
+          "field_password_help": "Password for user authentication.",
+          "field_password_secret": "true",
+          "field_password_type": "string",
+          "field_role_id_help": "The Role ID for AppRole Authentication",
+          "field_role_id_type": "string",
+          "field_secret_id_help": "The Secret ID for AppRole Authentication",
+          "field_secret_id_secret": "true",
+          "field_secret_id_type": "string",
+          "field_token_help": "The access token used to authenticate to the Vault server",
+          "field_token_secret": "true",
+          "field_token_type": "string",
+          "field_url_help": "The URL to the HashiCorp Vault",
+          "field_url_type": "string",
+          "field_username_help": "Username for user authentication.",
+          "field_username_secret": "false",
+          "field_username_type": "string",
+          "fields_required": "url, secret_path, public_key, role",
+          "id": "28",
+          "kubernetes": "false",
+          "managed": "true",
+          "name": "HashiCorp Vault Signed SSH",
+          "namespace": "hashivault_ssh",
+          "url": "/api/v2/credential_types/28/"
+        }
+      },
+      {
+        "id": "ac03cc867b3636a9eba4b1191c50f2183902d114",
+        "kinds": [
+          "ATCredentialType"
+        ],
+        "properties": {
+          "cloud": "false",
+          "description": "",
+          "field_domain_help": "The (Application) user domain",
+          "field_domain_type": "string",
+          "field_password_help": "The corresponding password",
+          "field_password_secret": "true",
+          "field_password_type": "string",
+          "field_server_url_help": "The Base URL of Secret Server e.g. https://myserver/SecretServer or https://mytenant.secretservercloud.com",
+          "field_server_url_type": "string",
+          "field_username_help": "The (Application) user username",
+          "field_username_type": "string",
+          "fields_required": "server_url, username, password, secret_id, secret_field",
+          "id": "30",
+          "kubernetes": "false",
+          "managed": "true",
+          "name": "Thycotic Secret Server",
+          "namespace": "thycotic_tss",
+          "url": "/api/v2/credential_types/30/"
+        }
+      },
+      {
+        "id": "f707272b535efe23c20ff464740c59badcab2143",
+        "kinds": [
+          "ATCredentialType"
+        ],
+        "properties": {
+          "cloud": "false",
+          "description": "",
+          "field_host_help": "Enter the hostname or IP address that corresponds to your VMware vCenter.",
+          "field_host_type": "string",
+          "field_password_secret": "true",
+          "field_password_type": "string",
+          "field_username_type": "string",
+          "fields_required": "host, username, password",
+          "id": "7",
+          "kubernetes": "false",
+          "managed": "true",
+          "name": "VMware vCenter",
+          "namespace": "vmware",
+          "url": "/api/v2/credential_types/7/"
+        }
+      },
+      {
+        "id": "8404f54b91fac7a35bf6a15591f08d518a249f88",
+        "kinds": [
+          "ATCredentialType"
+        ],
+        "properties": {
+          "cloud": "false",
+          "description": "",
+          "field_client_type": "string",
+          "field_cloud_name_help": "Specify which azure cloud environment to use.",
+          "field_secret_secret": "true",
+          "field_secret_type": "string",
+          "field_tenant_type": "string",
+          "field_url_type": "string",
+          "fields_required": "url, client, secret, tenant, secret_field",
+          "id": "24",
+          "kubernetes": "false",
+          "managed": "true",
+          "name": "Microsoft Azure Key Vault",
+          "namespace": "azure_kv",
+          "url": "/api/v2/credential_types/24/"
+        }
+      },
+      {
+        "id": "8cefca1141f8d059dbd1afb7e2b9692ab649ecd4",
+        "kinds": [
+          "ATCredentialType"
+        ],
+        "properties": {
+          "cloud": "false",
+          "description": "",
+          "field_host_help": "Red Hat Ansible Automation Platform base URL to authenticate with.",
+          "field_host_type": "string",
+          "field_oauth_token_help": "An OAuth token to use to authenticate with.This should not be set if username/password are being used.",
+          "field_oauth_token_secret": "true",
+          "field_oauth_token_type": "string",
+          "field_password_secret": "true",
+          "field_password_type": "string",
+          "field_username_help": "Red Hat Ansible Automation Platform username id to authenticate as.This should not be set if an OAuth token is being used.",
+          "field_username_type": "string",
+          "field_verify_ssl_secret": "false",
+          "field_verify_ssl_type": "boolean",
+          "fields_required": "host",
+          "id": "16",
+          "injector_env_CONTROLLER_HOST": "{{host}}",
+          "injector_env_CONTROLLER_OAUTH_TOKEN": "{{oauth_token}}",
+          "injector_env_CONTROLLER_PASSWORD": "{{password}}",
+          "injector_env_CONTROLLER_USERNAME": "{{username}}",
+          "injector_env_CONTROLLER_VERIFY_SSL": "{{verify_ssl}}",
+          "injector_env_TOWER_HOST": "{{host}}",
+          "injector_env_TOWER_OAUTH_TOKEN": "{{oauth_token}}",
+          "injector_env_TOWER_PASSWORD": "{{password}}",
+          "injector_env_TOWER_USERNAME": "{{username}}",
+          "injector_env_TOWER_VERIFY_SSL": "{{verify_ssl}}",
+          "kubernetes": "false",
+          "managed": "true",
+          "name": "Red Hat Ansible Automation Platform",
+          "namespace": "controller",
+          "url": "/api/v2/credential_types/16/"
+        }
+      },
+      {
+        "id": "7975b9a91023692eaec66ca66b56e14e58a20980",
+        "kinds": [
+          "ATCredentialType"
+        ],
+        "properties": {
+          "cloud": "false",
+          "description": "",
+          "field_client_id_help": "Centrify API User, having necessary permissions as mentioned in support doc",
+          "field_client_id_type": "string",
+          "field_client_password_help": "Password of Centrify API User with necessary permissions",
+          "field_client_password_secret": "true",
+          "field_client_password_type": "string",
+          "field_oauth_application_id_help": "Application ID of the configured OAuth2 Client (defaults to 'awx')",
+          "field_oauth_application_id_type": "string",
+          "field_oauth_scope_help": "Scope of the configured OAuth2 Client (defaults to 'awx')",
+          "field_oauth_scope_type": "string",
+          "field_url_help": "Centrify Tenant URL",
+          "field_url_type": "string",
+          "fields_required": "url, account-name, system-name, client_id, client_password",
+          "id": "25",
+          "kubernetes": "false",
+          "managed": "true",
+          "name": "Centrify Vault Credential Provider Lookup",
+          "namespace": "centrify_vault_kv",
+          "url": "/api/v2/credential_types/25/"
+        }
+      },
+      {
+        "id": "e5f2a15d91165787f3c506c3b7b12c48773f25d3",
+        "kinds": [
+          "ATCredentialType"
+        ],
+        "properties": {
+          "cloud": "false",
+          "description": "",
+          "field_api_version_help": "API v1 is for static key/value lookups.  API v2 is for versioned key/value lookups.",
+          "field_cacert_help": "The CA certificate used to verify the SSL certificate of the Vault server",
+          "field_cacert_type": "string",
+          "field_client_cert_private_help": "The certificate private key used for TLS client authentication.",
+          "field_client_cert_private_secret": "true",
+          "field_client_cert_private_type": "string",
+          "field_client_cert_public_help": "The PEM-encoded client certificate used for TLS client authentication. This should include the certificate and any intermediate certififcates.",
+          "field_client_cert_public_type": "string",
+          "field_client_cert_role_help": "The role configured in Hashicorp Vault for TLS client authentication. If not provided, Hashicorp Vault may assign roles based on the certificate used.",
+          "field_client_cert_role_type": "string",
+          "field_default_auth_path_help": "The Authentication path to use if one isn't provided in the metadata when linking to an input field. Defaults to 'approle'",
+          "field_default_auth_path_type": "string",
+          "field_kubernetes_role_help": "The Role for Kubernetes Authentication. This is the named role, configured in Vault server, for AWX pod auth policies. see https://www.vaultproject.io/docs/auth/kubernetes#configuration",
+          "field_kubernetes_role_type": "string",
+          "field_namespace_help": "Name of the namespace to use when authenticate and retrieve secrets",
+          "field_namespace_type": "string",
+          "field_password_help": "Password for user authentication.",
+          "field_password_secret": "true",
+          "field_password_type": "string",
+          "field_role_id_help": "The Role ID for AppRole Authentication",
+          "field_role_id_type": "string",
+          "field_secret_id_help": "The Secret ID for AppRole Authentication",
+          "field_secret_id_secret": "true",
+          "field_secret_id_type": "string",
+          "field_token_help": "The access token used to authenticate to the Vault server",
+          "field_token_secret": "true",
+          "field_token_type": "string",
+          "field_url_help": "The URL to the HashiCorp Vault",
+          "field_url_type": "string",
+          "field_username_help": "Username for user authentication.",
+          "field_username_secret": "false",
+          "field_username_type": "string",
+          "fields_required": "url, secret_path, api_version, secret_key",
+          "id": "27",
+          "kubernetes": "false",
+          "managed": "true",
+          "name": "HashiCorp Vault Secret Lookup",
+          "namespace": "hashivault_kv",
+          "url": "/api/v2/credential_types/27/"
+        }
+      },
+      {
+        "id": "3515f82637bdedd5242cdfc5c16a4b4026eb6616",
+        "kinds": [
+          "ATCredentialType"
+        ],
+        "properties": {
+          "cloud": "false",
+          "description": "",
+          "field_token_help": "This token needs to come from your profile settings in GitHub",
+          "field_token_secret": "true",
+          "field_token_type": "string",
+          "fields_required": "token",
+          "id": "11",
+          "kubernetes": "false",
+          "managed": "true",
+          "name": "GitHub Personal Access Token",
+          "namespace": "github_token",
+          "url": "/api/v2/credential_types/11/"
+        }
+      },
+      {
+        "id": "451c3df214dbfa12e6b773bd991cc7015acb0f9d",
+        "kinds": [
+          "ATCredentialType"
+        ],
+        "properties": {
+          "cloud": "false",
+          "description": "",
+          "field_token_help": "This token needs to come from your profile settings in GitLab",
+          "field_token_secret": "true",
+          "field_token_type": "string",
+          "fields_required": "token",
+          "id": "12",
+          "kubernetes": "false",
+          "managed": "true",
+          "name": "GitLab Personal Access Token",
+          "namespace": "gitlab_token",
+          "url": "/api/v2/credential_types/12/"
+        }
+      },
+      {
+        "id": "6092c63160d7f0ad6a2961c2ebaa16421fb5f4e2",
+        "kinds": [
+          "ATCredentialType"
+        ],
+        "properties": {
+          "cloud": "false",
+          "description": "",
+          "field_token_help": "This token needs to come from your user settings in Bitbucket",
+          "field_token_secret": "true",
+          "field_token_type": "string",
+          "fields_required": "token",
+          "id": "13",
+          "kubernetes": "false",
+          "managed": "true",
+          "name": "Bitbucket Data Center HTTP Access Token",
+          "namespace": "bitbucket_dc_token",
+          "url": "/api/v2/credential_types/13/"
+        }
+      },
+      {
+        "id": "6be48da5e52b37dd71d516aefaf5aebfcd916e60",
+        "kinds": [
+          "ATCredentialType"
+        ],
+        "properties": {
+          "cloud": "false",
+          "description": "",
+          "field_domain_help": "OpenStack domains define administrative boundaries. It is only needed for Keystone v3 authentication URLs. Refer to the documentation for common scenarios.",
+          "field_domain_type": "string",
+          "field_host_help": "The host to authenticate with.  For example, https://openstack.business.com/v2.0/",
+          "field_host_type": "string",
+          "field_password_secret": "true",
+          "field_password_type": "string",
+          "field_project_domain_name_type": "string",
+          "field_project_type": "string",
+          "field_region_help": "For some cloud providers, like OVH, region must be specified",
+          "field_region_type": "string",
+          "field_username_type": "string",
+          "field_verify_ssl_type": "boolean",
+          "fields_required": "username, password, host, project",
+          "id": "6",
+          "kubernetes": "false",
+          "managed": "true",
+          "name": "OpenStack",
+          "namespace": "openstack",
+          "url": "/api/v2/credential_types/6/"
+        }
+      },
+      {
+        "id": "00b767c534bef898aa94b4cb44630f9c1084d1aa",
+        "kinds": [
+          "ATCredentialType"
+        ],
+        "properties": {
+          "cloud": "false",
+          "description": "",
+          "field_configuration_help": "Terraform backend config as Hashicorp configuration language.",
+          "field_configuration_secret": "true",
+          "field_configuration_type": "string",
+          "field_gce_credentials_help": "Google Cloud Platform account credentials in JSON format.",
+          "field_gce_credentials_secret": "true",
+          "field_gce_credentials_type": "string",
+          "fields_required": "configuration",
+          "id": "21",
+          "kubernetes": "false",
+          "managed": "true",
+          "name": "Terraform backend configuration",
+          "namespace": "terraform",
+          "url": "/api/v2/credential_types/21/"
+        }
+      },
+      {
+        "id": "8b303a523367feaf3e423ac6f8553f01ed488869",
+        "kinds": [
+          "ATCredentialType"
+        ],
+        "properties": {
+          "cloud": "false",
+          "description": "",
+          "field_account_type": "string",
+          "field_api_key_secret": "true",
+          "field_api_key_type": "string",
+          "field_cacert_type": "string",
+          "field_url_type": "string",
+          "field_username_type": "string",
+          "fields_required": "url, api_key, account, username",
+          "id": "26",
+          "kubernetes": "false",
+          "managed": "true",
+          "name": "CyberArk Conjur Secrets Manager Lookup",
+          "namespace": "conjur",
+          "url": "/api/v2/credential_types/26/"
+        }
+      },
+      {
+        "id": "8ae55a854ca9d757bea60af843503cee796c6526",
+        "kinds": [
+          "ATCredentialType"
+        ],
+        "properties": {
+          "cloud": "false",
+          "description": "",
+          "field_password_secret": "true",
+          "field_password_type": "string",
+          "field_username_type": "string",
+          "fields_required": "username, password",
+          "id": "14",
+          "injector_env_INSIGHTS_PASSWORD": "{{password}}",
+          "injector_env_INSIGHTS_USER": "{{username}}",
+          "injector_extra_vars_scm_password": "{{password}}",
+          "injector_extra_vars_scm_username": "{{username}}",
+          "kubernetes": "false",
+          "managed": "true",
+          "name": "Insights",
+          "namespace": "insights",
+          "url": "/api/v2/credential_types/14/"
+        }
+      },
+      {
+        "id": "67738ab7f0671453f66af8fa6028b68b235c3281",
+        "kinds": [
+          "ATCredentialType"
+        ],
+        "properties": {
+          "cloud": "false",
+          "description": "",
+          "field_password_secret": "true",
+          "field_password_type": "string",
+          "field_ssh_key_data_secret": "true",
+          "field_ssh_key_data_type": "string",
+          "field_ssh_key_unlock_secret": "true",
+          "field_ssh_key_unlock_type": "string",
+          "field_username_type": "string",
+          "fields_required": "",
+          "id": "2",
+          "kubernetes": "false",
+          "managed": "true",
+          "name": "Source Control",
+          "namespace": "scm",
+          "url": "/api/v2/credential_types/2/"
+        }
+      },
+      {
+        "id": "e560df7f9f46529c6cd737d4f2476abd2dca387e",
+        "kinds": [
+          "ATCredentialType"
+        ],
+        "properties": {
+          "cloud": "false",
+          "description": "",
+          "field_vault_id_help": "Specify an (optional) Vault ID. This is equivalent to specifying the --vault-id Ansible parameter for providing multiple Vault passwords.  Note: this feature only works in Ansible 2.4+.",
+          "field_vault_id_type": "string",
+          "field_vault_password_secret": "true",
+          "field_vault_password_type": "string",
+          "fields_required": "vault_password",
+          "id": "3",
+          "kubernetes": "false",
+          "managed": "true",
+          "name": "Vault",
+          "namespace": "vault",
+          "url": "/api/v2/credential_types/3/"
+        }
+      },
+      {
+        "id": "ff1c27b8fcc114efc772b7e64e6d7d17a1d6e91e",
+        "kinds": [
+          "ATCredentialType"
+        ],
+        "properties": {
+          "cloud": "false",
+          "description": "",
+          "field_password_secret": "true",
+          "field_password_type": "string",
+          "field_security_token_help": "Security Token Service (STS) is a web service that enables you to request temporary, limited-privilege credentials for AWS Identity and Access Management (IAM) users.",
+          "field_security_token_secret": "true",
+          "field_security_token_type": "string",
+          "field_username_type": "string",
+          "fields_required": "username, password",
+          "id": "5",
+          "kubernetes": "false",
+          "managed": "true",
+          "name": "Amazon Web Services",
+          "namespace": "aws",
+          "url": "/api/v2/credential_types/5/"
+        }
+      },
+      {
+        "id": "2b191c8ce419ee612e507285b6704e33ab329d60",
+        "kinds": [
+          "ATCredentialType"
+        ],
+        "properties": {
+          "cloud": "false",
+          "description": "",
+          "field_client_type": "string",
+          "field_cloud_environment_help": "Environment variable AZURE_CLOUD_ENVIRONMENT when using Azure GovCloud or Azure stack.",
+          "field_cloud_environment_type": "string",
+          "field_password_secret": "true",
+          "field_password_type": "string",
+          "field_secret_secret": "true",
+          "field_secret_type": "string",
+          "field_subscription_help": "Subscription ID is an Azure construct, which is mapped to a username.",
+          "field_subscription_type": "string",
+          "field_tenant_type": "string",
+          "field_username_type": "string",
+          "fields_required": "subscription",
+          "id": "10",
+          "kubernetes": "false",
+          "managed": "true",
+          "name": "Microsoft Azure Resource Manager",
+          "namespace": "azure_rm",
+          "url": "/api/v2/credential_types/10/"
+        }
+      },
+      {
+        "id": "dcac3b056d4fb5cb13620d17343be26810aeaeec",
+        "kinds": [
+          "ATCredentialType"
+        ],
+        "properties": {
+          "cloud": "false",
+          "description": "",
+          "field_ca_file_help": "Absolute file path to the CA file to use (optional)",
+          "field_ca_file_type": "string",
+          "field_host_help": "The host to authenticate with.",
+          "field_host_type": "string",
+          "field_password_secret": "true",
+          "field_password_type": "string",
+          "field_username_type": "string",
+          "fields_required": "host, username, password",
+          "id": "15",
+          "injector_env_OVIRT_INI_PATH": "{{tower.filename}}",
+          "injector_env_OVIRT_PASSWORD": "{{password}}",
+          "injector_env_OVIRT_URL": "{{host}}",
+          "injector_env_OVIRT_USERNAME": "{{username}}",
+          "injector_file_template": "[ovirt]\novirt_url={{host}}\novirt_username={{username}}\novirt_password={{password}}\n{% if ca_file %}ovirt_ca_file={{ca_file}}{% endif %}",
+          "kubernetes": "false",
+          "managed": "true",
+          "name": "Red Hat Virtualization",
+          "namespace": "rhv",
+          "url": "/api/v2/credential_types/15/"
+        }
+      },
+      {
+        "id": "468f3903c7dcf98739104d43fd262385a0bbfc1d",
+        "kinds": [
+          "ATCredentialType"
+        ],
+        "properties": {
+          "cloud": "false",
+          "description": "",
+          "field_app_id_secret": "true",
+          "field_app_id_type": "string",
+          "field_client_cert_secret": "true",
+          "field_client_cert_type": "string",
+          "field_client_key_secret": "true",
+          "field_client_key_type": "string",
+          "field_url_type": "string",
+          "field_verify_type": "boolean",
+          "field_webservice_id_help": "The CCP Web Service ID. Leave blank to default to AIMWebService.",
+          "field_webservice_id_type": "string",
+          "fields_required": "url, app_id, object_query",
+          "id": "22",
+          "kubernetes": "false",
+          "managed": "true",
+          "name": "CyberArk Central Credential Provider Lookup",
+          "namespace": "aim",
+          "url": "/api/v2/credential_types/22/"
+        }
+      },
+      {
+        "id": "168cf0d00417260b5ebd8e725c11a86e644da8e7",
+        "kinds": [
+          "ATCredentialType"
+        ],
+        "properties": {
+          "cloud": "false",
+          "description": "",
+          "field_become_method_help": "Specify a method for \"become\" operations. This is equivalent to specifying the --become-method Ansible parameter.",
+          "field_become_method_type": "string",
+          "field_become_password_secret": "true",
+          "field_become_password_type": "string",
+          "field_become_username_type": "string",
+          "field_password_secret": "true",
+          "field_password_type": "string",
+          "field_ssh_key_data_secret": "true",
+          "field_ssh_key_data_type": "string",
+          "field_ssh_key_unlock_secret": "true",
+          "field_ssh_key_unlock_type": "string",
+          "field_ssh_public_key_data_secret": "true",
+          "field_ssh_public_key_data_type": "string",
+          "field_username_type": "string",
+          "fields_required": "",
+          "id": "1",
+          "kubernetes": "false",
+          "managed": "true",
+          "name": "Machine",
+          "namespace": "ssh",
+          "url": "/api/v2/credential_types/1/"
+        }
+      },
+      {
+        "id": "2ec5aba4ba8e940b49b3fad83f98b59214093931",
+        "kinds": [
+          "ATCredentialType"
+        ],
+        "properties": {
+          "cloud": "false",
+          "description": "",
+          "field_host_help": "Enter the URL that corresponds to your Red Hat Satellite 6 server. For example, https://satellite.example.org",
+          "field_host_type": "string",
+          "field_password_secret": "true",
+          "field_password_type": "string",
+          "field_username_type": "string",
+          "fields_required": "host, username, password",
+          "id": "8",
+          "kubernetes": "false",
+          "managed": "true",
+          "name": "Red Hat Satellite 6",
+          "namespace": "satellite6",
+          "url": "/api/v2/credential_types/8/"
+        }
+      },
+      {
+        "id": "b88579ef6bc253837b4816479daea5b810cecab8",
+        "kinds": [
+          "ATCredentialType"
+        ],
+        "properties": {
+          "cloud": "false",
+          "description": "",
+          "field_authorize_password_secret": "true",
+          "field_authorize_password_type": "string",
+          "field_authorize_type": "boolean",
+          "field_password_secret": "true",
+          "field_password_type": "string",
+          "field_ssh_key_data_secret": "true",
+          "field_ssh_key_data_type": "string",
+          "field_ssh_key_unlock_secret": "true",
+          "field_ssh_key_unlock_type": "string",
+          "field_username_type": "string",
+          "fields_required": "username",
+          "id": "4",
+          "kubernetes": "false",
+          "managed": "true",
+          "name": "Network",
+          "namespace": "net",
+          "url": "/api/v2/credential_types/4/"
+        }
+      },
+      {
+        "id": "b19f8010f1a6d2722e5c260daa61e8162b12f814",
+        "kinds": [
+          "ATCredentialType"
+        ],
+        "properties": {
+          "cloud": "false",
+          "description": "",
+          "field_host_help": "Authentication endpoint for the container registry.",
+          "field_host_type": "string",
+          "field_password_help": "A password or token used to authenticate with",
+          "field_password_secret": "true",
+          "field_password_type": "string",
+          "field_username_type": "string",
+          "field_verify_ssl_type": "boolean",
+          "fields_required": "host",
+          "id": "18",
+          "kubernetes": "false",
+          "managed": "true",
+          "name": "Container Registry",
+          "namespace": "registry",
+          "url": "/api/v2/credential_types/18/"
+        }
+      },
+      {
+        "id": "f822a2ee8b41e61a8d097280fb51ccbe6c438776",
+        "kinds": [
+          "ATCredentialType"
+        ],
+        "properties": {
+          "cloud": "false",
+          "description": "",
+          "field_kek_secret": "true",
+          "field_kek_type": "string",
+          "fields_required": "kek",
+          "id": "31",
           "kubernetes": "false",
           "managed": "false",
-          "name": "PROD Secret Server",
-          "organization": "15",
-          "url": "/api/v2/credentials/96/"
+          "name": "test",
+          "namespace": "",
+          "url": "/api/v2/credential_types/31/"
+        }
+      },
+      {
+        "id": "f311cebf6998af263cf55cad095333fe979014ca",
+        "kinds": [
+          "ATCredentialType"
+        ],
+        "properties": {
+          "cloud": "false",
+          "description": "",
+          "field_gpg_public_key_help": "GPG Public Key used to validate content signatures.",
+          "field_gpg_public_key_secret": "true",
+          "field_gpg_public_key_type": "string",
+          "fields_required": "gpg_public_key",
+          "id": "20",
+          "kubernetes": "false",
+          "managed": "true",
+          "name": "GPG Public Key",
+          "namespace": "gpg_public_key",
+          "url": "/api/v2/credential_types/20/"
+        }
+      },
+      {
+        "id": "81531b65f49fae9207a63604c56a8703b62bf3f0",
+        "kinds": [
+          "ATCredentialType"
+        ],
+        "properties": {
+          "cloud": "false",
+          "description": "",
+          "field_aws_access_key_type": "string",
+          "field_aws_secret_key_secret": "true",
+          "field_aws_secret_key_type": "string",
+          "fields_required": "aws_access_key, aws_secret_key, region_name, secret_name",
+          "id": "23",
+          "kubernetes": "false",
+          "managed": "true",
+          "name": "AWS Secrets Manager lookup",
+          "namespace": "aws_secretsmanager_credential",
+          "url": "/api/v2/credential_types/23/"
+        }
+      },
+      {
+        "id": "4b45f8b98271be0f66f0d9a60ff7fc11b2adec9c",
+        "kinds": [
+          "ATCredentialType"
+        ],
+        "properties": {
+          "cloud": "false",
+          "description": "",
+          "field_client_id_type": "string",
+          "field_client_secret_secret": "true",
+          "field_client_secret_type": "string",
+          "field_tenant_help": "The tenant e.g. \"ex\" when the URL is https://ex.secretsvaultcloud.com",
+          "field_tenant_type": "string",
+          "field_tld_help": "The TLD of the tenant e.g. \"com\" when the URL is https://ex.secretsvaultcloud.com",
+          "fields_required": "tenant, client_id, client_secret, path, secret_field, secret_decoding",
+          "id": "29",
+          "kubernetes": "false",
+          "managed": "true",
+          "name": "Thycotic DevOps Secrets Vault",
+          "namespace": "thycotic_dsv",
+          "url": "/api/v2/credential_types/29/"
+        }
+      },
+      {
+        "id": "dfa6868df3fc444f07d602eac2d59af01d948d96",
+        "kinds": [
+          "ATCredentialType"
+        ],
+        "properties": {
+          "cloud": "false",
+          "description": "",
+          "field_auth_url_help": "The URL of a Keycloak server token_endpoint, if using SSO auth.",
+          "field_auth_url_type": "string",
+          "field_token_help": "A token to use for authentication against the Galaxy instance.",
+          "field_token_secret": "true",
+          "field_token_type": "string",
+          "field_url_help": "The URL of the Galaxy instance to connect to.",
+          "field_url_type": "string",
+          "fields_required": "url",
+          "id": "19",
+          "kubernetes": "false",
+          "managed": "true",
+          "name": "Ansible Galaxy/Automation Hub API Token",
+          "namespace": "galaxy_api_token",
+          "url": "/api/v2/credential_types/19/"
+        }
+      },
+      {
+        "id": "2e273ca9f9a60387abacfc676c86d2049073eeec",
+        "kinds": [
+          "ATCredentialType"
+        ],
+        "properties": {
+          "cloud": "false",
+          "description": "",
+          "field_bearer_token_secret": "true",
+          "field_bearer_token_type": "string",
+          "field_host_help": "The OpenShift or Kubernetes API Endpoint to authenticate with.",
+          "field_host_type": "string",
+          "field_ssl_ca_cert_secret": "true",
+          "field_ssl_ca_cert_type": "string",
+          "field_verify_ssl_type": "boolean",
+          "fields_required": "host, bearer_token",
+          "id": "17",
+          "kubernetes": "false",
+          "managed": "true",
+          "name": "OpenShift or Kubernetes API Bearer Token",
+          "namespace": "kubernetes_bearer_token",
+          "url": "/api/v2/credential_types/17/"
         }
       },
       {
@@ -980,7 +1800,7 @@
           "match_by": "id"
         },
         "end": {
-          "value": "41bef9871b17b4532fffbfda3768086253c4c78c",
+          "value": "17b5f0743c31cc14dfcb9d46a637fe5dcf1f9396",
           "match_by": "id"
         }
       },
@@ -991,7 +1811,7 @@
           "match_by": "id"
         },
         "end": {
-          "value": "17b5f0743c31cc14dfcb9d46a637fe5dcf1f9396",
+          "value": "41bef9871b17b4532fffbfda3768086253c4c78c",
           "match_by": "id"
         }
       },
@@ -1108,6 +1928,17 @@
       {
         "kind": "ATContains",
         "start": {
+          "value": "41bef9871b17b4532fffbfda3768086253c4c78c",
+          "match_by": "id"
+        },
+        "end": {
+          "value": "783ca43e4a7b5b23f796f29cf5bb11dcde67f375",
+          "match_by": "id"
+        }
+      },
+      {
+        "kind": "ATContains",
+        "start": {
           "value": "17b5f0743c31cc14dfcb9d46a637fe5dcf1f9396",
           "match_by": "id"
         },
@@ -1134,7 +1965,18 @@
           "match_by": "id"
         },
         "end": {
-          "value": "783ca43e4a7b5b23f796f29cf5bb11dcde67f375",
+          "value": "381f90fde10f3f53614041fd43fd63b36db18994",
+          "match_by": "id"
+        }
+      },
+      {
+        "kind": "ATContains",
+        "start": {
+          "value": "17b5f0743c31cc14dfcb9d46a637fe5dcf1f9396",
+          "match_by": "id"
+        },
+        "end": {
+          "value": "d1d869457af3e25fb27e83da9dee46e77cab165c",
           "match_by": "id"
         }
       },
@@ -1146,6 +1988,17 @@
         },
         "end": {
           "value": "2ecf986fa3a26d3984e2d123ef345b6617ab9b96",
+          "match_by": "id"
+        }
+      },
+      {
+        "kind": "ATContains",
+        "start": {
+          "value": "17b5f0743c31cc14dfcb9d46a637fe5dcf1f9396",
+          "match_by": "id"
+        },
+        "end": {
+          "value": "2269964c910971bd3c23c847a2487314222ac117",
           "match_by": "id"
         }
       },
@@ -1174,39 +2027,6 @@
       {
         "kind": "ATContains",
         "start": {
-          "value": "41bef9871b17b4532fffbfda3768086253c4c78c",
-          "match_by": "id"
-        },
-        "end": {
-          "value": "381f90fde10f3f53614041fd43fd63b36db18994",
-          "match_by": "id"
-        }
-      },
-      {
-        "kind": "ATContains",
-        "start": {
-          "value": "17b5f0743c31cc14dfcb9d46a637fe5dcf1f9396",
-          "match_by": "id"
-        },
-        "end": {
-          "value": "2269964c910971bd3c23c847a2487314222ac117",
-          "match_by": "id"
-        }
-      },
-      {
-        "kind": "ATContains",
-        "start": {
-          "value": "17b5f0743c31cc14dfcb9d46a637fe5dcf1f9396",
-          "match_by": "id"
-        },
-        "end": {
-          "value": "d1d869457af3e25fb27e83da9dee46e77cab165c",
-          "match_by": "id"
-        }
-      },
-      {
-        "kind": "ATContains",
-        "start": {
           "value": "17b5f0743c31cc14dfcb9d46a637fe5dcf1f9396",
           "match_by": "id"
         },
@@ -1267,28 +2087,6 @@
         },
         "end": {
           "value": "02d7de3ac095241d5085b3fd178d67512097fcb3",
-          "match_by": "id"
-        }
-      },
-      {
-        "kind": "ATUses",
-        "start": {
-          "value": "7c2118b527eac71c4d2a8cf9686e3cbc2ce9fe34",
-          "match_by": "id"
-        },
-        "end": {
-          "value": "59b3eb42485dad9f98009b91bb06711f7e3157f5",
-          "match_by": "id"
-        }
-      },
-      {
-        "kind": "ATUses",
-        "start": {
-          "value": "783ca43e4a7b5b23f796f29cf5bb11dcde67f375",
-          "match_by": "id"
-        },
-        "end": {
-          "value": "59b3eb42485dad9f98009b91bb06711f7e3157f5",
           "match_by": "id"
         }
       },
@@ -1300,6 +2098,127 @@
         },
         "end": {
           "value": "2f9be2650f46eef5a82821fcdcd431142b76c451",
+          "match_by": "id"
+        }
+      },
+      {
+        "kind": "ATUses",
+        "start": {
+          "value": "7c2118b527eac71c4d2a8cf9686e3cbc2ce9fe34",
+          "match_by": "id"
+        },
+        "end": {
+          "value": "59b3eb42485dad9f98009b91bb06711f7e3157f5",
+          "match_by": "id"
+        }
+      },
+      {
+        "kind": "ATUses",
+        "start": {
+          "value": "783ca43e4a7b5b23f796f29cf5bb11dcde67f375",
+          "match_by": "id"
+        },
+        "end": {
+          "value": "59b3eb42485dad9f98009b91bb06711f7e3157f5",
+          "match_by": "id"
+        }
+      },
+      {
+        "kind": "ATUsesType",
+        "start": {
+          "value": "381f90fde10f3f53614041fd43fd63b36db18994",
+          "match_by": "id"
+        },
+        "end": {
+          "value": "168cf0d00417260b5ebd8e725c11a86e644da8e7",
+          "match_by": "id"
+        }
+      },
+      {
+        "kind": "ATUsesType",
+        "start": {
+          "value": "d1d869457af3e25fb27e83da9dee46e77cab165c",
+          "match_by": "id"
+        },
+        "end": {
+          "value": "ac03cc867b3636a9eba4b1191c50f2183902d114",
+          "match_by": "id"
+        }
+      },
+      {
+        "kind": "ATUsesType",
+        "start": {
+          "value": "9696d536ff2eb09768090f629e4b303289125ae0",
+          "match_by": "id"
+        },
+        "end": {
+          "value": "3515f82637bdedd5242cdfc5c16a4b4026eb6616",
+          "match_by": "id"
+        }
+      },
+      {
+        "kind": "ATUsesType",
+        "start": {
+          "value": "2ecf986fa3a26d3984e2d123ef345b6617ab9b96",
+          "match_by": "id"
+        },
+        "end": {
+          "value": "168cf0d00417260b5ebd8e725c11a86e644da8e7",
+          "match_by": "id"
+        }
+      },
+      {
+        "kind": "ATUsesType",
+        "start": {
+          "value": "626618b124bb6e6349428db214ce9133aa8a64af",
+          "match_by": "id"
+        },
+        "end": {
+          "value": "8cefca1141f8d059dbd1afb7e2b9692ab649ecd4",
+          "match_by": "id"
+        }
+      },
+      {
+        "kind": "ATUsesType",
+        "start": {
+          "value": "347a6efeeaa70b969c7bf5cb8c7cbc0861c98d46",
+          "match_by": "id"
+        },
+        "end": {
+          "value": "dfa6868df3fc444f07d602eac2d59af01d948d96",
+          "match_by": "id"
+        }
+      },
+      {
+        "kind": "ATUsesType",
+        "start": {
+          "value": "2269964c910971bd3c23c847a2487314222ac117",
+          "match_by": "id"
+        },
+        "end": {
+          "value": "168cf0d00417260b5ebd8e725c11a86e644da8e7",
+          "match_by": "id"
+        }
+      },
+      {
+        "kind": "ATUsesType",
+        "start": {
+          "value": "11c6d92c8c1ad62649584e6289d93dfdcf9e860f",
+          "match_by": "id"
+        },
+        "end": {
+          "value": "e560df7f9f46529c6cd737d4f2476abd2dca387e",
+          "match_by": "id"
+        }
+      },
+      {
+        "kind": "ATUsesType",
+        "start": {
+          "value": "5de872773808ad07583e05324946670532f8df26",
+          "match_by": "id"
+        },
+        "end": {
+          "value": "ac03cc867b3636a9eba4b1191c50f2183902d114",
           "match_by": "id"
         }
       },
@@ -1403,6 +2322,28 @@
         }
       },
       {
+        "kind": "ATExecute",
+        "start": {
+          "value": "b996409b88ef8c07d7b5c435157a3a181a95f1ed",
+          "match_by": "id"
+        },
+        "end": {
+          "value": "783ca43e4a7b5b23f796f29cf5bb11dcde67f375",
+          "match_by": "id"
+        }
+      },
+      {
+        "kind": "ATAdmin",
+        "start": {
+          "value": "b996409b88ef8c07d7b5c435157a3a181a95f1ed",
+          "match_by": "id"
+        },
+        "end": {
+          "value": "381f90fde10f3f53614041fd43fd63b36db18994",
+          "match_by": "id"
+        }
+      },
+      {
         "kind": "ATRead",
         "start": {
           "value": "b996409b88ef8c07d7b5c435157a3a181a95f1ed",
@@ -1427,341 +2368,319 @@
       {
         "kind": "ATExecute",
         "start": {
-          "value": "b996409b88ef8c07d7b5c435157a3a181a95f1ed",
-          "match_by": "id"
-        },
-        "end": {
-          "value": "783ca43e4a7b5b23f796f29cf5bb11dcde67f375",
-          "match_by": "id"
-        }
-      },
-      {
-        "kind": "ATAdmin",
-        "start": {
-          "value": "b996409b88ef8c07d7b5c435157a3a181a95f1ed",
-          "match_by": "id"
-        },
-        "end": {
-          "value": "381f90fde10f3f53614041fd43fd63b36db18994",
-          "match_by": "id"
-        }
-      },
-      {
-        "kind": "ATNotificationAdmin",
-        "start": {
-          "value": "c8a09945d2bfda16eb4c2b1e1ec0ad5170fab31e",
-          "match_by": "id"
-        },
-        "end": {
-          "value": "17b5f0743c31cc14dfcb9d46a637fe5dcf1f9396",
-          "match_by": "id"
-        }
-      },
-      {
-        "kind": "ATApprove",
-        "start": {
-          "value": "c8a09945d2bfda16eb4c2b1e1ec0ad5170fab31e",
-          "match_by": "id"
-        },
-        "end": {
-          "value": "17b5f0743c31cc14dfcb9d46a637fe5dcf1f9396",
-          "match_by": "id"
-        }
-      },
-      {
-        "kind": "ATProjectAdmin",
-        "start": {
-          "value": "c8a09945d2bfda16eb4c2b1e1ec0ad5170fab31e",
-          "match_by": "id"
-        },
-        "end": {
-          "value": "17b5f0743c31cc14dfcb9d46a637fe5dcf1f9396",
-          "match_by": "id"
-        }
-      },
-      {
-        "kind": "ATInventoryAdmin",
-        "start": {
-          "value": "c8a09945d2bfda16eb4c2b1e1ec0ad5170fab31e",
-          "match_by": "id"
-        },
-        "end": {
-          "value": "17b5f0743c31cc14dfcb9d46a637fe5dcf1f9396",
-          "match_by": "id"
-        }
-      },
-      {
-        "kind": "ATAuditor",
-        "start": {
-          "value": "c8a09945d2bfda16eb4c2b1e1ec0ad5170fab31e",
-          "match_by": "id"
-        },
-        "end": {
-          "value": "17b5f0743c31cc14dfcb9d46a637fe5dcf1f9396",
-          "match_by": "id"
-        }
-      },
-      {
-        "kind": "ATExecute",
-        "start": {
-          "value": "c8a09945d2bfda16eb4c2b1e1ec0ad5170fab31e",
-          "match_by": "id"
-        },
-        "end": {
-          "value": "41bef9871b17b4532fffbfda3768086253c4c78c",
-          "match_by": "id"
-        }
-      },
-      {
-        "kind": "ATInventoryAdmin",
-        "start": {
-          "value": "c8a09945d2bfda16eb4c2b1e1ec0ad5170fab31e",
-          "match_by": "id"
-        },
-        "end": {
-          "value": "41bef9871b17b4532fffbfda3768086253c4c78c",
-          "match_by": "id"
-        }
-      },
-      {
-        "kind": "ATJobTemplateAdmin",
-        "start": {
-          "value": "c8a09945d2bfda16eb4c2b1e1ec0ad5170fab31e",
-          "match_by": "id"
-        },
-        "end": {
-          "value": "41bef9871b17b4532fffbfda3768086253c4c78c",
-          "match_by": "id"
-        }
-      },
-      {
-        "kind": "ATRead",
-        "start": {
-          "value": "c8a09945d2bfda16eb4c2b1e1ec0ad5170fab31e",
-          "match_by": "id"
-        },
-        "end": {
-          "value": "41bef9871b17b4532fffbfda3768086253c4c78c",
-          "match_by": "id"
-        }
-      },
-      {
-        "kind": "ATExecute",
-        "start": {
-          "value": "c8a09945d2bfda16eb4c2b1e1ec0ad5170fab31e",
-          "match_by": "id"
-        },
-        "end": {
-          "value": "17b5f0743c31cc14dfcb9d46a637fe5dcf1f9396",
-          "match_by": "id"
-        }
-      },
-      {
-        "kind": "ATWorkflowAdmin",
-        "start": {
-          "value": "c8a09945d2bfda16eb4c2b1e1ec0ad5170fab31e",
-          "match_by": "id"
-        },
-        "end": {
-          "value": "17b5f0743c31cc14dfcb9d46a637fe5dcf1f9396",
-          "match_by": "id"
-        }
-      },
-      {
-        "kind": "ATProjectAdmin",
-        "start": {
-          "value": "c8a09945d2bfda16eb4c2b1e1ec0ad5170fab31e",
-          "match_by": "id"
-        },
-        "end": {
-          "value": "41bef9871b17b4532fffbfda3768086253c4c78c",
-          "match_by": "id"
-        }
-      },
-      {
-        "kind": "ATCredentialAdmin",
-        "start": {
-          "value": "c8a09945d2bfda16eb4c2b1e1ec0ad5170fab31e",
-          "match_by": "id"
-        },
-        "end": {
-          "value": "41bef9871b17b4532fffbfda3768086253c4c78c",
-          "match_by": "id"
-        }
-      },
-      {
-        "kind": "ATWorkflowAdmin",
-        "start": {
-          "value": "c8a09945d2bfda16eb4c2b1e1ec0ad5170fab31e",
-          "match_by": "id"
-        },
-        "end": {
-          "value": "41bef9871b17b4532fffbfda3768086253c4c78c",
-          "match_by": "id"
-        }
-      },
-      {
-        "kind": "ATExecutionEnvironmentAdmin",
-        "start": {
-          "value": "c8a09945d2bfda16eb4c2b1e1ec0ad5170fab31e",
-          "match_by": "id"
-        },
-        "end": {
-          "value": "41bef9871b17b4532fffbfda3768086253c4c78c",
-          "match_by": "id"
-        }
-      },
-      {
-        "kind": "ATApprove",
-        "start": {
-          "value": "c8a09945d2bfda16eb4c2b1e1ec0ad5170fab31e",
-          "match_by": "id"
-        },
-        "end": {
-          "value": "41bef9871b17b4532fffbfda3768086253c4c78c",
-          "match_by": "id"
-        }
-      },
-      {
-        "kind": "ATCredentialAdmin",
-        "start": {
-          "value": "c8a09945d2bfda16eb4c2b1e1ec0ad5170fab31e",
-          "match_by": "id"
-        },
-        "end": {
-          "value": "17b5f0743c31cc14dfcb9d46a637fe5dcf1f9396",
-          "match_by": "id"
-        }
-      },
-      {
-        "kind": "ATJobTemplateAdmin",
-        "start": {
-          "value": "c8a09945d2bfda16eb4c2b1e1ec0ad5170fab31e",
-          "match_by": "id"
-        },
-        "end": {
-          "value": "17b5f0743c31cc14dfcb9d46a637fe5dcf1f9396",
-          "match_by": "id"
-        }
-      },
-      {
-        "kind": "ATExecutionEnvironmentAdmin",
-        "start": {
-          "value": "c8a09945d2bfda16eb4c2b1e1ec0ad5170fab31e",
-          "match_by": "id"
-        },
-        "end": {
-          "value": "17b5f0743c31cc14dfcb9d46a637fe5dcf1f9396",
-          "match_by": "id"
-        }
-      },
-      {
-        "kind": "ATRead",
-        "start": {
-          "value": "c8a09945d2bfda16eb4c2b1e1ec0ad5170fab31e",
-          "match_by": "id"
-        },
-        "end": {
-          "value": "17b5f0743c31cc14dfcb9d46a637fe5dcf1f9396",
-          "match_by": "id"
-        }
-      },
-      {
-        "kind": "ATNotificationAdmin",
-        "start": {
-          "value": "c8a09945d2bfda16eb4c2b1e1ec0ad5170fab31e",
-          "match_by": "id"
-        },
-        "end": {
-          "value": "41bef9871b17b4532fffbfda3768086253c4c78c",
-          "match_by": "id"
-        }
-      },
-      {
-        "kind": "ATAuditor",
-        "start": {
-          "value": "c8a09945d2bfda16eb4c2b1e1ec0ad5170fab31e",
-          "match_by": "id"
-        },
-        "end": {
-          "value": "41bef9871b17b4532fffbfda3768086253c4c78c",
-          "match_by": "id"
-        }
-      },
-      {
-        "kind": "ATJobTemplateAdmin",
-        "start": {
-          "value": "2b4d3f313efb4bae5a6a991c7c487ab8914b415f",
-          "match_by": "id"
-        },
-        "end": {
-          "value": "17b5f0743c31cc14dfcb9d46a637fe5dcf1f9396",
-          "match_by": "id"
-        }
-      },
-      {
-        "kind": "ATRead",
-        "start": {
-          "value": "2b4d3f313efb4bae5a6a991c7c487ab8914b415f",
-          "match_by": "id"
-        },
-        "end": {
-          "value": "17b5f0743c31cc14dfcb9d46a637fe5dcf1f9396",
-          "match_by": "id"
-        }
-      },
-      {
-        "kind": "ATProjectAdmin",
-        "start": {
-          "value": "2b4d3f313efb4bae5a6a991c7c487ab8914b415f",
-          "match_by": "id"
-        },
-        "end": {
-          "value": "17b5f0743c31cc14dfcb9d46a637fe5dcf1f9396",
-          "match_by": "id"
-        }
-      },
-      {
-        "kind": "ATInventoryAdmin",
-        "start": {
-          "value": "2b4d3f313efb4bae5a6a991c7c487ab8914b415f",
-          "match_by": "id"
-        },
-        "end": {
-          "value": "17b5f0743c31cc14dfcb9d46a637fe5dcf1f9396",
-          "match_by": "id"
-        }
-      },
-      {
-        "kind": "ATCredentialAdmin",
-        "start": {
-          "value": "2b4d3f313efb4bae5a6a991c7c487ab8914b415f",
-          "match_by": "id"
-        },
-        "end": {
-          "value": "17b5f0743c31cc14dfcb9d46a637fe5dcf1f9396",
-          "match_by": "id"
-        }
-      },
-      {
-        "kind": "ATWorkflowAdmin",
-        "start": {
-          "value": "2b4d3f313efb4bae5a6a991c7c487ab8914b415f",
-          "match_by": "id"
-        },
-        "end": {
-          "value": "17b5f0743c31cc14dfcb9d46a637fe5dcf1f9396",
-          "match_by": "id"
-        }
-      },
-      {
-        "kind": "ATExecute",
-        "start": {
           "value": "005bca8511d340c0d35f87ba277f5b832311ed2c",
           "match_by": "id"
         },
         "end": {
           "value": "41bef9871b17b4532fffbfda3768086253c4c78c",
+          "match_by": "id"
+        }
+      },
+      {
+        "kind": "ATInventoryAdmin",
+        "start": {
+          "value": "c8a09945d2bfda16eb4c2b1e1ec0ad5170fab31e",
+          "match_by": "id"
+        },
+        "end": {
+          "value": "17b5f0743c31cc14dfcb9d46a637fe5dcf1f9396",
+          "match_by": "id"
+        }
+      },
+      {
+        "kind": "ATNotificationAdmin",
+        "start": {
+          "value": "c8a09945d2bfda16eb4c2b1e1ec0ad5170fab31e",
+          "match_by": "id"
+        },
+        "end": {
+          "value": "17b5f0743c31cc14dfcb9d46a637fe5dcf1f9396",
+          "match_by": "id"
+        }
+      },
+      {
+        "kind": "ATApprove",
+        "start": {
+          "value": "c8a09945d2bfda16eb4c2b1e1ec0ad5170fab31e",
+          "match_by": "id"
+        },
+        "end": {
+          "value": "17b5f0743c31cc14dfcb9d46a637fe5dcf1f9396",
+          "match_by": "id"
+        }
+      },
+      {
+        "kind": "ATExecute",
+        "start": {
+          "value": "c8a09945d2bfda16eb4c2b1e1ec0ad5170fab31e",
+          "match_by": "id"
+        },
+        "end": {
+          "value": "41bef9871b17b4532fffbfda3768086253c4c78c",
+          "match_by": "id"
+        }
+      },
+      {
+        "kind": "ATInventoryAdmin",
+        "start": {
+          "value": "c8a09945d2bfda16eb4c2b1e1ec0ad5170fab31e",
+          "match_by": "id"
+        },
+        "end": {
+          "value": "41bef9871b17b4532fffbfda3768086253c4c78c",
+          "match_by": "id"
+        }
+      },
+      {
+        "kind": "ATCredentialAdmin",
+        "start": {
+          "value": "c8a09945d2bfda16eb4c2b1e1ec0ad5170fab31e",
+          "match_by": "id"
+        },
+        "end": {
+          "value": "41bef9871b17b4532fffbfda3768086253c4c78c",
+          "match_by": "id"
+        }
+      },
+      {
+        "kind": "ATWorkflowAdmin",
+        "start": {
+          "value": "c8a09945d2bfda16eb4c2b1e1ec0ad5170fab31e",
+          "match_by": "id"
+        },
+        "end": {
+          "value": "41bef9871b17b4532fffbfda3768086253c4c78c",
+          "match_by": "id"
+        }
+      },
+      {
+        "kind": "ATCredentialAdmin",
+        "start": {
+          "value": "c8a09945d2bfda16eb4c2b1e1ec0ad5170fab31e",
+          "match_by": "id"
+        },
+        "end": {
+          "value": "17b5f0743c31cc14dfcb9d46a637fe5dcf1f9396",
+          "match_by": "id"
+        }
+      },
+      {
+        "kind": "ATAuditor",
+        "start": {
+          "value": "c8a09945d2bfda16eb4c2b1e1ec0ad5170fab31e",
+          "match_by": "id"
+        },
+        "end": {
+          "value": "17b5f0743c31cc14dfcb9d46a637fe5dcf1f9396",
+          "match_by": "id"
+        }
+      },
+      {
+        "kind": "ATRead",
+        "start": {
+          "value": "c8a09945d2bfda16eb4c2b1e1ec0ad5170fab31e",
+          "match_by": "id"
+        },
+        "end": {
+          "value": "17b5f0743c31cc14dfcb9d46a637fe5dcf1f9396",
+          "match_by": "id"
+        }
+      },
+      {
+        "kind": "ATNotificationAdmin",
+        "start": {
+          "value": "c8a09945d2bfda16eb4c2b1e1ec0ad5170fab31e",
+          "match_by": "id"
+        },
+        "end": {
+          "value": "41bef9871b17b4532fffbfda3768086253c4c78c",
+          "match_by": "id"
+        }
+      },
+      {
+        "kind": "ATRead",
+        "start": {
+          "value": "c8a09945d2bfda16eb4c2b1e1ec0ad5170fab31e",
+          "match_by": "id"
+        },
+        "end": {
+          "value": "41bef9871b17b4532fffbfda3768086253c4c78c",
+          "match_by": "id"
+        }
+      },
+      {
+        "kind": "ATApprove",
+        "start": {
+          "value": "c8a09945d2bfda16eb4c2b1e1ec0ad5170fab31e",
+          "match_by": "id"
+        },
+        "end": {
+          "value": "41bef9871b17b4532fffbfda3768086253c4c78c",
+          "match_by": "id"
+        }
+      },
+      {
+        "kind": "ATProjectAdmin",
+        "start": {
+          "value": "c8a09945d2bfda16eb4c2b1e1ec0ad5170fab31e",
+          "match_by": "id"
+        },
+        "end": {
+          "value": "17b5f0743c31cc14dfcb9d46a637fe5dcf1f9396",
+          "match_by": "id"
+        }
+      },
+      {
+        "kind": "ATExecutionEnvironmentAdmin",
+        "start": {
+          "value": "c8a09945d2bfda16eb4c2b1e1ec0ad5170fab31e",
+          "match_by": "id"
+        },
+        "end": {
+          "value": "17b5f0743c31cc14dfcb9d46a637fe5dcf1f9396",
+          "match_by": "id"
+        }
+      },
+      {
+        "kind": "ATProjectAdmin",
+        "start": {
+          "value": "c8a09945d2bfda16eb4c2b1e1ec0ad5170fab31e",
+          "match_by": "id"
+        },
+        "end": {
+          "value": "41bef9871b17b4532fffbfda3768086253c4c78c",
+          "match_by": "id"
+        }
+      },
+      {
+        "kind": "ATJobTemplateAdmin",
+        "start": {
+          "value": "c8a09945d2bfda16eb4c2b1e1ec0ad5170fab31e",
+          "match_by": "id"
+        },
+        "end": {
+          "value": "41bef9871b17b4532fffbfda3768086253c4c78c",
+          "match_by": "id"
+        }
+      },
+      {
+        "kind": "ATExecute",
+        "start": {
+          "value": "c8a09945d2bfda16eb4c2b1e1ec0ad5170fab31e",
+          "match_by": "id"
+        },
+        "end": {
+          "value": "17b5f0743c31cc14dfcb9d46a637fe5dcf1f9396",
+          "match_by": "id"
+        }
+      },
+      {
+        "kind": "ATWorkflowAdmin",
+        "start": {
+          "value": "c8a09945d2bfda16eb4c2b1e1ec0ad5170fab31e",
+          "match_by": "id"
+        },
+        "end": {
+          "value": "17b5f0743c31cc14dfcb9d46a637fe5dcf1f9396",
+          "match_by": "id"
+        }
+      },
+      {
+        "kind": "ATJobTemplateAdmin",
+        "start": {
+          "value": "c8a09945d2bfda16eb4c2b1e1ec0ad5170fab31e",
+          "match_by": "id"
+        },
+        "end": {
+          "value": "17b5f0743c31cc14dfcb9d46a637fe5dcf1f9396",
+          "match_by": "id"
+        }
+      },
+      {
+        "kind": "ATExecutionEnvironmentAdmin",
+        "start": {
+          "value": "c8a09945d2bfda16eb4c2b1e1ec0ad5170fab31e",
+          "match_by": "id"
+        },
+        "end": {
+          "value": "41bef9871b17b4532fffbfda3768086253c4c78c",
+          "match_by": "id"
+        }
+      },
+      {
+        "kind": "ATAuditor",
+        "start": {
+          "value": "c8a09945d2bfda16eb4c2b1e1ec0ad5170fab31e",
+          "match_by": "id"
+        },
+        "end": {
+          "value": "41bef9871b17b4532fffbfda3768086253c4c78c",
+          "match_by": "id"
+        }
+      },
+      {
+        "kind": "ATWorkflowAdmin",
+        "start": {
+          "value": "2b4d3f313efb4bae5a6a991c7c487ab8914b415f",
+          "match_by": "id"
+        },
+        "end": {
+          "value": "17b5f0743c31cc14dfcb9d46a637fe5dcf1f9396",
+          "match_by": "id"
+        }
+      },
+      {
+        "kind": "ATJobTemplateAdmin",
+        "start": {
+          "value": "2b4d3f313efb4bae5a6a991c7c487ab8914b415f",
+          "match_by": "id"
+        },
+        "end": {
+          "value": "17b5f0743c31cc14dfcb9d46a637fe5dcf1f9396",
+          "match_by": "id"
+        }
+      },
+      {
+        "kind": "ATRead",
+        "start": {
+          "value": "2b4d3f313efb4bae5a6a991c7c487ab8914b415f",
+          "match_by": "id"
+        },
+        "end": {
+          "value": "17b5f0743c31cc14dfcb9d46a637fe5dcf1f9396",
+          "match_by": "id"
+        }
+      },
+      {
+        "kind": "ATProjectAdmin",
+        "start": {
+          "value": "2b4d3f313efb4bae5a6a991c7c487ab8914b415f",
+          "match_by": "id"
+        },
+        "end": {
+          "value": "17b5f0743c31cc14dfcb9d46a637fe5dcf1f9396",
+          "match_by": "id"
+        }
+      },
+      {
+        "kind": "ATInventoryAdmin",
+        "start": {
+          "value": "2b4d3f313efb4bae5a6a991c7c487ab8914b415f",
+          "match_by": "id"
+        },
+        "end": {
+          "value": "17b5f0743c31cc14dfcb9d46a637fe5dcf1f9396",
+          "match_by": "id"
+        }
+      },
+      {
+        "kind": "ATCredentialAdmin",
+        "start": {
+          "value": "2b4d3f313efb4bae5a6a991c7c487ab8914b415f",
+          "match_by": "id"
+        },
+        "end": {
+          "value": "17b5f0743c31cc14dfcb9d46a637fe5dcf1f9396",
           "match_by": "id"
         }
       }
