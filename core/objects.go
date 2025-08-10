@@ -10,11 +10,12 @@ import (
 
 var Instance AnsibleInstance
 
+// TODO: Remove this, it is now obsolete.
 type AnsibleTypeList interface {
 	[]*User | []*Job | []*JobTemplate | []*Inventory |
 		[]*Project | []*Organization | []*Role | []*Credential |
 		[]*Host | []*Team | []*RoleDefinition | []*RoleTeamAssignments |
-		[]*RoleUserAssignments
+		[]*RoleUserAssignments | []*Group
 }
 
 type AnsibleType interface {
@@ -624,7 +625,7 @@ type Group struct {
 	Object
 	Inventory int           `json:"inventory,omitempty"`
 	Variables string        `json:"variables,omitempty"`
-	Hosts     map[int]*Host `json:"hosts,omitempty`
+	Hosts     map[int]*Host `json:"hosts,omitempty"`
 }
 
 func (i Group) MarshalJSON() ([]byte, error) {
