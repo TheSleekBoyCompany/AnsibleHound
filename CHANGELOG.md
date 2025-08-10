@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Now gathers Groups in inventories and their Hosts.
+- Now creates an ATContains edge between Groups and their Hosts.
+- Now creates an ATContains edge between Inventories and their Groups.
 - Now able to skip TLS/SSL verification using the `-k`/`skip-verify-ssl` flag.
 - Now gathers information on the target Ansible WorX/Tower instance using `/ping` before gathering resources.
 - Now gathers Credentials used by Job Templates and creates an `ATUses` edge between them.
