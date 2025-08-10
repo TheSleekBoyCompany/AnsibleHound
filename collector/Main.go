@@ -77,6 +77,33 @@ func launchGathering(client http.Client, targetUrl *url.URL,
 	hostNodes := core.GenerateNodes(hosts)
 	nodes = append(nodes, hostNodes...)
 
+	log.Info("Gathering Groups.")
+	groups, err := core.GatherObject[*core.Group](
+		instance.InstallUUID, client, *targetUrl, token, core.GROUPS_ENDPOINT,
+	)
+	if err != nil {
+		log.Error("An error occured while gathering Users, skipping.")
+		log.Error(err)
+	}
+	groupsNodes := core.GenerateNodes(groups)
+	nodes = append(nodes, groupsNodes...)
+
+	log.Info("Gathering Group Hosts.")
+	for i, group := range groups {
+
+		groupHostsEndpoint := fmt.Sprintf(core.GROUP_HOSTS_ENDPOINT, group.ID)
+		hosts, err := core.GatherObject[*core.Host](
+			instance.InstallUUID, client, *targetUrl, token, groupHostsEndpoint,
+		)
+		if err != nil {
+			log.Error("An error occured while gathering Team Roles.")
+			log.Error(err)
+			continue
+		}
+		group.Hosts = hosts
+		groups[i] = group
+	}
+
 	log.Info("Gathering Jobs.")
 	jobs, err := core.GatherObject[*core.Job](
 		instance.InstallUUID, client, *targetUrl, token, core.JOBS_ENDPOINT,
@@ -222,6 +249,26 @@ func launchGathering(client http.Client, targetUrl *url.URL,
 		if core.HasAccessTo(inventories, host.Inventory) {
 			edge := core.GenerateEdge(kind, inventories[host.Inventory].OID, host.OID)
 			edges = append(edges, edge)
+		}
+	}
+
+	log.Info("Linking Inventories and Groups.")
+	kind = "ATContains"
+	for _, group := range groups {
+		if core.HasAccessTo(inventories, group.Inventory) {
+			edge := core.GenerateEdge(kind, inventories[group.Inventory].OID, group.OID)
+			edges = append(edges, edge)
+		}
+	}
+
+	log.Info("Linking Groups and Hosts.")
+	kind = "ATContains"
+	for _, group := range groups {
+		for _, host := range group.Hosts {
+			if core.HasAccessTo(hosts, host.ID) {
+				edge := core.GenerateEdge(kind, groups[group.ID].OID, host.OID)
+				edges = append(edges, edge)
+			}
 		}
 	}
 
