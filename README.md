@@ -72,7 +72,7 @@ Nodes correspond to each object type.
 | ATAnsibleInstance | Complete installation of Ansible                                                                                      | sitemap       | #F59C36 |
 | ATOrganization    | Logical collection of users, teams, projects, and inventories. It is the highest-level object in the object hierarchy | building      | #F59C36 |
 | ATInventory       | Collection of hosts and groups                                                                                        | network-wired | #FF78F2 |
-| ATGroup       | Group of hosts                                                                                         | object-group | #FF78F2 |
+| ATGroup       | Group of hosts                                                                                         | object-group | #159b7c |
 | ATUser            | An individual user account                                                                                            | user          | #7ADEE9 |
 | ATJob             | Instance launching a playbook against an inventory of hosts                                                           | gears         | #7CAAFF |
 | ATJobTemplate     | Combines an Ansible playbook from a project and the settings required to launch it                                    | code          | #493EB0 |
