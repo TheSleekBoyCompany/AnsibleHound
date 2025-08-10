@@ -290,7 +290,7 @@ func launchGathering(client http.Client, targetUrl *url.URL,
 		}
 	}
 
-	log.Info("Credentials to Credential Type.")
+	log.Info("Linking Credentials to Credential Type.")
 	kind = "ATUsesType"
 	for _, credential := range credentials {
 		if core.HasAccessTo(credentialTypes, credential.CredentialType) {
