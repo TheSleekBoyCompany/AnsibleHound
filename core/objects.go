@@ -10,11 +10,12 @@ import (
 
 var Instance AnsibleInstance
 
+// TODO: Remove this, it is now obsolete.
 type AnsibleTypeList interface {
 	[]*User | []*Job | []*JobTemplate | []*Inventory |
 		[]*Project | []*Organization | []*Role | []*Credential |
 		[]*Host | []*Team | []*RoleDefinition | []*RoleTeamAssignments |
-		[]*RoleUserAssignments
+		[]*RoleUserAssignments | []*Group
 }
 
 type AnsibleType interface {
@@ -620,7 +621,38 @@ func (h *Host) ToBHNode() (node Node) {
 	return node
 }
 
-// -- Future proofing, curernt RBAC APIs has been deprecated, it will eventually switch to these APIs --
+type Group struct {
+	Object
+	Inventory int           `json:"inventory,omitempty"`
+	Variables string        `json:"variables,omitempty"`
+	Hosts     map[int]*Host `json:"hosts,omitempty"`
+}
+
+func (i Group) MarshalJSON() ([]byte, error) {
+	type group Group
+	return json.MarshalIndent((group)(i), "", "  ")
+}
+
+func (g *Group) ToBHNode() (node Node) {
+	node.Kinds = []string{
+		"ATGroup",
+	}
+	node.Id = g.OID
+	node.Properties = map[string]string{
+		"id":          strconv.Itoa(g.ID),
+		"name":        g.Name,
+		"description": g.Description,
+		"url":         g.Url,
+		"type":        g.Type,
+		"created":     g.Created,
+		"modified":    g.Modified,
+		"inventory":   strconv.FormatInt(int64(g.Inventory), 10),
+		"variables":   g.Variables,
+	}
+	return node
+}
+
+// -- Future proofing, current RBAC APIs has been deprecated, it will eventually switch to these APIs --
 
 type RoleDefinition struct {
 	Object
