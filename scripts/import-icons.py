@@ -60,3 +60,4 @@ if __name__ == "__main__":
     define_icon(url, jwt_token, "ATCredentialType", "gear", "#94E16A")
     define_icon(url, jwt_token, "ATHost", "desktop", "#E9E350")
     define_icon(url, jwt_token, "ATTeam", "people-group", "#724752")
+    define_icon(url, jwt_token, "ATGroup", "object-group", "#159b7c")
