@@ -78,6 +78,7 @@ Nodes correspond to each object type.
 | ATJobTemplate     | Combines an Ansible playbook from a project and the settings required to launch it                                    | code          | #493EB0 |
 | ATProject         | Logical collection of Ansible playbooks                                                                               | folder-open   | #EC7589 |
 | ATCredential      | Authenticate the user to launch playbooks (passwords - SSH keys) against inventory hosts                              | key           | #94E16A |
+| ATCredentialType      |                               | key           | #94E16A | Type of the Credential and information about this type.
 | ATHost            | These are the target devices (servers, network appliances or any computer) you aim to manage                          | desktop       | #E9E350 |
 | ATTeam            | A group of users                                                                                                      | people-group  | #724752 |
 
@@ -100,6 +101,7 @@ All the edges are prefixed by `AT` to make it distinct from other collectors edg
 | `ATContains` | `ATOrganization`    | `ATProject`                                                                                  |
 | `ATUses`     | `ATJobTemplate`     | `ATProject`                                                                                  |
 | `ATUses`     | `ATJobTemplate`     | `ATInventory`                                                                                |
+| `ATUsesType`     | `ATCredential`     | `ATCredentialType`                                                                                |
 | `ATExecute`  | `ATUser`            | `ATJobTemplate`                                                                              |
 | `ATExecute`  | `ATTeam`            | `ATJobTemplate`                                                                              |
 | `ATMember`   | `ATUser`            | `ATOrganization` - `ATTeam`                                                                  |

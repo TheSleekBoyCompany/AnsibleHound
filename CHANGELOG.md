@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Now creates a new Custom Icon for Credential Types.
+- Now gathers Credential Types.
+- Now creates an `ATUsesType` edge between, Credentials and their Credential Type.
 - Now gathers Groups in inventories and their Hosts.
 - Now creates an ATContains edge between Groups and their Hosts.
 - Now creates an ATContains edge between Inventories and their Groups.
