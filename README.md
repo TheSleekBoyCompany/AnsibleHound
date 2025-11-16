@@ -10,6 +10,26 @@ Developped by [@Ramoreik](https://github.com/Ramoreik) and [@s_lck](https://gith
 
 ## Collector Setup & Usage
 
+### Get help
+
+```bash
+../build/collector --help
+Go collector for adding Ansible WorX and Ansible Tower attack paths to BloodHound with OpenGraph
+
+Usage:
+  collect [flags]
+
+Flags:
+  -h, --help              help for collect
+      --outdir string     (optional) Output directory for the json files.
+  -p, --password string   Password to use for authentication.
+      --proxy string      (optional) Configure HTTP/HTTPS proxy.
+  -k, --skip-verify-ssl   (optional) Skips SSL/TLS verification.
+  -t, --target string     Target URL of AWX/Tower instance.
+  -u, --username string   Username to use for authenticatio.
+  -v, --verbose           (optional) Enable debug logs.
+```
+
 ### Building the tool
 
 ```bash

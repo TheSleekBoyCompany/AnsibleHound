@@ -462,7 +462,7 @@ func launchGathering(client http.Client, targetUrl *url.URL,
 
 var ingestCmd = &cobra.Command{
 	Use:   "collect",
-	Short: "Collector for Ansible AWX/Tower, for use with the Ansible project.",
+	Short: "Go collector for adding Ansible WorX and Ansible Tower attack paths to BloodHound with OpenGraph ",
 	Run: func(cmd *cobra.Command, args []string) {
 
 		target, _ := cmd.Flags().GetString("target")
