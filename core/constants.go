@@ -5,6 +5,7 @@ import "fmt"
 const VERSION = "0.0.1"
 
 const API_ENDPOINT = "/api/v2/"
+const ME_ENDPOINT = API_ENDPOINT + "me/"
 const ORGANIZATIONS_ENDPOINT = API_ENDPOINT + "organizations/"
 const PROJECTS_ENDPOINT = API_ENDPOINT + "projects/"
 const INVENTORIES_ENDPOINT = API_ENDPOINT + "inventories/"

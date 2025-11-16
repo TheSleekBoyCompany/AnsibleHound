@@ -33,9 +33,8 @@ func InitClient(proxyURL *url.URL, skipVerifySSL bool) http.Client {
 	return *client
 }
 
-func initReq(url string, token string, currentPage int) (*http.Request, error) {
-	// Adds authorization header
-	// If further modifications of every requests are necessary, this is a good place for it.
+func initReq(url string, username string,
+	password string, currentPage int) (*http.Request, error) {
 
 	url = url + PAGE_SIZE_ARG + fmt.Sprintf(CURRENT_PAGE_ARG, currentPage)
 
@@ -43,7 +42,8 @@ func initReq(url string, token string, currentPage int) (*http.Request, error) {
 	if err != nil {
 		return nil, err
 	}
-	req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", token))
+
+	req.SetBasicAuth(username, password)
 
 	return req, nil
 
@@ -57,18 +57,22 @@ func executeReq(client http.Client, req *http.Request) ([]byte, error) {
 	}
 	defer resp.Body.Close()
 
+	if resp.StatusCode == http.StatusUnauthorized {
+		return []byte{}, fmt.Errorf("HTTP error occurred: %s", resp.Status)
+	}
+
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return []byte{}, err
 	}
 
 	return body, nil
-
 }
 
-func getPage(client http.Client, url string, token string, currentPage int) ([]byte, error) {
+func getPage(client http.Client, url string,
+	username string, password string, currentPage int) ([]byte, error) {
 
-	req, err := initReq(url, token, currentPage)
+	req, err := initReq(url, username, password, currentPage)
 	if err != nil {
 		return []byte{}, err
 	}
@@ -82,7 +86,7 @@ func getPage(client http.Client, url string, token string, currentPage int) ([]b
 }
 
 func Gather[T AnsibleType](client http.Client, target url.URL,
-	token string, endpoint string) ([]T, error) {
+	username string, password string, endpoint string) ([]T, error) {
 
 	var objects []T
 	count := 0
@@ -91,7 +95,7 @@ func Gather[T AnsibleType](client http.Client, target url.URL,
 
 	url := target.String() + endpoint
 
-	body, err := getPage(client, url, token, page)
+	body, err := getPage(client, url, username, password, page)
 	if err != nil {
 		return nil, err
 	}
@@ -110,7 +114,7 @@ func Gather[T AnsibleType](client http.Client, target url.URL,
 	if count >= PAGE_SIZE {
 		for {
 			page += 1
-			body, err := getPage(client, url, token, page)
+			body, err := getPage(client, url, username, password, page)
 			if err != nil {
 				return nil, err
 			}
@@ -132,12 +136,12 @@ func Gather[T AnsibleType](client http.Client, target url.URL,
 }
 
 func GatherObject[T AnsibleType](installUUID string, client http.Client,
-	target url.URL, token string, endpoint string) (
+	target url.URL, username string, password string, endpoint string) (
 	objectMap map[int]T, err error) {
 
 	objectMap = make(map[int]T)
 
-	objects, err := Gather[T](client, target, token, endpoint)
+	objects, err := Gather[T](client, target, username, password, endpoint)
 	if err != nil {
 		return nil, err
 	}
@@ -190,4 +194,29 @@ func HasAccessTo[T AnsibleType](objectMap map[int]T, ID int) (result bool) {
 		}
 	}
 	return result
+}
+
+func AuthenticateOnAnsibleInstance(client http.Client,
+	target url.URL, username string, password string, endpoint string) ([]byte, error) {
+
+	url := target.String() + endpoint
+
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	req.SetBasicAuth(username, password)
+
+	resp, err := client.Do(req)
+	if err != nil {
+		return []byte{}, err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode == http.StatusUnauthorized {
+		return []byte{}, fmt.Errorf("HTTP error occurred: %s", resp.Status)
+	}
+
+	return []byte{}, nil
 }
