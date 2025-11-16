@@ -10,20 +10,6 @@ Developped by [@Ramoreik](https://github.com/Ramoreik) and [@s_lck](https://gith
 
 ## Collector Setup & Usage
 
-### Creating a token
-
-To obtain a valid token for **Ansible WorX** or **Ansible Tower**, you can navigate to the **User Details** of your current user.
-
-![](./images/user-details.png)
-
-Then the **tokens** tab.
-
-![](./images/tokens-tab.png)
-
-Finally, create a token and give it **Read** permissions.
-
-![](./images/create-token.png)
-
 ### Building the tool
 
 ```bash
@@ -35,10 +21,10 @@ go build . -o build/collector
 You can run the collector by providing it a **target** and a **token**. It will enumerate what it can give the user's access.
 
 ```bash
-./collector -u '<ansible-url>' -t '<token>'
+./collector -u '<username>' -p '<password>' -t '<ansible-url>'
 
 # Example
-./collector -u 'http://localhost:8080/' -t '56KOmh...'
+./collector -u 'admin' -p 'tcrA...' -t 'http://10.10.10.10:8080'
 ```
 
 > Note : If you have multiple instances of Ansible you need to run the collector against each of them
