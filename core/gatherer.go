@@ -2,14 +2,32 @@ package core
 
 import (
 	"crypto/tls"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
 	"net/url"
+
+	"github.com/charmbracelet/log"
 )
 
-func InitClient(proxyURL *url.URL, skipVerifySSL bool) http.Client {
+type AHClient struct {
+	Client  *http.Client
+	Headers http.Header
+}
+
+func (ahc *AHClient) Do(req *http.Request) (*http.Response, error) {
+	for k, vals := range ahc.Headers {
+		for _, v := range vals {
+			req.Header.Add(k, v)
+		}
+	}
+	return ahc.Client.Do(req)
+}
+
+func InitClient(proxyURL *url.URL, skipVerifySSL bool,
+	username string, password string, token string) AHClient {
 	// Returns a client configured for the gatherer.
 	// For now, this only configures the Proxy, might be useful to handle SSL verification too.
 
@@ -26,15 +44,36 @@ func InitClient(proxyURL *url.URL, skipVerifySSL bool) http.Client {
 		transport.Proxy = http.ProxyURL(proxyURL)
 	}
 
-	client := &http.Client{
+	httpClient := &http.Client{
 		Transport: transport,
 	}
 
-	return *client
+	headers := http.Header{}
+	if username != "" && password != "" {
+		raw := username + ":" + password
+		encoded := base64.StdEncoding.EncodeToString([]byte(raw))
+		headers.Add("Authorization", "Basic "+encoded)
+		if token != "" {
+			log.Warn("Prioritizing username/password authentication material, token was ignored.")
+		}
+	} else if token != "" {
+		if password != "" || username != "" {
+			log.Warn("Prioritizing token authentication material, username/password was ignored.")
+		}
+		headers.Add("Authorization", "Bearer "+token)
+	} else {
+		log.Fatal("No authentication material provided, exiting.")
+	}
+
+	client := AHClient{
+		Client:  httpClient,
+		Headers: headers,
+	}
+
+	return client
 }
 
-func initReq(url string, username string,
-	password string, currentPage int) (*http.Request, error) {
+func initReq(url string, currentPage int) (*http.Request, error) {
 
 	url = url + PAGE_SIZE_ARG + fmt.Sprintf(CURRENT_PAGE_ARG, currentPage)
 
@@ -43,13 +82,11 @@ func initReq(url string, username string,
 		return nil, err
 	}
 
-	req.SetBasicAuth(username, password)
-
 	return req, nil
 
 }
 
-func executeReq(client http.Client, req *http.Request) ([]byte, error) {
+func executeReq(client AHClient, req *http.Request) ([]byte, error) {
 
 	resp, err := client.Do(req)
 	if err != nil {
@@ -69,10 +106,9 @@ func executeReq(client http.Client, req *http.Request) ([]byte, error) {
 	return body, nil
 }
 
-func getPage(client http.Client, url string,
-	username string, password string, currentPage int) ([]byte, error) {
+func getPage(client AHClient, url string, currentPage int) ([]byte, error) {
 
-	req, err := initReq(url, username, password, currentPage)
+	req, err := initReq(url, currentPage)
 	if err != nil {
 		return []byte{}, err
 	}
@@ -85,8 +121,8 @@ func getPage(client http.Client, url string,
 	return body, nil
 }
 
-func Gather[T AnsibleType](client http.Client, target url.URL,
-	username string, password string, endpoint string) ([]T, error) {
+func Gather[T AnsibleType](client AHClient, target url.URL,
+	endpoint string) ([]T, error) {
 
 	var objects []T
 	count := 0
@@ -95,7 +131,7 @@ func Gather[T AnsibleType](client http.Client, target url.URL,
 
 	url := target.String() + endpoint
 
-	body, err := getPage(client, url, username, password, page)
+	body, err := getPage(client, url, page)
 	if err != nil {
 		return nil, err
 	}
@@ -114,7 +150,7 @@ func Gather[T AnsibleType](client http.Client, target url.URL,
 	if count >= PAGE_SIZE {
 		for {
 			page += 1
-			body, err := getPage(client, url, username, password, page)
+			body, err := getPage(client, url, page)
 			if err != nil {
 				return nil, err
 			}
@@ -135,13 +171,13 @@ func Gather[T AnsibleType](client http.Client, target url.URL,
 
 }
 
-func GatherObject[T AnsibleType](installUUID string, client http.Client,
-	target url.URL, username string, password string, endpoint string) (
+func GatherObject[T AnsibleType](installUUID string, client AHClient,
+	target url.URL, endpoint string) (
 	objectMap map[int]T, err error) {
 
 	objectMap = make(map[int]T)
 
-	objects, err := Gather[T](client, target, username, password, endpoint)
+	objects, err := Gather[T](client, target, endpoint)
 	if err != nil {
 		return nil, err
 	}
@@ -154,7 +190,7 @@ func GatherObject[T AnsibleType](installUUID string, client http.Client,
 	return objectMap, nil
 }
 
-func GatherAnsibleInstance(client http.Client, target url.URL) (instance AnsibleInstance, err error) {
+func GatherAnsibleInstance(client AHClient, target url.URL) (instance AnsibleInstance, err error) {
 
 	url := target.String() + PING_ENDPOINT
 
@@ -196,8 +232,8 @@ func HasAccessTo[T AnsibleType](objectMap map[int]T, ID int) (result bool) {
 	return result
 }
 
-func AuthenticateOnAnsibleInstance(client http.Client,
-	target url.URL, username string, password string, endpoint string) ([]byte, error) {
+func AuthenticateOnAnsibleInstance(client AHClient,
+	target url.URL, endpoint string) ([]byte, error) {
 
 	url := target.String() + endpoint
 
@@ -205,8 +241,6 @@ func AuthenticateOnAnsibleInstance(client http.Client,
 	if err != nil {
 		return nil, err
 	}
-
-	req.SetBasicAuth(username, password)
 
 	resp, err := client.Do(req)
 	if err != nil {
