@@ -3,7 +3,6 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"net/http"
 	"net/url"
 	"os"
 	"path"
@@ -15,8 +14,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func launchGathering(client http.Client, targetUrl *url.URL,
-	username string, password string, outdir string) {
+func launchGathering(client core.AHClient, targetUrl *url.URL, outdir string) {
 
 	output := core.OutputJson{
 		Metadata: core.Metadata{
@@ -29,7 +27,7 @@ func launchGathering(client http.Client, targetUrl *url.URL,
 	// -- Check if credentials are valid
 
 	log.Info("Authenticating on Ansible Worx/Tower instance.")
-	_, err := core.AuthenticateOnAnsibleInstance(client, *targetUrl, username, password, core.ME_ENDPOINT)
+	_, err := core.AuthenticateOnAnsibleInstance(client, *targetUrl, core.ME_ENDPOINT)
 	if err != nil {
 		log.Error("Unable to authenticate on Ansible WorX/Tower instance due to invalid credentials.")
 		log.Error(err)
@@ -53,7 +51,7 @@ func launchGathering(client http.Client, targetUrl *url.URL,
 
 	log.Info("Gathering Users.")
 	users, err := core.GatherObject[*core.User](
-		instance.InstallUUID, client, *targetUrl, username, password, core.USERS_ENDPOINT,
+		instance.InstallUUID, client, *targetUrl, core.USERS_ENDPOINT,
 	)
 	if err != nil {
 		log.Error("An error occured while gathering Users, skipping.")
@@ -64,7 +62,7 @@ func launchGathering(client http.Client, targetUrl *url.URL,
 	for i, user := range users {
 		userRolesEndpoint := fmt.Sprintf(core.USER_ROLES_ENDPOINT, user.ID)
 		roles, err := core.GatherObject[*core.Role](
-			instance.InstallUUID, client, *targetUrl, username, password, userRolesEndpoint)
+			instance.InstallUUID, client, *targetUrl, userRolesEndpoint)
 		if err != nil {
 			log.Error("An error occured while gathering User Roles.")
 			log.Error(err)
@@ -78,7 +76,7 @@ func launchGathering(client http.Client, targetUrl *url.URL,
 
 	log.Info("Gathering Hosts.")
 	hosts, err := core.GatherObject[*core.Host](
-		instance.InstallUUID, client, *targetUrl, username, password, core.HOSTS_ENDPOINT,
+		instance.InstallUUID, client, *targetUrl, core.HOSTS_ENDPOINT,
 	)
 	if err != nil {
 		log.Error("An error occured while gathering Hosts, skipping.")
@@ -89,7 +87,7 @@ func launchGathering(client http.Client, targetUrl *url.URL,
 
 	log.Info("Gathering Groups.")
 	groups, err := core.GatherObject[*core.Group](
-		instance.InstallUUID, client, *targetUrl, username, password, core.GROUPS_ENDPOINT,
+		instance.InstallUUID, client, *targetUrl, core.GROUPS_ENDPOINT,
 	)
 	if err != nil {
 		log.Error("An error occured while gathering Users, skipping.")
@@ -103,7 +101,7 @@ func launchGathering(client http.Client, targetUrl *url.URL,
 
 		groupHostsEndpoint := fmt.Sprintf(core.GROUP_HOSTS_ENDPOINT, group.ID)
 		hosts, err := core.GatherObject[*core.Host](
-			instance.InstallUUID, client, *targetUrl, username, password, groupHostsEndpoint,
+			instance.InstallUUID, client, *targetUrl, groupHostsEndpoint,
 		)
 		if err != nil {
 			log.Error("An error occured while gathering Team Roles.")
@@ -116,7 +114,7 @@ func launchGathering(client http.Client, targetUrl *url.URL,
 
 	log.Info("Gathering Jobs.")
 	jobs, err := core.GatherObject[*core.Job](
-		instance.InstallUUID, client, *targetUrl, username, password, core.JOBS_ENDPOINT,
+		instance.InstallUUID, client, *targetUrl, core.JOBS_ENDPOINT,
 	)
 	if err != nil {
 		log.Error("An error occured while gathering Jobs, skipping.")
@@ -127,7 +125,7 @@ func launchGathering(client http.Client, targetUrl *url.URL,
 
 	log.Info("Gathering Job Templates.")
 	jobTemplates, err := core.GatherObject[*core.JobTemplate](
-		instance.InstallUUID, client, *targetUrl, username, password, core.JOB_TEMPLATE_ENDPOINT,
+		instance.InstallUUID, client, *targetUrl, core.JOB_TEMPLATE_ENDPOINT,
 	)
 	if err != nil {
 		log.Error("An error occured while gathering Job Templates, skipping.")
@@ -139,7 +137,7 @@ func launchGathering(client http.Client, targetUrl *url.URL,
 		jobTemplatesCredentialsEndpoint := fmt.Sprintf(core.
 			JOB_TEMPLATE_CREDENTIALS_ENDPOINT, jobTemplate.ID)
 		credentials, err := core.GatherObject[*core.Credential](
-			instance.InstallUUID, client, *targetUrl, username, password, jobTemplatesCredentialsEndpoint,
+			instance.InstallUUID, client, *targetUrl, jobTemplatesCredentialsEndpoint,
 		)
 		if err != nil {
 			log.Error("An error occured while gathering Job Template Credentials.")
@@ -155,7 +153,7 @@ func launchGathering(client http.Client, targetUrl *url.URL,
 
 	log.Info("Gathering Inventories.")
 	inventories, err := core.GatherObject[*core.Inventory](
-		instance.InstallUUID, client, *targetUrl, username, password, core.INVENTORIES_ENDPOINT,
+		instance.InstallUUID, client, *targetUrl, core.INVENTORIES_ENDPOINT,
 	)
 	if err != nil {
 		log.Error("An error occured while gathering Inventories, skipping.")
@@ -166,7 +164,7 @@ func launchGathering(client http.Client, targetUrl *url.URL,
 
 	log.Info("Gathering Organizations.")
 	organizations, err := core.GatherObject[*core.Organization](
-		instance.InstallUUID, client, *targetUrl, username, password, core.ORGANIZATIONS_ENDPOINT,
+		instance.InstallUUID, client, *targetUrl, core.ORGANIZATIONS_ENDPOINT,
 	)
 	if err != nil {
 		log.Error("An error occured while gathering Organizations, skipping.")
@@ -177,7 +175,7 @@ func launchGathering(client http.Client, targetUrl *url.URL,
 
 	log.Info("Gathering Credentials.")
 	credentials, err := core.GatherObject[*core.Credential](
-		instance.InstallUUID, client, *targetUrl, username, password, core.CREDENTIALS_ENDPOINT,
+		instance.InstallUUID, client, *targetUrl, core.CREDENTIALS_ENDPOINT,
 	)
 	if err != nil {
 		log.Error("An error occured while gathering Credentials, skipping.")
@@ -188,7 +186,7 @@ func launchGathering(client http.Client, targetUrl *url.URL,
 
 	log.Info("Gathering Credential Types.")
 	credentialTypes, err := core.GatherObject[*core.CredentialType](
-		instance.InstallUUID, client, *targetUrl, username, password, core.CREDENTIAL_TYPES_ENDPOINT,
+		instance.InstallUUID, client, *targetUrl, core.CREDENTIAL_TYPES_ENDPOINT,
 	)
 	if err != nil {
 		log.Error("An error occured while gathering Credential Types, skipping.")
@@ -199,7 +197,7 @@ func launchGathering(client http.Client, targetUrl *url.URL,
 
 	log.Info("Gathering Projects.")
 	projects, err := core.GatherObject[*core.Project](
-		instance.InstallUUID, client, *targetUrl, username, password, core.PROJECTS_ENDPOINT,
+		instance.InstallUUID, client, *targetUrl, core.PROJECTS_ENDPOINT,
 	)
 	if err != nil {
 		log.Error("An error occured while gathering Projects, skipping.")
@@ -210,7 +208,7 @@ func launchGathering(client http.Client, targetUrl *url.URL,
 
 	log.Info("Gathering Teams.")
 	teams, err := core.GatherObject[*core.Team](
-		instance.InstallUUID, client, *targetUrl, username, password, core.TEAMS_ENDPOINT,
+		instance.InstallUUID, client, *targetUrl, core.TEAMS_ENDPOINT,
 	)
 	if err != nil {
 		log.Error("An error occured while gathering Teams, skipping.")
@@ -222,7 +220,7 @@ func launchGathering(client http.Client, targetUrl *url.URL,
 
 		teamRolesEndpoint := fmt.Sprintf(core.TEAM_ROLES_ENDPOINT, team.ID)
 		roles, err := core.GatherObject[*core.Role](
-			instance.InstallUUID, client, *targetUrl, username, password, teamRolesEndpoint,
+			instance.InstallUUID, client, *targetUrl, teamRolesEndpoint,
 		)
 		if err != nil {
 			log.Error("An error occured while gathering Team Roles.")
@@ -232,7 +230,7 @@ func launchGathering(client http.Client, targetUrl *url.URL,
 
 		teamMembersEndpoint := fmt.Sprintf(core.TEAM_USERS_ENDPOINT, team.ID)
 		members, err := core.GatherObject[*core.User](
-			instance.InstallUUID, client, *targetUrl, username, password, teamMembersEndpoint,
+			instance.InstallUUID, client, *targetUrl, teamMembersEndpoint,
 		)
 		if err != nil {
 			log.Error("An error occured while gathering Team Members.")
@@ -476,13 +474,10 @@ var ingestCmd = &cobra.Command{
 		}
 
 		username, _ := cmd.Flags().GetString("username")
-		if username == "" {
-			log.Fatal("Empty username provided.")
-		}
-
 		password, _ := cmd.Flags().GetString("password")
-		if password == "" {
-			log.Fatal("Empty password provided.")
+		token, _ := cmd.Flags().GetString("token")
+		if (username == "" || password == "") && token == "" {
+			log.Fatal("Invalid authentication material provided.")
 		}
 
 		verbose, _ := cmd.Flags().GetBool("verbose")
@@ -503,9 +498,8 @@ var ingestCmd = &cobra.Command{
 
 		skipVerifySSL, _ := cmd.Flags().GetBool("skip-verify-ssl")
 
-		client := core.InitClient(proxyURL, skipVerifySSL)
-
-		launchGathering(client, targetUrl, username, password, outdir)
+		client := core.InitClient(proxyURL, skipVerifySSL, username, password, token)
+		launchGathering(client, targetUrl, outdir)
 
 	},
 }
@@ -515,11 +509,9 @@ func main() {
 	ingestCmd.Flags().StringP("target", "t", "", "Target URL of AWX/Tower instance.")
 	_ = ingestCmd.MarkFlagRequired("target")
 
-	ingestCmd.Flags().StringP("username", "u", "", "Username to use for authenticatio.")
-	_ = ingestCmd.MarkFlagRequired("username")
-
+	ingestCmd.Flags().StringP("username", "u", "", "Username to use for authentication.")
+	ingestCmd.Flags().StringP("token", "", "", "Token to use for authentication.")
 	ingestCmd.Flags().StringP("password", "p", "", "Password to use for authentication.")
-	_ = ingestCmd.MarkFlagRequired("password")
 
 	ingestCmd.Flags().StringP("proxy", "", "", "(optional) Configure HTTP/HTTPS proxy.")
 	ingestCmd.Flags().StringP("outdir", "", "", "(optional) Output directory for the json files.")

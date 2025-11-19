@@ -5,6 +5,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"net/http"
 	"strconv"
 	"strings"
 )
@@ -816,4 +817,18 @@ type Edge struct {
 type Link struct {
 	Value   string `json:"value"`
 	MatchBy string `json:"match_by"`
+}
+
+type AHClient struct {
+	Client  *http.Client
+	Headers http.Header
+}
+
+func (ahc *AHClient) Do(req *http.Request) (*http.Response, error) {
+	for k, vals := range ahc.Headers {
+		for _, v := range vals {
+			req.Header.Add(k, v)
+		}
+	}
+	return ahc.Client.Do(req)
 }

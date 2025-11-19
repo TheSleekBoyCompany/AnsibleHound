@@ -1,7 +1,6 @@
 package core
 
 import (
-	"crypto/tls"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -9,84 +8,8 @@ import (
 	"net/url"
 )
 
-func InitClient(proxyURL *url.URL, skipVerifySSL bool) http.Client {
-	// Returns a client configured for the gatherer.
-	// For now, this only configures the Proxy, might be useful to handle SSL verification too.
-
-	transport := &http.Transport{}
-
-	if skipVerifySSL {
-		TLSClientConfig := &tls.Config{
-			InsecureSkipVerify: true,
-		}
-		transport.TLSClientConfig = TLSClientConfig
-	}
-
-	if proxyURL != nil {
-		transport.Proxy = http.ProxyURL(proxyURL)
-	}
-
-	client := &http.Client{
-		Transport: transport,
-	}
-
-	return *client
-}
-
-func initReq(url string, username string,
-	password string, currentPage int) (*http.Request, error) {
-
-	url = url + PAGE_SIZE_ARG + fmt.Sprintf(CURRENT_PAGE_ARG, currentPage)
-
-	req, err := http.NewRequest("GET", url, nil)
-	if err != nil {
-		return nil, err
-	}
-
-	req.SetBasicAuth(username, password)
-
-	return req, nil
-
-}
-
-func executeReq(client http.Client, req *http.Request) ([]byte, error) {
-
-	resp, err := client.Do(req)
-	if err != nil {
-		return []byte{}, err
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode == http.StatusUnauthorized {
-		return []byte{}, fmt.Errorf("HTTP error occurred: %s", resp.Status)
-	}
-
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return []byte{}, err
-	}
-
-	return body, nil
-}
-
-func getPage(client http.Client, url string,
-	username string, password string, currentPage int) ([]byte, error) {
-
-	req, err := initReq(url, username, password, currentPage)
-	if err != nil {
-		return []byte{}, err
-	}
-
-	body, err := executeReq(client, req)
-	if err != nil {
-		return []byte{}, err
-	}
-
-	return body, nil
-}
-
-func Gather[T AnsibleType](client http.Client, target url.URL,
-	username string, password string, endpoint string) ([]T, error) {
+func Gather[T AnsibleType](client AHClient, target url.URL,
+	endpoint string) ([]T, error) {
 
 	var objects []T
 	count := 0
@@ -95,7 +18,7 @@ func Gather[T AnsibleType](client http.Client, target url.URL,
 
 	url := target.String() + endpoint
 
-	body, err := getPage(client, url, username, password, page)
+	body, err := getPage(client, url, page)
 	if err != nil {
 		return nil, err
 	}
@@ -114,7 +37,7 @@ func Gather[T AnsibleType](client http.Client, target url.URL,
 	if count >= PAGE_SIZE {
 		for {
 			page += 1
-			body, err := getPage(client, url, username, password, page)
+			body, err := getPage(client, url, page)
 			if err != nil {
 				return nil, err
 			}
@@ -135,13 +58,13 @@ func Gather[T AnsibleType](client http.Client, target url.URL,
 
 }
 
-func GatherObject[T AnsibleType](installUUID string, client http.Client,
-	target url.URL, username string, password string, endpoint string) (
+func GatherObject[T AnsibleType](installUUID string, client AHClient,
+	target url.URL, endpoint string) (
 	objectMap map[int]T, err error) {
 
 	objectMap = make(map[int]T)
 
-	objects, err := Gather[T](client, target, username, password, endpoint)
+	objects, err := Gather[T](client, target, endpoint)
 	if err != nil {
 		return nil, err
 	}
@@ -154,7 +77,7 @@ func GatherObject[T AnsibleType](installUUID string, client http.Client,
 	return objectMap, nil
 }
 
-func GatherAnsibleInstance(client http.Client, target url.URL) (instance AnsibleInstance, err error) {
+func GatherAnsibleInstance(client AHClient, target url.URL) (instance AnsibleInstance, err error) {
 
 	url := target.String() + PING_ENDPOINT
 
@@ -196,8 +119,8 @@ func HasAccessTo[T AnsibleType](objectMap map[int]T, ID int) (result bool) {
 	return result
 }
 
-func AuthenticateOnAnsibleInstance(client http.Client,
-	target url.URL, username string, password string, endpoint string) ([]byte, error) {
+func AuthenticateOnAnsibleInstance(client AHClient,
+	target url.URL, endpoint string) ([]byte, error) {
 
 	url := target.String() + endpoint
 
@@ -205,8 +128,6 @@ func AuthenticateOnAnsibleInstance(client http.Client,
 	if err != nil {
 		return nil, err
 	}
-
-	req.SetBasicAuth(username, password)
 
 	resp, err := client.Do(req)
 	if err != nil {
