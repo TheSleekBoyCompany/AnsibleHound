@@ -10,19 +10,25 @@ Developped by [@Ramoreik](https://github.com/Ramoreik) and [@s_lck](https://gith
 
 ## Collector Setup & Usage
 
-### Creating a token
+### Get help
 
-To obtain a valid token for **Ansible WorX** or **Ansible Tower**, you can navigate to the **User Details** of your current user.
+```bash
+../build/collector --help
+Go collector for adding Ansible WorX and Ansible Tower attack paths to BloodHound with OpenGraph
 
-![](./images/user-details.png)
+Usage:
+  collect [flags]
 
-Then the **tokens** tab.
-
-![](./images/tokens-tab.png)
-
-Finally, create a token and give it **Read** permissions.
-
-![](./images/create-token.png)
+Flags:
+  -h, --help              help for collect
+      --outdir string     (optional) Output directory for the json files.
+  -p, --password string   Password to use for authentication.
+      --proxy string      (optional) Configure HTTP/HTTPS proxy.
+  -k, --skip-verify-ssl   (optional) Skips SSL/TLS verification.
+  -t, --target string     Target URL of AWX/Tower instance.
+  -u, --username string   Username to use for authenticatio.
+  -v, --verbose           (optional) Enable debug logs.
+```
 
 ### Building the tool
 
@@ -35,10 +41,10 @@ go build . -o build/collector
 You can run the collector by providing it a **target** and a **token**. It will enumerate what it can give the user's access.
 
 ```bash
-./collector -u '<ansible-url>' -t '<token>'
+./collector -u '<username>' -p '<password>' -t '<ansible-url>'
 
 # Example
-./collector -u 'http://localhost:8080/' -t '56KOmh...'
+./collector -u 'admin' -p 'tcrA...' -t 'http://10.10.10.10:8080'
 ```
 
 > Note : If you have multiple instances of Ansible you need to run the collector against each of them
