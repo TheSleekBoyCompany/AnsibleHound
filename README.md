@@ -10,26 +10,6 @@ Developped by [@Ramoreik](https://github.com/Ramoreik) and [@s_lck](https://gith
 
 ## Collector Setup & Usage
 
-### Get help
-
-```bash
-../build/collector --help
-Go collector for adding Ansible WorX and Ansible Tower attack paths to BloodHound with OpenGraph
-
-Usage:
-  collect [flags]
-
-Flags:
-  -h, --help              help for collect
-      --outdir string     (optional) Output directory for the json files.
-  -p, --password string   Password to use for authentication.
-      --proxy string      (optional) Configure HTTP/HTTPS proxy.
-  -k, --skip-verify-ssl   (optional) Skips SSL/TLS verification.
-  -t, --target string     Target URL of AWX/Tower instance.
-  -u, --username string   Username to use for authenticatio.
-  -v, --verbose           (optional) Enable debug logs.
-```
-
 ### Building the tool
 
 ```bash
@@ -38,7 +18,41 @@ go build . -o build/collector
 
 ### Running the Collection
 
-You can run the collector by providing it a **target** and a **token**. It will enumerate what it can give the user's access.
+The collector can be run using any of the following authentication materials:
+
+- `token` who is working only for local users
+- `username/password` who is working for both local and LDAP users
+
+The collector will then list the access permissions available to the user. The collection's results depend on the user's level of access used for collection.
+
+> Note : If you have multiple instances of Ansible you need to run the collector against each of them
+
+#### Token
+
+To obtain a valid token for **Ansible WorX** or **Ansible Tower**, you can navigate to the **User Details** of your current user.
+
+![](./images/user-details.png)
+
+Then the **tokens** tab.
+
+![](./images/tokens-tab.png)
+
+Finally, create a token and give it **Read** permissions.
+
+![](./images/create-token.png)
+
+To run the collector, provide it with a target and a token:
+
+```bash
+./collector -t '<ansible-url>' --token '<token>'
+
+# Example
+./collector -t 'http://localhost:8080/' --token '56KOmh...'
+```
+
+#### Username/Password
+
+To run the collector, provide it with a username and a password:
 
 ```bash
 ./collector -u '<username>' -p '<password>' -t '<ansible-url>'
@@ -47,7 +61,7 @@ You can run the collector by providing it a **target** and a **token**. It will 
 ./collector -u 'admin' -p 'tcrA...' -t 'http://10.10.10.10:8080'
 ```
 
-> Note : If you have multiple instances of Ansible you need to run the collector against each of them
+> Provide the domain password for Active Directory / LDAP accounts.
 
 ### Load Icons
 
