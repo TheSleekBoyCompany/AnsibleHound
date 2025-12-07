@@ -14,7 +14,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func launchGathering(client core.AHClient, targetUrl *url.URL, outdir string) {
+func launchGathering(client core.AHClient, targetUrl *url.URL, outdir string, ldap core.AHLdap) {
 
 	output := core.OutputJson{
 		Metadata: core.Metadata{
@@ -24,7 +24,7 @@ func launchGathering(client core.AHClient, targetUrl *url.URL, outdir string) {
 	nodes := []core.Node{}
 	edges := []core.Edge{}
 
-	// -- Check if credentials are valid
+	// -- Check if credentials are valid --
 
 	log.Info("Authenticating on Ansible Worx/Tower instance.")
 	_, err := core.AuthenticateOnAnsibleInstance(client, *targetUrl, core.ME_ENDPOINT)
@@ -441,6 +441,33 @@ func launchGathering(client core.AHClient, targetUrl *url.URL, outdir string) {
 		}
 	}
 
+	// -- Link Ansible and Active Directory --
+
+	log.Info("Linking LDAP Users.")
+	kind = "SyncedToAHUser"
+
+	conn, err := core.Connect(ldap.IP, ldap.IsLDAPS, ldap.BindUsername, ldap.BindPassword, ldap.Domain)
+
+	if err != nil {
+		log.Fatal("Connection failed:", err)
+	}
+	defer conn.Close() // [TODO] CONFIRMER SI NECESSAIRE
+
+	for _, user := range users {
+		if user.ExternalAccount == core.LDAP_VALUE {
+			if user.LdapDn != "" {
+				ldap_dn := user.LdapDn
+				objectSid, _ := core.Search(conn, ldap_dn)
+				edge := core.GenerateEdge(kind, objectSid, user.OID)
+				edges = append(edges, edge)
+			}
+		}
+	}
+
+	//conn.Close() // [TODO] CONFIRMER SI NECESSAIRE
+
+	// -- Output final graph --
+
 	output.Graph = core.Graph{
 		Nodes: nodes,
 		Edges: edges,
@@ -480,6 +507,10 @@ var ingestCmd = &cobra.Command{
 			log.Fatal("Invalid authentication material provided.")
 		}
 
+		dc_ipAddress, _ := cmd.Flags().GetString("dc-ip")
+		domain, _ := cmd.Flags().GetString("domain")
+		isLDAPS, _ := cmd.Flags().GetBool("ldaps") // Inutile de mettre --ldaps si on a pas --dc-ip _ mais pas de consequence non plus
+
 		verbose, _ := cmd.Flags().GetBool("verbose")
 		if verbose {
 			log.SetLevel(log.DebugLevel)
@@ -499,8 +530,9 @@ var ingestCmd = &cobra.Command{
 		skipVerifySSL, _ := cmd.Flags().GetBool("skip-verify-ssl")
 
 		client := core.InitClient(proxyURL, skipVerifySSL, username, password, token)
-		launchGathering(client, targetUrl, outdir)
 
+		ldap := core.InitLdap(dc_ipAddress, username, password, domain, isLDAPS)
+		launchGathering(client, targetUrl, outdir, ldap)
 	},
 }
 
@@ -512,6 +544,10 @@ func main() {
 	ingestCmd.Flags().StringP("username", "u", "", "Username to use for authentication.")
 	ingestCmd.Flags().StringP("token", "", "", "Token to use for authentication.")
 	ingestCmd.Flags().StringP("password", "p", "", "Password to use for authentication.")
+
+	ingestCmd.Flags().StringP("dc-ip", "", "", "(optional) Target IP of the domain. Required only for LDAP user")
+	ingestCmd.Flags().BoolP("ldaps", "", false, "(optional) Configure LDAPS authentication on the domain controller. Required only for LDAP user")
+	ingestCmd.Flags().StringP("domain", "d", "", "(optional) NetBIOS domain name. Required only for LDAP user")
 
 	ingestCmd.Flags().StringP("proxy", "", "", "(optional) Configure HTTP/HTTPS proxy.")
 	ingestCmd.Flags().StringP("outdir", "", "", "(optional) Output directory for the json files.")

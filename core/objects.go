@@ -832,3 +832,11 @@ func (ahc *AHClient) Do(req *http.Request) (*http.Response, error) {
 	}
 	return ahc.Client.Do(req)
 }
+
+type AHLdap struct {
+	IsLDAPS      bool
+	IP           string
+	BindUsername string
+	BindPassword string
+	Domain       string
+}
