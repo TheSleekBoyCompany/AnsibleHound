@@ -809,14 +809,14 @@ type Node struct {
 }
 
 type Edge struct {
-	Kind  string `json:"kind"`
-	Start Link   `json:"start"`
-	End   Link   `json:"end"`
+	Kind  string       `json:"kind"`
+	Start StartEndNode `json:"start"`
+	End   StartEndNode `json:"end"`
 }
 
-type Link struct {
-	Value   string `json:"value"`
-	MatchBy string `json:"match_by"`
+type StartEndNode struct {
+	Value string `json:"value"`
+	Kind  string `json:"kind,omitempty"`
 }
 
 type AHClient struct {
@@ -834,9 +834,10 @@ func (ahc *AHClient) Do(req *http.Request) (*http.Response, error) {
 }
 
 type AHLdap struct {
-	IsLDAPS      bool
-	IP           string
-	BindUsername string
-	BindPassword string
-	Domain       string
+	IsLDAPS       bool
+	IP            string
+	BindUsername  string
+	BindPassword  string
+	Domain        string
+	SkipVerifySSL bool
 }

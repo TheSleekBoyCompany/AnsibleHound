@@ -1,6 +1,7 @@
 package core
 
 import (
+	"crypto/tls"
 	"encoding/binary"
 	"fmt"
 
@@ -9,24 +10,35 @@ import (
 	"github.com/charmbracelet/log"
 )
 
-func InitLdap(dc_ip string, username string, password string, domain string, isLDAPS bool) AHLdap {
+func InitLdap(dc_ip string, username string, password string, domain string, isLDAPS bool, skipVerifySSL bool) AHLdap {
 
 	ldap := AHLdap{
-		IP:           dc_ip,
-		BindUsername: username,
-		BindPassword: password,
-		Domain:       domain,
-		IsLDAPS:      isLDAPS,
+		IP:            dc_ip,
+		BindUsername:  username,
+		BindPassword:  password,
+		Domain:        domain,
+		IsLDAPS:       isLDAPS,
+		SkipVerifySSL: skipVerifySSL,
 	}
 
 	return ldap
 }
 
-func Connect(ipAddress string, isLDAPS bool, username string, password string, domain string) (*ldap.Conn, error) {
+func Connect(ldapObject AHLdap) (*ldap.Conn, error) {
 
-	// TODO : LDAPS : conn, err := ldap.DialURL(fmt.Sprintf("ldaps://%s:636", ip))
+	scheme := "ldap"
+	port := 389
+	var dialOpts []ldap.DialOpt
 
-	conn, err := ldap.DialURL(fmt.Sprintf("ldap://%s:389", ipAddress))
+	if ldapObject.IsLDAPS {
+		scheme = "ldaps"
+		port = 636
+		dialOpts = append(dialOpts, ldap.DialWithTLSConfig(&tls.Config{
+			InsecureSkipVerify: ldapObject.SkipVerifySSL,
+		}))
+	}
+
+	conn, err := ldap.DialURL(fmt.Sprintf("%s://%s:%d", scheme, ldapObject.IP, port), dialOpts...)
 
 	if err != nil {
 		log.Error("Failed to connect on the domain controller.")
@@ -34,16 +46,9 @@ func Connect(ipAddress string, isLDAPS bool, username string, password string, d
 		return nil, err
 	}
 
-	// Besoin d'un format du type : "CN=svc_awx,OU=Service Accounts,DC=sleekboycompany,DC=com"
-	// E.g. sur <http://10.77.101.192:8080/api/v2/settings/ldap/> - AUTH_LDAP_BIND_DN
-	// svc_awx -> KO
-	// svc_awx@sleekboycompany.com -> KO
-	// SLEEKBOYCOMPANY\\svc_awx -> FONCTIONNE
-	// SLEEKBOYCOMPANY.COM\\svc_awx -> KO
+	dn := ldapObject.Domain + "\\" + ldapObject.BindUsername
 
-	dn := domain + "\\" + username
-
-	err = conn.Bind(dn, password)
+	err = conn.Bind(dn, ldapObject.BindPassword)
 
 	if err != nil {
 		log.Fatalf("Authentication on the domain controller failed: %v", err)
@@ -85,22 +90,17 @@ func sidBytesToString(sidBytes []byte) string {
 		return "<invalid SID>"
 	}
 
-	// Byte 0: Revision (always 1)
 	revision := sidBytes[0]
 
-	// Byte 1: Number of sub-authorities (after the identifier authority)
 	numSubAuthorities := sidBytes[1]
 
-	// Bytes 2–7: Identifier Authority (big-endian, 48-bit)
 	var authority uint64
 	for i := 0; i < 6; i++ {
 		authority = authority<<8 | uint64(sidBytes[2+i])
 	}
 
-	// Build base SID: S-revision-authority
 	sid := fmt.Sprintf("S-%d-%d", revision, authority)
 
-	// Sub-authorities (32-bit each, little-endian in the byte array!)
 	offset := 8
 	for i := uint8(0); i < numSubAuthorities; i++ {
 		subAuthority := binary.LittleEndian.Uint32(sidBytes[offset : offset+4])
