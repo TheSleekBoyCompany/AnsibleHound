@@ -14,7 +14,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func launchGathering(client core.AHClient, targetUrl *url.URL, outdir string) {
+func launchGathering(client core.AHClient, targetUrl *url.URL, outdir string, ldap core.AHLdap) {
 
 	output := core.OutputJson{
 		Metadata: core.Metadata{
@@ -24,7 +24,7 @@ func launchGathering(client core.AHClient, targetUrl *url.URL, outdir string) {
 	nodes := []core.Node{}
 	edges := []core.Edge{}
 
-	// -- Check if credentials are valid
+	// -- Check if credentials are valid --
 
 	log.Info("Authenticating on Ansible Worx/Tower instance.")
 	_, err := core.AuthenticateOnAnsibleInstance(client, *targetUrl, core.ME_ENDPOINT)
@@ -247,118 +247,118 @@ func launchGathering(client core.AHClient, targetUrl *url.URL, outdir string) {
 	// -- Creating all edges --
 
 	log.Info("Linking Instance and Organizations.")
-	kind := "ATContains"
+	edgeKind := "ATContains"
 	for _, organization := range organizations {
-		edge := core.GenerateEdge(kind, instance.OID, organization.OID)
+		edge := core.GenerateEdge(edgeKind, instance.OID, organization.OID)
 		edges = append(edges, edge)
 	}
 
 	log.Info("Linking Organizations and Inventories.")
-	kind = "ATContains"
+	edgeKind = "ATContains"
 	for _, inventory := range inventories {
 		if core.HasAccessTo(organizations, inventory.Organization) {
-			edge := core.GenerateEdge(kind, organizations[inventory.Organization].OID, inventory.OID)
+			edge := core.GenerateEdge(edgeKind, organizations[inventory.Organization].OID, inventory.OID)
 			edges = append(edges, edge)
 		}
 	}
 
 	log.Info("Linking Inventories and Hosts.")
-	kind = "ATContains"
+	edgeKind = "ATContains"
 	for _, host := range hosts {
 		if core.HasAccessTo(inventories, host.Inventory) {
-			edge := core.GenerateEdge(kind, inventories[host.Inventory].OID, host.OID)
+			edge := core.GenerateEdge(edgeKind, inventories[host.Inventory].OID, host.OID)
 			edges = append(edges, edge)
 		}
 	}
 
 	log.Info("Linking Inventories and Groups.")
-	kind = "ATContains"
+	edgeKind = "ATContains"
 	for _, group := range groups {
 		if core.HasAccessTo(inventories, group.Inventory) {
-			edge := core.GenerateEdge(kind, inventories[group.Inventory].OID, group.OID)
+			edge := core.GenerateEdge(edgeKind, inventories[group.Inventory].OID, group.OID)
 			edges = append(edges, edge)
 		}
 	}
 
 	log.Info("Linking Groups and Hosts.")
-	kind = "ATContains"
+	edgeKind = "ATContains"
 	for _, group := range groups {
 		for _, host := range group.Hosts {
 			if core.HasAccessTo(hosts, host.ID) {
-				edge := core.GenerateEdge(kind, groups[group.ID].OID, host.OID)
+				edge := core.GenerateEdge(edgeKind, groups[group.ID].OID, host.OID)
 				edges = append(edges, edge)
 			}
 		}
 	}
 
 	log.Info("Linking Job Templates and Jobs.")
-	kind = "ATContains"
+	edgeKind = "ATContains"
 	for _, job := range jobs {
 		if core.HasAccessTo(jobTemplates, job.UnifiedJobTemplate) {
-			edge := core.GenerateEdge(kind, jobTemplates[job.UnifiedJobTemplate].OID, job.OID)
+			edge := core.GenerateEdge(edgeKind, jobTemplates[job.UnifiedJobTemplate].OID, job.OID)
 			edges = append(edges, edge)
 		}
 	}
 
 	log.Info("Linking Organizations and Job Templates.")
-	kind = "ATContains"
+	edgeKind = "ATContains"
 	for _, jobTemplate := range jobTemplates {
 		if core.HasAccessTo(organizations, jobTemplate.Organization) {
-			edge := core.GenerateEdge(kind, organizations[jobTemplate.Organization].OID, jobTemplate.OID)
+			edge := core.GenerateEdge(edgeKind, organizations[jobTemplate.Organization].OID, jobTemplate.OID)
 			edges = append(edges, edge)
 		}
 	}
 
 	log.Info("Linking Organizations and Credentials.")
-	kind = "ATContains"
+	edgeKind = "ATContains"
 	for _, credential := range credentials {
 		if core.HasAccessTo(organizations, credential.Organization) {
-			edge := core.GenerateEdge(kind, organizations[credential.Organization].OID, credential.OID)
+			edge := core.GenerateEdge(edgeKind, organizations[credential.Organization].OID, credential.OID)
 			edges = append(edges, edge)
 		}
 	}
 
 	log.Info("Linking Organizations and Projects")
-	kind = "ATContains"
+	edgeKind = "ATContains"
 	for _, project := range projects {
 		if core.HasAccessTo(organizations, project.Organization) {
-			edge := core.GenerateEdge(kind, organizations[project.Organization].OID, project.OID)
+			edge := core.GenerateEdge(edgeKind, organizations[project.Organization].OID, project.OID)
 			edges = append(edges, edge)
 		}
 	}
 
 	log.Info("Linking Job Templates and Projects.")
-	kind = "ATUses"
+	edgeKind = "ATUses"
 	for _, jobTemplate := range jobTemplates {
 		if core.HasAccessTo(projects, jobTemplate.Project) {
-			edge := core.GenerateEdge(kind, jobTemplate.OID, projects[jobTemplate.Project].OID)
+			edge := core.GenerateEdge(edgeKind, jobTemplate.OID, projects[jobTemplate.Project].OID)
 			edges = append(edges, edge)
 		}
 	}
 
 	log.Info("Linking Job Template and Inventories.")
-	kind = "ATUses"
+	edgeKind = "ATUses"
 	for _, jobTemplate := range jobTemplates {
 		if core.HasAccessTo(inventories, jobTemplate.Inventory) {
-			edge := core.GenerateEdge(kind, jobTemplate.OID, inventories[jobTemplate.Inventory].OID)
+			edge := core.GenerateEdge(edgeKind, jobTemplate.OID, inventories[jobTemplate.Inventory].OID)
 			edges = append(edges, edge)
 		}
 	}
 
 	log.Info("Linking Credentials to Credential Type.")
-	kind = "ATUsesType"
+	edgeKind = "ATUsesType"
 	for _, credential := range credentials {
 		if core.HasAccessTo(credentialTypes, credential.CredentialType) {
-			edge := core.GenerateEdge(kind, credential.OID, credentialTypes[credential.CredentialType].OID)
+			edge := core.GenerateEdge(edgeKind, credential.OID, credentialTypes[credential.CredentialType].OID)
 			edges = append(edges, edge)
 		}
 	}
 
 	log.Info("Linking Job Template and Credentials.")
-	kind = "ATUses"
+	edgeKind = "ATUses"
 	for _, jobTemplate := range jobTemplates {
 		for _, credential := range jobTemplate.Credentials {
-			edge := core.GenerateEdge(kind, jobTemplate.OID, credential.OID)
+			edge := core.GenerateEdge(edgeKind, jobTemplate.OID, credential.OID)
 			edges = append(edges, edge)
 		}
 	}
@@ -367,7 +367,7 @@ func launchGathering(client core.AHClient, targetUrl *url.URL, outdir string) {
 	for _, user := range users {
 
 		for _, role := range user.Roles {
-			kind := "AT" + strings.ReplaceAll(role.Name, " ", "")
+			edgeKind := "AT" + strings.ReplaceAll(role.Name, " ", "")
 
 			var edge core.Edge
 
@@ -375,27 +375,27 @@ func launchGathering(client core.AHClient, targetUrl *url.URL, outdir string) {
 
 			case "organization":
 				if core.HasAccessTo(organizations, role.SummaryFields.ResourceId) {
-					edge = core.GenerateEdge(kind, user.OID, organizations[role.SummaryFields.ResourceId].OID)
+					edge = core.GenerateEdge(edgeKind, user.OID, organizations[role.SummaryFields.ResourceId].OID)
 					edges = append(edges, edge)
 				}
 			case "inventory":
 				if core.HasAccessTo(inventories, role.SummaryFields.ResourceId) {
-					edge = core.GenerateEdge(kind, user.OID, inventories[role.SummaryFields.ResourceId].OID)
+					edge = core.GenerateEdge(edgeKind, user.OID, inventories[role.SummaryFields.ResourceId].OID)
 					edges = append(edges, edge)
 				}
 			case "team":
 				if core.HasAccessTo(teams, role.SummaryFields.ResourceId) {
-					edge = core.GenerateEdge(kind, user.OID, teams[role.SummaryFields.ResourceId].OID)
+					edge = core.GenerateEdge(edgeKind, user.OID, teams[role.SummaryFields.ResourceId].OID)
 					edges = append(edges, edge)
 				}
 			case "credential":
 				if core.HasAccessTo(credentials, role.SummaryFields.ResourceId) {
-					edge = core.GenerateEdge(kind, user.OID, credentials[role.SummaryFields.ResourceId].OID)
+					edge = core.GenerateEdge(edgeKind, user.OID, credentials[role.SummaryFields.ResourceId].OID)
 					edges = append(edges, edge)
 				}
 			case "job_template":
 				if core.HasAccessTo(jobTemplates, role.SummaryFields.ResourceId) {
-					edge = core.GenerateEdge(kind, user.OID, jobTemplates[role.SummaryFields.ResourceId].OID)
+					edge = core.GenerateEdge(edgeKind, user.OID, jobTemplates[role.SummaryFields.ResourceId].OID)
 					edges = append(edges, edge)
 				}
 			}
@@ -406,7 +406,7 @@ func launchGathering(client core.AHClient, targetUrl *url.URL, outdir string) {
 	log.Info("Linking Team Roles.")
 	for _, team := range teams {
 		for _, role := range team.Roles {
-			kind := "AT" + strings.ReplaceAll(role.Name, " ", "")
+			edgeKind := "AT" + strings.ReplaceAll(role.Name, " ", "")
 
 			var edge core.Edge
 
@@ -414,32 +414,63 @@ func launchGathering(client core.AHClient, targetUrl *url.URL, outdir string) {
 
 			case "organization":
 				if core.HasAccessTo(organizations, role.SummaryFields.ResourceId) {
-					edge = core.GenerateEdge(kind, team.OID, organizations[role.SummaryFields.ResourceId].OID)
+					edge = core.GenerateEdge(edgeKind, team.OID, organizations[role.SummaryFields.ResourceId].OID)
 					edges = append(edges, edge)
 				}
 			case "inventory":
 				if core.HasAccessTo(inventories, role.SummaryFields.ResourceId) {
-					edge = core.GenerateEdge(kind, team.OID, inventories[role.SummaryFields.ResourceId].OID)
+					edge = core.GenerateEdge(edgeKind, team.OID, inventories[role.SummaryFields.ResourceId].OID)
 					edges = append(edges, edge)
 				}
 			case "team":
 				if core.HasAccessTo(teams, role.SummaryFields.ResourceId) {
-					edge = core.GenerateEdge(kind, team.OID, teams[role.SummaryFields.ResourceId].OID)
+					edge = core.GenerateEdge(edgeKind, team.OID, teams[role.SummaryFields.ResourceId].OID)
 					edges = append(edges, edge)
 				}
 			case "credential":
 				if core.HasAccessTo(credentials, role.SummaryFields.ResourceId) {
-					edge = core.GenerateEdge(kind, team.OID, credentials[role.SummaryFields.ResourceId].OID)
+					edge = core.GenerateEdge(edgeKind, team.OID, credentials[role.SummaryFields.ResourceId].OID)
 					edges = append(edges, edge)
 				}
 			case "job_template":
 				if core.HasAccessTo(jobTemplates, role.SummaryFields.ResourceId) {
-					edge = core.GenerateEdge(kind, team.OID, jobTemplates[role.SummaryFields.ResourceId].OID)
+					edge = core.GenerateEdge(edgeKind, team.OID, jobTemplates[role.SummaryFields.ResourceId].OID)
 					edges = append(edges, edge)
 				}
 			}
 		}
 	}
+
+	// -- Link Ansible and Active Directory --
+
+	if (ldap != core.AHLdap{}) {
+
+		log.Info("Linking LDAP Users.")
+		edgeKind = "SyncedToAHUser"
+		startKind := "Base"
+
+		conn, err := core.Connect(ldap)
+
+		if err != nil {
+			log.Fatal("Connection failed:", err)
+		}
+		defer conn.Close()
+
+		for _, user := range users {
+			if user.ExternalAccount == core.LDAP_VALUE {
+				if user.LdapDn != "" {
+					ldap_dn := user.LdapDn
+					objectSid, _ := core.Search(conn, ldap_dn)
+					edge := core.GenerateEdge(edgeKind, objectSid, user.OID, startKind)
+					edges = append(edges, edge)
+				}
+			}
+		}
+	} else {
+		log.Warn("Skipping linking LDAP Users since the user used for authentication is a local user")
+	}
+
+	// -- Output final graph --
 
 	output.Graph = core.Graph{
 		Nodes: nodes,
@@ -480,6 +511,22 @@ var ingestCmd = &cobra.Command{
 			log.Fatal("Invalid authentication material provided.")
 		}
 
+		dc_ipAddress, _ := cmd.Flags().GetString("dc-ip")
+		domain, _ := cmd.Flags().GetString("domain")
+		isLDAPS, _ := cmd.Flags().GetBool("ldaps")
+
+		if (token != "") && (dc_ipAddress != "" || domain != "") {
+			log.Warn("Domain and domain controller address will not be taken into account using token authentication material")
+		}
+
+		if (token == "") && ((dc_ipAddress == "" && domain != "") || (dc_ipAddress != "" && domain == "")) {
+			log.Fatal("Invalid domain name or IP provided")
+		}
+
+		if dc_ipAddress == "" && domain == "" && isLDAPS {
+			log.Warn("The LDAPS parameter will not be taken into account since the domain and the domain controller address are not configured")
+		}
+
 		verbose, _ := cmd.Flags().GetBool("verbose")
 		if verbose {
 			log.SetLevel(log.DebugLevel)
@@ -499,8 +546,14 @@ var ingestCmd = &cobra.Command{
 		skipVerifySSL, _ := cmd.Flags().GetBool("skip-verify-ssl")
 
 		client := core.InitClient(proxyURL, skipVerifySSL, username, password, token)
-		launchGathering(client, targetUrl, outdir)
 
+		var ldap core.AHLdap
+
+		if dc_ipAddress != "" && domain != "" {
+			ldap = core.InitLdap(dc_ipAddress, username, password, domain, isLDAPS, skipVerifySSL)
+		}
+
+		launchGathering(client, targetUrl, outdir, ldap)
 	},
 }
 
@@ -513,10 +566,14 @@ func main() {
 	ingestCmd.Flags().StringP("token", "", "", "Token to use for authentication.")
 	ingestCmd.Flags().StringP("password", "p", "", "Password to use for authentication.")
 
+	ingestCmd.Flags().StringP("dc-ip", "", "", "(optional) Target IP of the domain. Required only for LDAP user")
+	ingestCmd.Flags().BoolP("ldaps", "", false, "(optional) Configure LDAPS authentication on the domain controller. Required only for LDAP user")
+	ingestCmd.Flags().StringP("domain", "", "", "(optional) NetBIOS domain name. Required only for LDAP user")
+
 	ingestCmd.Flags().StringP("proxy", "", "", "(optional) Configure HTTP/HTTPS proxy.")
 	ingestCmd.Flags().StringP("outdir", "", "", "(optional) Output directory for the json files.")
 	ingestCmd.Flags().BoolP("verbose", "v", false, "(optional) Enable debug logs.")
-	ingestCmd.Flags().BoolP("skip-verify-ssl", "k", false, "(optional) Skips SSL/TLS verification.")
+	ingestCmd.Flags().BoolP("skip-verify-ssl", "k", false, "(optional) Skips SSL/TLS verification for HTTP and LDAP.")
 
 	if err := ingestCmd.Execute(); err != nil {
 		msg := fmt.Sprintf("CLI error: %v\n", err)

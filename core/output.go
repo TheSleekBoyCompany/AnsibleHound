@@ -8,20 +8,22 @@ import (
 	"github.com/charmbracelet/log"
 )
 
-func GenerateEdge(kind string, startId string, endId string) Edge {
+func GenerateEdge(edgeKind string, startId string, endId string, startKind ...string) Edge {
 
-	start := Link{
-		Value:   startId,
-		MatchBy: "id",
+	start := StartEndNode{
+		Value: startId,
 	}
 
-	end := Link{
-		Value:   endId,
-		MatchBy: "id",
+	if len(startKind) > 0 {
+		start.Kind = startKind[0]
+	}
+
+	end := StartEndNode{
+		Value: endId,
 	}
 
 	edge := Edge{
-		Kind:  kind,
+		Kind:  edgeKind,
 		Start: start,
 		End:   end,
 	}

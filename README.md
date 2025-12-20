@@ -50,6 +50,8 @@ To run the collector, provide it with a target and a token:
 ./collector -t 'http://localhost:8080/' --token '56KOmh...'
 ```
 
+> Using local authentication will prevent you from connecting the Ansible and Active Directory graphs. In this way, the `SyncedToAHUser` edge will not appear.
+
 #### Username/Password
 
 To run the collector, provide it with a username and a password:
@@ -62,6 +64,8 @@ To run the collector, provide it with a username and a password:
 ```
 
 > Provide the domain password for Active Directory / LDAP accounts.
+
+> Using an Active Directory account will allow you to connect Ansible and Active Directory graphs through the `SyncedToAHUser` edge.
 
 ### Load Icons
 
@@ -92,21 +96,21 @@ Nodes correspond to each object type.
 | ATAnsibleInstance | Complete installation of Ansible                                                                                      | sitemap       | #F59C36 |
 | ATOrganization    | Logical collection of users, teams, projects, and inventories. It is the highest-level object in the object hierarchy | building      | #F59C36 |
 | ATInventory       | Collection of hosts and groups                                                                                        | network-wired | #FF78F2 |
-| ATGroup       | Group of hosts                                                                                         | object-group | #159b7c |
+| ATGroup           | Group of hosts                                                                                                        | object-group  | #159b7c |
 | ATUser            | An individual user account                                                                                            | user          | #7ADEE9 |
 | ATJob             | Instance launching a playbook against an inventory of hosts                                                           | gears         | #7CAAFF |
 | ATJobTemplate     | Combines an Ansible playbook from a project and the settings required to launch it                                    | code          | #493EB0 |
 | ATProject         | Logical collection of Ansible playbooks                                                                               | folder-open   | #EC7589 |
 | ATCredential      | Authenticate the user to launch playbooks (passwords - SSH keys) against inventory hosts                              | key           | #94E16A |
-| ATCredentialType      |                               | key           | #94E16A | Type of the Credential and information about this type.
+| ATCredentialType  | Type of the Credential and information about this type.                                                               | key           | #94E16A |
 | ATHost            | These are the target devices (servers, network appliances or any computer) you aim to manage                          | desktop       | #E9E350 |
 | ATTeam            | A group of users                                                                                                      | people-group  | #724752 |
-
-> **Note** : This is a work in progress
 
 ### Edges
 
 All the edges are prefixed by `AT` to make it distinct from other collectors edges.
+
+Ansible edges only create relations between Ansible nodes:
 
 | Edge Type    | Source              | Target                                                                                       |
 | ------------ | ------------------- | -------------------------------------------------------------------------------------------- |
@@ -121,7 +125,7 @@ All the edges are prefixed by `AT` to make it distinct from other collectors edg
 | `ATContains` | `ATOrganization`    | `ATProject`                                                                                  |
 | `ATUses`     | `ATJobTemplate`     | `ATProject`                                                                                  |
 | `ATUses`     | `ATJobTemplate`     | `ATInventory`                                                                                |
-| `ATUsesType`     | `ATCredential`     | `ATCredentialType`                                                                                |
+| `ATUsesType` | `ATCredential`     | `ATCredentialType`                                                                            |
 | `ATExecute`  | `ATUser`            | `ATJobTemplate`                                                                              |
 | `ATExecute`  | `ATTeam`            | `ATJobTemplate`                                                                              |
 | `ATMember`   | `ATUser`            | `ATOrganization` - `ATTeam`                                                                  |
@@ -130,7 +134,17 @@ All the edges are prefixed by `AT` to make it distinct from other collectors edg
 | `ATAuditor`  | `ATUser`            | `ATOrganization` - `ATProject` - `ATInventory` - `ATJobTemplate`                             |
 | `ATAdmin`    | `ATUser`            | `ATOrganization` - `ATTeam` - `ATInventory` - `ATProject` - `ATJobTemplate` - `ATCredential` |
 
-> **Note** : This is a work in progress
+Hybrid edges are forming connections between Ansible and other technologies:
+
+| Edge Type        | Source              | Target     |
+| ---------------- | ------------------- | ---------- |
+| `SyncedToAHUser` | User                | ATUser     |
+
+## Bugs
+
+As AnsibleHound uses OpenGraph, which is only officially supported with Postgres as the backend, it is recommended to switch to Postgres to avoid ingestion bugs.
+
+Documentation : <https://github.com/SpecterOps/BloodHound/tree/main/examples/docker-compose>
 
 ## Licensing
 
