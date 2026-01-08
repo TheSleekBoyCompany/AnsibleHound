@@ -25,5 +25,7 @@ const JOB_TEMPLATE_CREDENTIALS_ENDPOINT = API_ENDPOINT + "job_templates/%d/crede
 const PING_ENDPOINT = API_ENDPOINT + "ping"
 const PAGE_SIZE = 200
 
+const LDAP_VALUE = "ldap"
+
 var PAGE_SIZE_ARG = fmt.Sprintf("?page_size=%d", PAGE_SIZE)
 var CURRENT_PAGE_ARG = "&page=%d"
