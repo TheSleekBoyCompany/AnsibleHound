@@ -18,13 +18,7 @@ import (
 
 func launchGathering(client core.AHClient, targetUrl *url.URL, outdir string, ldap core.AHLdap) {
 
-	output := opengraph.OutputJson{
-		Metadata: opengraph.Metadata{
-			SourceKind: "AnsibleBase",
-		},
-	}
-	nodes := []opengraph.Node{}
-	edges := []opengraph.Edge{}
+	graph := opengraph.InitGraph()
 
 	// -- Check if credentials are valid --
 
@@ -47,7 +41,7 @@ func launchGathering(client core.AHClient, targetUrl *url.URL, outdir string, ld
 	instance.Name = targetUrl.Host
 
 	instanceNode := instance.ToBHNode()
-	nodes = append(nodes, instanceNode)
+	graph.AddNode(instanceNode)
 
 	// -- Gathering all nodes --
 

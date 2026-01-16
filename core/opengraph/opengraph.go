@@ -1,5 +1,11 @@
 package opengraph
 
+import (
+	"github.com/TheManticoreProject/gopengraph"
+)
+
+const SOURCE_KIND = "AnsibleBase"
+
 type OutputJson struct {
 	Metadata Metadata `json:"metadata"`
 	Graph    Graph    `json:"graph"`
@@ -29,4 +35,9 @@ type Edge struct {
 type StartEndNode struct {
 	Value string `json:"value"`
 	Kind  string `json:"kind,omitempty"`
+}
+
+func InitGraph() (graph gopengraph.OpenGraph) {
+	graph = *gopengraph.NewOpenGraph(SOURCE_KIND)
+	return graph
 }

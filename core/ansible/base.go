@@ -7,6 +7,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"strconv"
+
+	"github.com/TheManticoreProject/gopengraph/node"
+	"github.com/TheManticoreProject/gopengraph/properties"
 )
 
 var Instance AnsibleInstance
@@ -62,16 +65,13 @@ func (i *AnsibleInstance) MarshalJSON() ([]byte, error) {
 	return json.MarshalIndent((*instance)(i), "", "  ")
 }
 
-func (i *AnsibleInstance) ToBHNode() (node opengraph.Node) {
-	node.Kinds = []string{
-		"ATAnsibleInstance",
-	}
-	node.Id = i.OID
-	node.Properties = map[string]string{
-		"name":         i.Name,
-		"version":      i.Version,
-		"active_node":  i.ActiveNode,
-		"install_uuid": i.InstallUUID,
-	}
-	return node
+func (i *AnsibleInstance) ToBHNode() (n *node.Node) {
+	props := properties.NewProperties()
+	props.SetProperty("name", i.Name)
+	props.SetProperty("version", i.Version)
+	props.SetProperty("active_node", i.ActiveNode)
+	props.SetProperty("install_uuid", i.InstallUUID)
+	n, _ = node.NewNode(i.OID, []string{"ATAnsibleInstance"}, props)
+
+	return n
 }
