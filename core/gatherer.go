@@ -1,6 +1,7 @@
 package core
 
 import (
+	"ansible-hound/core/ansible"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -8,10 +9,10 @@ import (
 	"net/url"
 )
 
-func Gather[T AnsibleType](client AHClient, target url.URL,
+func Gather[T ansible.AnsibleType](client AHClient, target url.URL,
 	endpoint string) ([]T, error) {
 
-	var objects []T
+	var objectList []T
 	count := 0
 	current := 0
 	page := 1
@@ -24,13 +25,13 @@ func Gather[T AnsibleType](client AHClient, target url.URL,
 	}
 
 	if count == 0 {
-		r := Response[T]{}
+		r := ansible.Response[T]{}
 		err = json.Unmarshal(body, &r)
 		if err != nil {
 			return nil, err
 		}
 		count = r.Count
-		objects = append(objects, r.Results...)
+		objectList = append(objectList, r.Results...)
 	}
 	current += PAGE_SIZE
 
@@ -41,12 +42,12 @@ func Gather[T AnsibleType](client AHClient, target url.URL,
 			if err != nil {
 				return nil, err
 			}
-			r := Response[T]{}
+			r := ansible.Response[T]{}
 			err = json.Unmarshal(body, &r)
 			if err != nil {
 				return nil, err
 			}
-			objects = append(objects, r.Results...)
+			objectList = append(objectList, r.Results...)
 			current += PAGE_SIZE
 			if current >= count {
 				break
@@ -54,11 +55,11 @@ func Gather[T AnsibleType](client AHClient, target url.URL,
 		}
 	}
 
-	return objects, nil
+	return objectList, nil
 
 }
 
-func GatherObject[T AnsibleType](installUUID string, client AHClient,
+func GatherObject[T ansible.AnsibleType](installUUID string, client AHClient,
 	target url.URL, endpoint string) (
 	objectMap map[int]T, err error) {
 
@@ -77,7 +78,7 @@ func GatherObject[T AnsibleType](installUUID string, client AHClient,
 	return objectMap, nil
 }
 
-func GatherAnsibleInstance(client AHClient, target url.URL) (instance AnsibleInstance, err error) {
+func GatherAnsibleInstance(client AHClient, target url.URL) (instance ansible.AnsibleInstance, err error) {
 
 	url := target.String() + PING_ENDPOINT
 
@@ -107,7 +108,7 @@ func GatherAnsibleInstance(client AHClient, target url.URL) (instance AnsibleIns
 	return instance, nil
 }
 
-func HasAccessTo[T AnsibleType](objectMap map[int]T, ID int) (result bool) {
+func HasAccessTo[T ansible.AnsibleType](objectMap map[int]T, ID int) (result bool) {
 	// NOTE: If ID = 0, then the resource is not bound to a resource of this type.
 	// EX: A Credential can exist without being bound to an Organization.
 	// This might also mean a resource is used, but your user cannot read it.

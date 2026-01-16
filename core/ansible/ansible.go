@@ -1,31 +1,16 @@
-package core
+package ansible
 
 import (
+	"ansible-hound/core/opengraph"
 	"crypto/sha1"
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
-	"net/http"
 	"strconv"
 	"strings"
 )
 
 var Instance AnsibleInstance
-
-// TODO: Remove this, it is now obsolete.
-type AnsibleTypeList interface {
-	[]*User | []*Job | []*JobTemplate | []*Inventory |
-		[]*Project | []*Organization | []*Role | []*Credential |
-		[]*Host | []*Team | []*RoleDefinition | []*RoleTeamAssignments |
-		[]*RoleUserAssignments | []*Group
-}
-
-type AnsibleType interface {
-	GetID() int
-	GetOID() string
-	InitOID(string)
-	ToBHNode() Node
-}
 
 type Object struct {
 	OID         string `json:"uuid,omitempty"`
@@ -54,6 +39,13 @@ func (o *Object) InitOID(installUUID string) {
 	o.OID = hex.EncodeToString(hashBytes)
 }
 
+type AnsibleType interface {
+	GetID() int
+	GetOID() string
+	InitOID(string)
+	ToBHNode() opengraph.Node
+}
+
 type Response[T any] struct {
 	Count   int `json:"count"`
 	Results []T `json:"results"`
@@ -71,7 +63,7 @@ func (i *AnsibleInstance) MarshalJSON() ([]byte, error) {
 	return json.MarshalIndent((*instance)(i), "", "  ")
 }
 
-func (i *AnsibleInstance) ToBHNode() (node Node) {
+func (i *AnsibleInstance) ToBHNode() (node opengraph.Node) {
 	node.Kinds = []string{
 		"ATAnsibleInstance",
 	}
@@ -104,7 +96,7 @@ func (u *User) MarshalJSON() ([]byte, error) {
 	return json.MarshalIndent((*user)(u), "", "  ")
 }
 
-func (u *User) ToBHNode() (node Node) {
+func (u *User) ToBHNode() (node opengraph.Node) {
 	node.Kinds = []string{
 		"ATUser",
 	}
@@ -138,7 +130,7 @@ func (u *Team) MarshalJSON() ([]byte, error) {
 	return json.MarshalIndent((*team)(u), "", "  ")
 }
 
-func (t *Team) ToBHNode() (node Node) {
+func (t *Team) ToBHNode() (node opengraph.Node) {
 	node.Kinds = []string{
 		"ATTeam",
 	}
@@ -173,8 +165,8 @@ func (r Role) MarshalJSON() ([]byte, error) {
 	return json.MarshalIndent((role)(r), "", "  ")
 }
 
-func (r *Role) ToBHNode() (node Node) {
-	return Node{}
+func (r *Role) ToBHNode() (node opengraph.Node) {
+	return opengraph.Node{}
 }
 
 type Organization struct {
@@ -189,7 +181,7 @@ func (o Organization) MarshalJSON() ([]byte, error) {
 	return json.MarshalIndent((organization)(o), "", "  ")
 }
 
-func (o *Organization) ToBHNode() (node Node) {
+func (o *Organization) ToBHNode() (node opengraph.Node) {
 	node.Kinds = []string{
 		"ATOrganization",
 	}
@@ -262,7 +254,7 @@ func (j JobTemplate) MarshalJSON() ([]byte, error) {
 	return json.MarshalIndent((jobTemplate)(j), "", "  ")
 }
 
-func (j *JobTemplate) ToBHNode() (node Node) {
+func (j *JobTemplate) ToBHNode() (node opengraph.Node) {
 	node.Kinds = []string{
 		"ATJobTemplate",
 	}
@@ -373,7 +365,7 @@ func (j Job) MarshalJSON() ([]byte, error) {
 	return json.MarshalIndent((job)(j), "", "  ")
 }
 
-func (j *Job) ToBHNode() (node Node) {
+func (j *Job) ToBHNode() (node opengraph.Node) {
 	node.Kinds = []string{
 		"ATJob",
 	}
@@ -462,7 +454,7 @@ func (p Project) MarshalJSON() ([]byte, error) {
 	return json.MarshalIndent((project)(p), "", "  ")
 }
 
-func (p *Project) ToBHNode() (node Node) {
+func (p *Project) ToBHNode() (node opengraph.Node) {
 	node.Kinds = []string{
 		"ATProject",
 	}
@@ -516,7 +508,7 @@ func (c Credential) MarshalJSON() ([]byte, error) {
 	return json.MarshalIndent((credential)(c), "", "  ")
 }
 
-func (c *Credential) ToBHNode() (node Node) {
+func (c *Credential) ToBHNode() (node opengraph.Node) {
 	node.Kinds = []string{
 		"ATCredential",
 	}
@@ -551,7 +543,7 @@ func (ct CredentialType) MarshalJSON() ([]byte, error) {
 	return json.MarshalIndent((credentialType)(ct), "", "  ")
 }
 
-func (ct *CredentialType) ToBHNode() (node Node) {
+func (ct *CredentialType) ToBHNode() (node opengraph.Node) {
 	node.Kinds = []string{
 		"ATCredentialType",
 	}
@@ -649,7 +641,7 @@ func (i Inventory) MarshalJSON() ([]byte, error) {
 	return json.MarshalIndent((inventory)(i), "", "  ")
 }
 
-func (i *Inventory) ToBHNode() (node Node) {
+func (i *Inventory) ToBHNode() (node opengraph.Node) {
 	node.Id = i.OID
 	node.Kinds = []string{"ATInventory"}
 	node.Properties = map[string]string{
@@ -690,7 +682,7 @@ func (i Host) MarshalJSON() ([]byte, error) {
 	return json.MarshalIndent((host)(i), "", "  ")
 }
 
-func (h *Host) ToBHNode() (node Node) {
+func (h *Host) ToBHNode() (node opengraph.Node) {
 	node.Kinds = []string{
 		"ATHost",
 	}
@@ -727,7 +719,7 @@ func (i Group) MarshalJSON() ([]byte, error) {
 	return json.MarshalIndent((group)(i), "", "  ")
 }
 
-func (g *Group) ToBHNode() (node Node) {
+func (g *Group) ToBHNode() (node opengraph.Node) {
 	node.Kinds = []string{
 		"ATGroup",
 	}
@@ -784,60 +776,4 @@ type RoleTeamAssignments struct {
 func (r RoleTeamAssignments) MarshalJSON() ([]byte, error) {
 	type roleTeamAssignments RoleTeamAssignments
 	return json.MarshalIndent((roleTeamAssignments)(r), "", "  ")
-}
-
-// -- Gestion du json de sortie --
-
-type OutputJson struct {
-	Metadata Metadata `json:"metadata"`
-	Graph    Graph    `json:"graph"`
-}
-
-type Metadata struct {
-	SourceKind string `json:"source_kind,omitempty"`
-}
-
-type Graph struct {
-	Nodes []Node `json:"nodes"`
-	Edges []Edge `json:"edges"`
-}
-
-type Node struct {
-	Id         string            `json:"id"`
-	Kinds      []string          `json:"kinds,omitempty"`
-	Properties map[string]string `json:"properties"`
-}
-
-type Edge struct {
-	Kind  string       `json:"kind"`
-	Start StartEndNode `json:"start"`
-	End   StartEndNode `json:"end"`
-}
-
-type StartEndNode struct {
-	Value string `json:"value"`
-	Kind  string `json:"kind,omitempty"`
-}
-
-type AHClient struct {
-	Client  *http.Client
-	Headers http.Header
-}
-
-func (ahc *AHClient) Do(req *http.Request) (*http.Response, error) {
-	for k, vals := range ahc.Headers {
-		for _, v := range vals {
-			req.Header.Add(k, v)
-		}
-	}
-	return ahc.Client.Do(req)
-}
-
-type AHLdap struct {
-	IsLDAPS       bool
-	IP            string
-	BindUsername  string
-	BindPassword  string
-	Domain        string
-	SkipVerifySSL bool
 }

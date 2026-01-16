@@ -8,7 +8,9 @@ import (
 	"path"
 	"strings"
 
-	core "ansible-hound/core"
+	"ansible-hound/core"
+	"ansible-hound/core/ansible"
+	"ansible-hound/core/opengraph"
 
 	"github.com/charmbracelet/log"
 	"github.com/spf13/cobra"
@@ -16,13 +18,13 @@ import (
 
 func launchGathering(client core.AHClient, targetUrl *url.URL, outdir string, ldap core.AHLdap) {
 
-	output := core.OutputJson{
-		Metadata: core.Metadata{
+	output := opengraph.OutputJson{
+		Metadata: opengraph.Metadata{
 			SourceKind: "AnsibleBase",
 		},
 	}
-	nodes := []core.Node{}
-	edges := []core.Edge{}
+	nodes := []opengraph.Node{}
+	edges := []opengraph.Edge{}
 
 	// -- Check if credentials are valid --
 
@@ -50,7 +52,7 @@ func launchGathering(client core.AHClient, targetUrl *url.URL, outdir string, ld
 	// -- Gathering all nodes --
 
 	log.Info("Gathering Users.")
-	users, err := core.GatherObject[*core.User](
+	users, err := core.GatherObject[*ansible.User](
 		instance.InstallUUID, client, *targetUrl, core.USERS_ENDPOINT,
 	)
 	if err != nil {
@@ -61,7 +63,7 @@ func launchGathering(client core.AHClient, targetUrl *url.URL, outdir string, ld
 	log.Info("Gathering User Roles.")
 	for i, user := range users {
 		userRolesEndpoint := fmt.Sprintf(core.USER_ROLES_ENDPOINT, user.ID)
-		roles, err := core.GatherObject[*core.Role](
+		roles, err := core.GatherObject[*ansible.Role](
 			instance.InstallUUID, client, *targetUrl, userRolesEndpoint)
 		if err != nil {
 			log.Error("An error occured while gathering User Roles.")
@@ -75,7 +77,7 @@ func launchGathering(client core.AHClient, targetUrl *url.URL, outdir string, ld
 	nodes = append(nodes, userNodes...)
 
 	log.Info("Gathering Hosts.")
-	hosts, err := core.GatherObject[*core.Host](
+	hosts, err := core.GatherObject[*ansible.Host](
 		instance.InstallUUID, client, *targetUrl, core.HOSTS_ENDPOINT,
 	)
 	if err != nil {
@@ -86,7 +88,7 @@ func launchGathering(client core.AHClient, targetUrl *url.URL, outdir string, ld
 	nodes = append(nodes, hostNodes...)
 
 	log.Info("Gathering Groups.")
-	groups, err := core.GatherObject[*core.Group](
+	groups, err := core.GatherObject[*ansible.Group](
 		instance.InstallUUID, client, *targetUrl, core.GROUPS_ENDPOINT,
 	)
 	if err != nil {
@@ -100,7 +102,7 @@ func launchGathering(client core.AHClient, targetUrl *url.URL, outdir string, ld
 	for i, group := range groups {
 
 		groupHostsEndpoint := fmt.Sprintf(core.GROUP_HOSTS_ENDPOINT, group.ID)
-		hosts, err := core.GatherObject[*core.Host](
+		hosts, err := core.GatherObject[*ansible.Host](
 			instance.InstallUUID, client, *targetUrl, groupHostsEndpoint,
 		)
 		if err != nil {
@@ -113,7 +115,7 @@ func launchGathering(client core.AHClient, targetUrl *url.URL, outdir string, ld
 	}
 
 	log.Info("Gathering Jobs.")
-	jobs, err := core.GatherObject[*core.Job](
+	jobs, err := core.GatherObject[*ansible.Job](
 		instance.InstallUUID, client, *targetUrl, core.JOBS_ENDPOINT,
 	)
 	if err != nil {
@@ -124,7 +126,7 @@ func launchGathering(client core.AHClient, targetUrl *url.URL, outdir string, ld
 	nodes = append(nodes, jobsNodes...)
 
 	log.Info("Gathering Job Templates.")
-	jobTemplates, err := core.GatherObject[*core.JobTemplate](
+	jobTemplates, err := core.GatherObject[*ansible.JobTemplate](
 		instance.InstallUUID, client, *targetUrl, core.JOB_TEMPLATE_ENDPOINT,
 	)
 	if err != nil {
@@ -136,7 +138,7 @@ func launchGathering(client core.AHClient, targetUrl *url.URL, outdir string, ld
 
 		jobTemplatesCredentialsEndpoint := fmt.Sprintf(core.
 			JOB_TEMPLATE_CREDENTIALS_ENDPOINT, jobTemplate.ID)
-		credentials, err := core.GatherObject[*core.Credential](
+		credentials, err := core.GatherObject[*ansible.Credential](
 			instance.InstallUUID, client, *targetUrl, jobTemplatesCredentialsEndpoint,
 		)
 		if err != nil {
@@ -152,7 +154,7 @@ func launchGathering(client core.AHClient, targetUrl *url.URL, outdir string, ld
 	nodes = append(nodes, jobTemplatesNodes...)
 
 	log.Info("Gathering Inventories.")
-	inventories, err := core.GatherObject[*core.Inventory](
+	inventories, err := core.GatherObject[*ansible.Inventory](
 		instance.InstallUUID, client, *targetUrl, core.INVENTORIES_ENDPOINT,
 	)
 	if err != nil {
@@ -163,7 +165,7 @@ func launchGathering(client core.AHClient, targetUrl *url.URL, outdir string, ld
 	nodes = append(nodes, inventoriesNodes...)
 
 	log.Info("Gathering Organizations.")
-	organizations, err := core.GatherObject[*core.Organization](
+	organizations, err := core.GatherObject[*ansible.Organization](
 		instance.InstallUUID, client, *targetUrl, core.ORGANIZATIONS_ENDPOINT,
 	)
 	if err != nil {
@@ -174,7 +176,7 @@ func launchGathering(client core.AHClient, targetUrl *url.URL, outdir string, ld
 	nodes = append(nodes, organizationNodes...)
 
 	log.Info("Gathering Credentials.")
-	credentials, err := core.GatherObject[*core.Credential](
+	credentials, err := core.GatherObject[*ansible.Credential](
 		instance.InstallUUID, client, *targetUrl, core.CREDENTIALS_ENDPOINT,
 	)
 	if err != nil {
@@ -185,7 +187,7 @@ func launchGathering(client core.AHClient, targetUrl *url.URL, outdir string, ld
 	nodes = append(nodes, credentialNodes...)
 
 	log.Info("Gathering Credential Types.")
-	credentialTypes, err := core.GatherObject[*core.CredentialType](
+	credentialTypes, err := core.GatherObject[*ansible.CredentialType](
 		instance.InstallUUID, client, *targetUrl, core.CREDENTIAL_TYPES_ENDPOINT,
 	)
 	if err != nil {
@@ -196,7 +198,7 @@ func launchGathering(client core.AHClient, targetUrl *url.URL, outdir string, ld
 	nodes = append(nodes, credentialTypesNodes...)
 
 	log.Info("Gathering Projects.")
-	projects, err := core.GatherObject[*core.Project](
+	projects, err := core.GatherObject[*ansible.Project](
 		instance.InstallUUID, client, *targetUrl, core.PROJECTS_ENDPOINT,
 	)
 	if err != nil {
@@ -207,7 +209,7 @@ func launchGathering(client core.AHClient, targetUrl *url.URL, outdir string, ld
 	nodes = append(nodes, projectNodes...)
 
 	log.Info("Gathering Teams.")
-	teams, err := core.GatherObject[*core.Team](
+	teams, err := core.GatherObject[*ansible.Team](
 		instance.InstallUUID, client, *targetUrl, core.TEAMS_ENDPOINT,
 	)
 	if err != nil {
@@ -219,7 +221,7 @@ func launchGathering(client core.AHClient, targetUrl *url.URL, outdir string, ld
 	for i, team := range teams {
 
 		teamRolesEndpoint := fmt.Sprintf(core.TEAM_ROLES_ENDPOINT, team.ID)
-		roles, err := core.GatherObject[*core.Role](
+		roles, err := core.GatherObject[*ansible.Role](
 			instance.InstallUUID, client, *targetUrl, teamRolesEndpoint,
 		)
 		if err != nil {
@@ -229,7 +231,7 @@ func launchGathering(client core.AHClient, targetUrl *url.URL, outdir string, ld
 		}
 
 		teamMembersEndpoint := fmt.Sprintf(core.TEAM_USERS_ENDPOINT, team.ID)
-		members, err := core.GatherObject[*core.User](
+		members, err := core.GatherObject[*ansible.User](
 			instance.InstallUUID, client, *targetUrl, teamMembersEndpoint,
 		)
 		if err != nil {
@@ -369,7 +371,7 @@ func launchGathering(client core.AHClient, targetUrl *url.URL, outdir string, ld
 		for _, role := range user.Roles {
 			edgeKind := "AT" + strings.ReplaceAll(role.Name, " ", "")
 
-			var edge core.Edge
+			var edge opengraph.Edge
 
 			switch role.SummaryFields.ResourceType {
 
@@ -408,7 +410,7 @@ func launchGathering(client core.AHClient, targetUrl *url.URL, outdir string, ld
 		for _, role := range team.Roles {
 			edgeKind := "AT" + strings.ReplaceAll(role.Name, " ", "")
 
-			var edge core.Edge
+			var edge opengraph.Edge
 
 			switch role.SummaryFields.ResourceType {
 
@@ -472,7 +474,7 @@ func launchGathering(client core.AHClient, targetUrl *url.URL, outdir string, ld
 
 	// -- Output final graph --
 
-	output.Graph = core.Graph{
+	output.Graph = opengraph.Graph{
 		Nodes: nodes,
 		Edges: edges,
 	}

@@ -1,6 +1,8 @@
 package core
 
 import (
+	"ansible-hound/core/ansible"
+	"ansible-hound/core/opengraph"
 	"fmt"
 	"os"
 	"time"
@@ -8,9 +10,9 @@ import (
 	"github.com/charmbracelet/log"
 )
 
-func GenerateEdge(edgeKind string, startId string, endId string, startKind ...string) Edge {
+func GenerateEdge(edgeKind string, startId string, endId string, startKind ...string) opengraph.Edge {
 
-	start := StartEndNode{
+	start := opengraph.StartEndNode{
 		Value: startId,
 	}
 
@@ -18,11 +20,11 @@ func GenerateEdge(edgeKind string, startId string, endId string, startKind ...st
 		start.Kind = startKind[0]
 	}
 
-	end := StartEndNode{
+	end := opengraph.StartEndNode{
 		Value: endId,
 	}
 
-	edge := Edge{
+	edge := opengraph.Edge{
 		Kind:  edgeKind,
 		Start: start,
 		End:   end,
@@ -31,7 +33,7 @@ func GenerateEdge(edgeKind string, startId string, endId string, startKind ...st
 	return edge
 }
 
-func GenerateNodes[T AnsibleType](objects map[int]T) (nodes []Node) {
+func GenerateNodes[T ansible.AnsibleType](objects map[int]T) (nodes []opengraph.Node) {
 	for _, object := range objects {
 		nodes = append(nodes, object.ToBHNode())
 	}
