@@ -254,7 +254,6 @@ func launchGathering(client core.AHClient, targetUrl *url.URL, outdir string, ld
 	for _, inventory := range inventories {
 		if core.HasAccessTo(organizations, inventory.Organization) {
 			edge := core.GenerateEdge(edgeKind, organizations[inventory.Organization].OID, inventory.OID)
-			graph.AddEdge(edge)
 			opengraph.AddEdge(&graph, edge)
 		}
 	}
@@ -264,7 +263,6 @@ func launchGathering(client core.AHClient, targetUrl *url.URL, outdir string, ld
 	for _, host := range hosts {
 		if core.HasAccessTo(inventories, host.Inventory) {
 			edge := core.GenerateEdge(edgeKind, inventories[host.Inventory].OID, host.OID)
-			graph.AddEdge(edge)
 			opengraph.AddEdge(&graph, edge)
 		}
 	}
@@ -392,7 +390,9 @@ func launchGathering(client core.AHClient, targetUrl *url.URL, outdir string, ld
 					edge = core.GenerateEdge(edgeKind, user.OID, jobTemplates[role.SummaryFields.ResourceId].OID)
 				}
 			}
-			opengraph.AddEdge(&graph, edge)
+			if edge != nil {
+				opengraph.AddEdge(&graph, edge)
+			}
 		}
 	}
 
@@ -426,7 +426,9 @@ func launchGathering(client core.AHClient, targetUrl *url.URL, outdir string, ld
 					edge = core.GenerateEdge(edgeKind, team.OID, jobTemplates[role.SummaryFields.ResourceId].OID)
 				}
 			}
-			opengraph.AddEdge(&graph, edge)
+			if edge != nil {
+				opengraph.AddEdge(&graph, edge)
+			}
 		}
 	}
 
