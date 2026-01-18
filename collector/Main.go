@@ -463,7 +463,8 @@ func launchGathering(client core.AHClient, targetUrl *url.URL, outdir string, ld
 
 	// -- Output final graph --
 
-	err = graph.ExportToFile(path.Join(outdir, core.CalculateName("output")))
+	outputJson, err := graph.ExportJSON(false)
+	err = core.WriteToFile([]byte(outputJson), path.Join(outdir, core.CalculateName("output")))
 	if err != nil {
 		log.Error(err)
 	}
