@@ -1,9 +1,11 @@
 package ansible
 
 import (
-	"ansible-hound/core/opengraph"
 	"encoding/json"
 	"strconv"
+
+	"github.com/TheManticoreProject/gopengraph/node"
+	"github.com/TheManticoreProject/gopengraph/properties"
 )
 
 type Inventory struct {
@@ -28,28 +30,27 @@ func (i Inventory) MarshalJSON() ([]byte, error) {
 	return json.MarshalIndent((inventory)(i), "", "  ")
 }
 
-func (i *Inventory) ToBHNode() (node opengraph.Node) {
-	node.Id = i.OID
-	node.Kinds = []string{"ATInventory"}
-	node.Properties = map[string]string{
-		"id":                              strconv.FormatInt(int64(i.ID), 10),
-		"name":                            i.Name,
-		"description":                     i.Description,
-		"url":                             i.Url,
-		"organization":                    strconv.FormatInt(int64(i.Organization), 10),
-		"kind":                            i.Kind,
-		"host_filter":                     i.HostFilter,
-		"has_active_failures":             strconv.FormatBool(i.HasActiveFailures),
-		"has_inventory_source":            strconv.FormatBool(i.HasInventorySources),
-		"total_hosts":                     strconv.FormatInt(int64(i.TotalHosts), 10),
-		"hosts_with_active_failures":      strconv.FormatInt(int64(i.HostsWithActiveFailures), 10),
-		"total_groups":                    strconv.FormatInt(int64(i.TotalGroups), 10),
-		"total_inventory_sources":         strconv.FormatInt(int64(i.TotalInventorySources), 10),
-		"inventory_sources_with_failures": strconv.FormatInt(int64(i.InventorySourcesWithFailures), 10),
-		"pending_deletion":                strconv.FormatBool(i.PendingDeletion),
-		"prevent_instance_group_fallback": strconv.FormatBool(i.PreventInstanceGroupFallback),
-	}
-	return node
+func (i *Inventory) ToBHNode() (n *node.Node) {
+	props := properties.NewProperties()
+	props.SetProperty("id", strconv.FormatInt(int64(i.ID), 10))
+	props.SetProperty("name", i.Name)
+	props.SetProperty("description", i.Description)
+	props.SetProperty("url", i.Url)
+	props.SetProperty("organization", strconv.FormatInt(int64(i.Organization), 10))
+	props.SetProperty("kind", i.Kind)
+	props.SetProperty("host_filter", i.HostFilter)
+	props.SetProperty("has_active_failures", strconv.FormatBool(i.HasActiveFailures))
+	props.SetProperty("has_inventory_source", strconv.FormatBool(i.HasInventorySources))
+	props.SetProperty("total_hosts", strconv.FormatInt(int64(i.TotalHosts), 10))
+	props.SetProperty("hosts_with_active_failures", strconv.FormatInt(int64(i.HostsWithActiveFailures), 10))
+	props.SetProperty("total_groups", strconv.FormatInt(int64(i.TotalGroups), 10))
+	props.SetProperty("total_inventory_sources", strconv.FormatInt(int64(i.TotalInventorySources), 10))
+	props.SetProperty("inventory_sources_with_failures", strconv.FormatInt(int64(i.InventorySourcesWithFailures), 10))
+	props.SetProperty("pending_deletion", strconv.FormatBool(i.PendingDeletion))
+	props.SetProperty("prevent_instance_group_fallback", strconv.FormatBool(i.PreventInstanceGroupFallback))
+	n, _ = node.NewNode(i.OID, []string{"ATInventory"}, props)
+
+	return n
 }
 
 type Host struct {
@@ -69,29 +70,26 @@ func (i Host) MarshalJSON() ([]byte, error) {
 	return json.MarshalIndent((host)(i), "", "  ")
 }
 
-func (h *Host) ToBHNode() (node opengraph.Node) {
-	node.Kinds = []string{
-		"ATHost",
-	}
-	node.Id = h.OID
-	node.Properties = map[string]string{
-		"id":                     strconv.Itoa(h.ID),
-		"name":                   h.Name,
-		"description":            h.Description,
-		"url":                    h.Url,
-		"type":                   h.Type,
-		"created":                h.Created,
-		"modified":               h.Modified,
-		"inventory":              strconv.FormatInt(int64(h.Inventory), 10),
-		"enabled":                strconv.FormatBool(h.Enabled),
-		"instance_id":            h.InstanceId,
-		"variables":              h.Variables,
-		"has_active_failures":    strconv.FormatBool(h.HasActiveFailures),
-		"last_job":               strconv.FormatInt(int64(h.LastJob), 10),
-		"last_job_host_summary":  strconv.FormatInt(int64(h.LastJobHostSummary), 10),
-		"ansible_facts_modified": h.AnsibleFactsModified,
-	}
-	return node
+func (h *Host) ToBHNode() (n *node.Node) {
+	props := properties.NewProperties()
+	props.SetProperty("id", strconv.Itoa(h.ID))
+	props.SetProperty("name", h.Name)
+	props.SetProperty("description", h.Description)
+	props.SetProperty("url", h.Url)
+	props.SetProperty("type", h.Type)
+	props.SetProperty("created", h.Created)
+	props.SetProperty("modified", h.Modified)
+	props.SetProperty("inventory", strconv.FormatInt(int64(h.Inventory), 10))
+	props.SetProperty("enabled", strconv.FormatBool(h.Enabled))
+	props.SetProperty("instance_id", h.InstanceId)
+	props.SetProperty("variables", h.Variables)
+	props.SetProperty("has_active_failures", strconv.FormatBool(h.HasActiveFailures))
+	props.SetProperty("last_job", strconv.FormatInt(int64(h.LastJob), 10))
+	props.SetProperty("last_job_host_summary", strconv.FormatInt(int64(h.LastJobHostSummary), 10))
+	props.SetProperty("ansible_facts_modified", h.AnsibleFactsModified)
+	n, _ = node.NewNode(h.OID, []string{"ATHost"}, props)
+
+	return n
 }
 
 type Group struct {
@@ -106,21 +104,18 @@ func (i Group) MarshalJSON() ([]byte, error) {
 	return json.MarshalIndent((group)(i), "", "  ")
 }
 
-func (g *Group) ToBHNode() (node opengraph.Node) {
-	node.Kinds = []string{
-		"ATGroup",
-	}
-	node.Id = g.OID
-	node.Properties = map[string]string{
-		"id":          strconv.Itoa(g.ID),
-		"name":        g.Name,
-		"description": g.Description,
-		"url":         g.Url,
-		"type":        g.Type,
-		"created":     g.Created,
-		"modified":    g.Modified,
-		"inventory":   strconv.FormatInt(int64(g.Inventory), 10),
-		"variables":   g.Variables,
-	}
-	return node
+func (g *Group) ToBHNode() (n *node.Node) {
+	props := properties.NewProperties()
+	props.SetProperty("id", strconv.Itoa(g.ID))
+	props.SetProperty("name", g.Name)
+	props.SetProperty("description", g.Description)
+	props.SetProperty("url", g.Url)
+	props.SetProperty("type", g.Type)
+	props.SetProperty("created", g.Created)
+	props.SetProperty("modified", g.Modified)
+	props.SetProperty("inventory", strconv.FormatInt(int64(g.Inventory), 10))
+	props.SetProperty("variables", g.Variables)
+	n, _ = node.NewNode(g.OID, []string{"ATGroup"}, props)
+
+	return n
 }

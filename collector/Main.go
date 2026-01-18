@@ -1,7 +1,6 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/url"
 	"os"
@@ -12,6 +11,7 @@ import (
 	"ansible-hound/core/ansible"
 	"ansible-hound/core/opengraph"
 
+	"github.com/TheManticoreProject/gopengraph/edge"
 	"github.com/charmbracelet/log"
 	"github.com/spf13/cobra"
 )
@@ -68,7 +68,7 @@ func launchGathering(client core.AHClient, targetUrl *url.URL, outdir string, ld
 		users[i] = user
 	}
 	userNodes := core.GenerateNodes(users)
-	nodes = append(nodes, userNodes...)
+	opengraph.AddNodes(&graph, userNodes)
 
 	log.Info("Gathering Hosts.")
 	hosts, err := core.GatherObject[*ansible.Host](
@@ -79,7 +79,7 @@ func launchGathering(client core.AHClient, targetUrl *url.URL, outdir string, ld
 		log.Error(err)
 	}
 	hostNodes := core.GenerateNodes(hosts)
-	nodes = append(nodes, hostNodes...)
+	opengraph.AddNodes(&graph, hostNodes)
 
 	log.Info("Gathering Groups.")
 	groups, err := core.GatherObject[*ansible.Group](
@@ -90,7 +90,7 @@ func launchGathering(client core.AHClient, targetUrl *url.URL, outdir string, ld
 		log.Error(err)
 	}
 	groupsNodes := core.GenerateNodes(groups)
-	nodes = append(nodes, groupsNodes...)
+	opengraph.AddNodes(&graph, groupsNodes)
 
 	log.Info("Gathering Group Hosts.")
 	for i, group := range groups {
@@ -117,7 +117,7 @@ func launchGathering(client core.AHClient, targetUrl *url.URL, outdir string, ld
 		log.Error(err)
 	}
 	jobsNodes := core.GenerateNodes(jobs)
-	nodes = append(nodes, jobsNodes...)
+	opengraph.AddNodes(&graph, jobsNodes)
 
 	log.Info("Gathering Job Templates.")
 	jobTemplates, err := core.GatherObject[*ansible.JobTemplate](
@@ -145,7 +145,7 @@ func launchGathering(client core.AHClient, targetUrl *url.URL, outdir string, ld
 		jobTemplates[i] = jobTemplate
 	}
 	jobTemplatesNodes := core.GenerateNodes(jobTemplates)
-	nodes = append(nodes, jobTemplatesNodes...)
+	opengraph.AddNodes(&graph, jobTemplatesNodes)
 
 	log.Info("Gathering Inventories.")
 	inventories, err := core.GatherObject[*ansible.Inventory](
@@ -156,7 +156,7 @@ func launchGathering(client core.AHClient, targetUrl *url.URL, outdir string, ld
 		log.Error(err)
 	}
 	inventoriesNodes := core.GenerateNodes(inventories)
-	nodes = append(nodes, inventoriesNodes...)
+	opengraph.AddNodes(&graph, inventoriesNodes)
 
 	log.Info("Gathering Organizations.")
 	organizations, err := core.GatherObject[*ansible.Organization](
@@ -167,7 +167,7 @@ func launchGathering(client core.AHClient, targetUrl *url.URL, outdir string, ld
 		log.Error(err)
 	}
 	organizationNodes := core.GenerateNodes(organizations)
-	nodes = append(nodes, organizationNodes...)
+	opengraph.AddNodes(&graph, organizationNodes)
 
 	log.Info("Gathering Credentials.")
 	credentials, err := core.GatherObject[*ansible.Credential](
@@ -178,7 +178,7 @@ func launchGathering(client core.AHClient, targetUrl *url.URL, outdir string, ld
 		log.Error(err)
 	}
 	credentialNodes := core.GenerateNodes(credentials)
-	nodes = append(nodes, credentialNodes...)
+	opengraph.AddNodes(&graph, credentialNodes)
 
 	log.Info("Gathering Credential Types.")
 	credentialTypes, err := core.GatherObject[*ansible.CredentialType](
@@ -189,7 +189,7 @@ func launchGathering(client core.AHClient, targetUrl *url.URL, outdir string, ld
 		log.Error(err)
 	}
 	credentialTypesNodes := core.GenerateNodes(credentialTypes)
-	nodes = append(nodes, credentialTypesNodes...)
+	opengraph.AddNodes(&graph, credentialTypesNodes)
 
 	log.Info("Gathering Projects.")
 	projects, err := core.GatherObject[*ansible.Project](
@@ -200,7 +200,7 @@ func launchGathering(client core.AHClient, targetUrl *url.URL, outdir string, ld
 		log.Error(err)
 	}
 	projectNodes := core.GenerateNodes(projects)
-	nodes = append(nodes, projectNodes...)
+	opengraph.AddNodes(&graph, projectNodes)
 
 	log.Info("Gathering Teams.")
 	teams, err := core.GatherObject[*ansible.Team](
@@ -238,7 +238,7 @@ func launchGathering(client core.AHClient, targetUrl *url.URL, outdir string, ld
 		teams[i] = team
 	}
 	teamNodes := core.GenerateNodes(teams)
-	nodes = append(nodes, teamNodes...)
+	opengraph.AddNodes(&graph, teamNodes)
 
 	// -- Creating all edges --
 
@@ -246,7 +246,7 @@ func launchGathering(client core.AHClient, targetUrl *url.URL, outdir string, ld
 	edgeKind := "ATContains"
 	for _, organization := range organizations {
 		edge := core.GenerateEdge(edgeKind, instance.OID, organization.OID)
-		edges = append(edges, edge)
+		graph.AddEdge(edge)
 	}
 
 	log.Info("Linking Organizations and Inventories.")
@@ -254,7 +254,7 @@ func launchGathering(client core.AHClient, targetUrl *url.URL, outdir string, ld
 	for _, inventory := range inventories {
 		if core.HasAccessTo(organizations, inventory.Organization) {
 			edge := core.GenerateEdge(edgeKind, organizations[inventory.Organization].OID, inventory.OID)
-			edges = append(edges, edge)
+			graph.AddEdge(edge)
 		}
 	}
 
@@ -263,7 +263,7 @@ func launchGathering(client core.AHClient, targetUrl *url.URL, outdir string, ld
 	for _, host := range hosts {
 		if core.HasAccessTo(inventories, host.Inventory) {
 			edge := core.GenerateEdge(edgeKind, inventories[host.Inventory].OID, host.OID)
-			edges = append(edges, edge)
+			graph.AddEdge(edge)
 		}
 	}
 
@@ -272,7 +272,7 @@ func launchGathering(client core.AHClient, targetUrl *url.URL, outdir string, ld
 	for _, group := range groups {
 		if core.HasAccessTo(inventories, group.Inventory) {
 			edge := core.GenerateEdge(edgeKind, inventories[group.Inventory].OID, group.OID)
-			edges = append(edges, edge)
+			graph.AddEdge(edge)
 		}
 	}
 
@@ -282,7 +282,7 @@ func launchGathering(client core.AHClient, targetUrl *url.URL, outdir string, ld
 		for _, host := range group.Hosts {
 			if core.HasAccessTo(hosts, host.ID) {
 				edge := core.GenerateEdge(edgeKind, groups[group.ID].OID, host.OID)
-				edges = append(edges, edge)
+				graph.AddEdge(edge)
 			}
 		}
 	}
@@ -292,7 +292,7 @@ func launchGathering(client core.AHClient, targetUrl *url.URL, outdir string, ld
 	for _, job := range jobs {
 		if core.HasAccessTo(jobTemplates, job.UnifiedJobTemplate) {
 			edge := core.GenerateEdge(edgeKind, jobTemplates[job.UnifiedJobTemplate].OID, job.OID)
-			edges = append(edges, edge)
+			graph.AddEdge(edge)
 		}
 	}
 
@@ -301,7 +301,7 @@ func launchGathering(client core.AHClient, targetUrl *url.URL, outdir string, ld
 	for _, jobTemplate := range jobTemplates {
 		if core.HasAccessTo(organizations, jobTemplate.Organization) {
 			edge := core.GenerateEdge(edgeKind, organizations[jobTemplate.Organization].OID, jobTemplate.OID)
-			edges = append(edges, edge)
+			graph.AddEdge(edge)
 		}
 	}
 
@@ -310,7 +310,7 @@ func launchGathering(client core.AHClient, targetUrl *url.URL, outdir string, ld
 	for _, credential := range credentials {
 		if core.HasAccessTo(organizations, credential.Organization) {
 			edge := core.GenerateEdge(edgeKind, organizations[credential.Organization].OID, credential.OID)
-			edges = append(edges, edge)
+			graph.AddEdge(edge)
 		}
 	}
 
@@ -319,7 +319,7 @@ func launchGathering(client core.AHClient, targetUrl *url.URL, outdir string, ld
 	for _, project := range projects {
 		if core.HasAccessTo(organizations, project.Organization) {
 			edge := core.GenerateEdge(edgeKind, organizations[project.Organization].OID, project.OID)
-			edges = append(edges, edge)
+			graph.AddEdge(edge)
 		}
 	}
 
@@ -328,7 +328,7 @@ func launchGathering(client core.AHClient, targetUrl *url.URL, outdir string, ld
 	for _, jobTemplate := range jobTemplates {
 		if core.HasAccessTo(projects, jobTemplate.Project) {
 			edge := core.GenerateEdge(edgeKind, jobTemplate.OID, projects[jobTemplate.Project].OID)
-			edges = append(edges, edge)
+			graph.AddEdge(edge)
 		}
 	}
 
@@ -337,7 +337,7 @@ func launchGathering(client core.AHClient, targetUrl *url.URL, outdir string, ld
 	for _, jobTemplate := range jobTemplates {
 		if core.HasAccessTo(inventories, jobTemplate.Inventory) {
 			edge := core.GenerateEdge(edgeKind, jobTemplate.OID, inventories[jobTemplate.Inventory].OID)
-			edges = append(edges, edge)
+			graph.AddEdge(edge)
 		}
 	}
 
@@ -346,7 +346,7 @@ func launchGathering(client core.AHClient, targetUrl *url.URL, outdir string, ld
 	for _, credential := range credentials {
 		if core.HasAccessTo(credentialTypes, credential.CredentialType) {
 			edge := core.GenerateEdge(edgeKind, credential.OID, credentialTypes[credential.CredentialType].OID)
-			edges = append(edges, edge)
+			graph.AddEdge(edge)
 		}
 	}
 
@@ -355,7 +355,7 @@ func launchGathering(client core.AHClient, targetUrl *url.URL, outdir string, ld
 	for _, jobTemplate := range jobTemplates {
 		for _, credential := range jobTemplate.Credentials {
 			edge := core.GenerateEdge(edgeKind, jobTemplate.OID, credential.OID)
-			edges = append(edges, edge)
+			graph.AddEdge(edge)
 		}
 	}
 
@@ -365,34 +365,34 @@ func launchGathering(client core.AHClient, targetUrl *url.URL, outdir string, ld
 		for _, role := range user.Roles {
 			edgeKind := "AT" + strings.ReplaceAll(role.Name, " ", "")
 
-			var edge opengraph.Edge
+			var edge *edge.Edge
 
 			switch role.SummaryFields.ResourceType {
 
 			case "organization":
 				if core.HasAccessTo(organizations, role.SummaryFields.ResourceId) {
 					edge = core.GenerateEdge(edgeKind, user.OID, organizations[role.SummaryFields.ResourceId].OID)
-					edges = append(edges, edge)
+					graph.AddEdge(edge)
 				}
 			case "inventory":
 				if core.HasAccessTo(inventories, role.SummaryFields.ResourceId) {
 					edge = core.GenerateEdge(edgeKind, user.OID, inventories[role.SummaryFields.ResourceId].OID)
-					edges = append(edges, edge)
+					graph.AddEdge(edge)
 				}
 			case "team":
 				if core.HasAccessTo(teams, role.SummaryFields.ResourceId) {
 					edge = core.GenerateEdge(edgeKind, user.OID, teams[role.SummaryFields.ResourceId].OID)
-					edges = append(edges, edge)
+					graph.AddEdge(edge)
 				}
 			case "credential":
 				if core.HasAccessTo(credentials, role.SummaryFields.ResourceId) {
 					edge = core.GenerateEdge(edgeKind, user.OID, credentials[role.SummaryFields.ResourceId].OID)
-					edges = append(edges, edge)
+					graph.AddEdge(edge)
 				}
 			case "job_template":
 				if core.HasAccessTo(jobTemplates, role.SummaryFields.ResourceId) {
 					edge = core.GenerateEdge(edgeKind, user.OID, jobTemplates[role.SummaryFields.ResourceId].OID)
-					edges = append(edges, edge)
+					graph.AddEdge(edge)
 				}
 			}
 
@@ -404,34 +404,34 @@ func launchGathering(client core.AHClient, targetUrl *url.URL, outdir string, ld
 		for _, role := range team.Roles {
 			edgeKind := "AT" + strings.ReplaceAll(role.Name, " ", "")
 
-			var edge opengraph.Edge
+			var edge *edge.Edge
 
 			switch role.SummaryFields.ResourceType {
 
 			case "organization":
 				if core.HasAccessTo(organizations, role.SummaryFields.ResourceId) {
 					edge = core.GenerateEdge(edgeKind, team.OID, organizations[role.SummaryFields.ResourceId].OID)
-					edges = append(edges, edge)
+					graph.AddEdge(edge)
 				}
 			case "inventory":
 				if core.HasAccessTo(inventories, role.SummaryFields.ResourceId) {
 					edge = core.GenerateEdge(edgeKind, team.OID, inventories[role.SummaryFields.ResourceId].OID)
-					edges = append(edges, edge)
+					graph.AddEdge(edge)
 				}
 			case "team":
 				if core.HasAccessTo(teams, role.SummaryFields.ResourceId) {
 					edge = core.GenerateEdge(edgeKind, team.OID, teams[role.SummaryFields.ResourceId].OID)
-					edges = append(edges, edge)
+					graph.AddEdge(edge)
 				}
 			case "credential":
 				if core.HasAccessTo(credentials, role.SummaryFields.ResourceId) {
 					edge = core.GenerateEdge(edgeKind, team.OID, credentials[role.SummaryFields.ResourceId].OID)
-					edges = append(edges, edge)
+					graph.AddEdge(edge)
 				}
 			case "job_template":
 				if core.HasAccessTo(jobTemplates, role.SummaryFields.ResourceId) {
 					edge = core.GenerateEdge(edgeKind, team.OID, jobTemplates[role.SummaryFields.ResourceId].OID)
-					edges = append(edges, edge)
+					graph.AddEdge(edge)
 				}
 			}
 		}
@@ -458,7 +458,7 @@ func launchGathering(client core.AHClient, targetUrl *url.URL, outdir string, ld
 					ldap_dn := user.LdapDn
 					objectSid, _ := core.Search(conn, ldap_dn)
 					edge := core.GenerateEdge(edgeKind, objectSid, user.OID, startKind)
-					edges = append(edges, edge)
+					graph.AddEdgeWithoutValidation(edge)
 				}
 			}
 		}
@@ -468,20 +468,10 @@ func launchGathering(client core.AHClient, targetUrl *url.URL, outdir string, ld
 
 	// -- Output final graph --
 
-	output.Graph = opengraph.Graph{
-		Nodes: nodes,
-		Edges: edges,
-	}
-
-	outputJson, err := json.MarshalIndent(output, "", "  ")
+	err = graph.ExportToFile(path.Join(outdir, core.CalculateName("output")))
 	if err != nil {
-		log.Fatal(err)
+		log.Error(err)
 	}
-
-	core.WriteToFile(
-		outputJson,
-		path.Join(outdir, core.CalculateName("output")),
-	)
 
 }
 

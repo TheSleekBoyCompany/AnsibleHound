@@ -2,6 +2,7 @@ package opengraph
 
 import (
 	"github.com/TheManticoreProject/gopengraph"
+	"github.com/TheManticoreProject/gopengraph/node"
 )
 
 const SOURCE_KIND = "AnsibleBase"
@@ -16,14 +17,8 @@ type Metadata struct {
 }
 
 type Graph struct {
-	Nodes []Node `json:"nodes"`
-	Edges []Edge `json:"edges"`
-}
-
-type Node struct {
-	Id         string            `json:"id"`
-	Kinds      []string          `json:"kinds,omitempty"`
-	Properties map[string]string `json:"properties"`
+	Nodes []*node.Node `json:"nodes"`
+	Edges []Edge       `json:"edges"`
 }
 
 type Edge struct {
@@ -40,4 +35,10 @@ type StartEndNode struct {
 func InitGraph() (graph gopengraph.OpenGraph) {
 	graph = *gopengraph.NewOpenGraph(SOURCE_KIND)
 	return graph
+}
+
+func AddNodes(graph *gopengraph.OpenGraph, nodes []*node.Node) {
+	for _, n := range nodes {
+		graph.AddNode(n)
+	}
 }

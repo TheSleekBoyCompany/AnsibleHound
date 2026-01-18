@@ -1,9 +1,11 @@
 package ansible
 
 import (
-	"ansible-hound/core/opengraph"
 	"encoding/json"
 	"strconv"
+
+	"github.com/TheManticoreProject/gopengraph/node"
+	"github.com/TheManticoreProject/gopengraph/properties"
 )
 
 type Organization struct {
@@ -18,19 +20,16 @@ func (o Organization) MarshalJSON() ([]byte, error) {
 	return json.MarshalIndent((organization)(o), "", "  ")
 }
 
-func (o *Organization) ToBHNode() (node opengraph.Node) {
-	node.Kinds = []string{
-		"ATOrganization",
-	}
-	node.Id = o.OID
-	node.Properties = map[string]string{
-		"id":                  strconv.Itoa(o.ID),
-		"name":                o.Name,
-		"description":         o.Description,
-		"url":                 o.Url,
-		"max_hosts":           strconv.FormatInt(int64(o.MaxHosts), 10),
-		"custom_virtualenv":   o.CustomVirtualenv,
-		"default_environment": strconv.FormatInt(int64(o.DefaultEnvironment), 10),
-	}
-	return node
+func (o *Organization) ToBHNode() (n *node.Node) {
+	props := properties.NewProperties()
+	props.SetProperty("id", strconv.Itoa(o.ID))
+	props.SetProperty("name", o.Name)
+	props.SetProperty("description", o.Description)
+	props.SetProperty("url", o.Url)
+	props.SetProperty("max_hosts", strconv.FormatInt(int64(o.MaxHosts), 10))
+	props.SetProperty("custom_virtualenv", o.CustomVirtualenv)
+	props.SetProperty("default_environment", strconv.FormatInt(int64(o.DefaultEnvironment), 10))
+	n, _ = node.NewNode(o.OID, []string{"ATOrganization"}, props)
+
+	return n
 }

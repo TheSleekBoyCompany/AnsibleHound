@@ -1,10 +1,12 @@
 package ansible
 
 import (
-	"ansible-hound/core/opengraph"
 	"encoding/json"
 	"strconv"
 	"strings"
+
+	"github.com/TheManticoreProject/gopengraph/node"
+	"github.com/TheManticoreProject/gopengraph/properties"
 )
 
 type Credential struct {
@@ -23,23 +25,20 @@ func (c Credential) MarshalJSON() ([]byte, error) {
 	return json.MarshalIndent((credential)(c), "", "  ")
 }
 
-func (c *Credential) ToBHNode() (node opengraph.Node) {
-	node.Kinds = []string{
-		"ATCredential",
-	}
-	node.Id = c.OID
-	node.Properties = map[string]string{
-		"id":              strconv.Itoa(c.ID),
-		"name":            c.Name,
-		"description":     c.Description,
-		"url":             c.Url,
-		"organization":    strconv.FormatInt(int64(c.Organization), 10),
-		"credential_type": strconv.FormatInt(int64(c.CredentialType), 10),
-		"managed":         strconv.FormatBool(c.Managed),
-		"cloud":           strconv.FormatBool(c.Cloud),
-		"kubernetes":      strconv.FormatBool(c.Kubernetes),
-	}
-	return node
+func (c *Credential) ToBHNode() (n *node.Node) {
+	props := properties.NewProperties()
+	props.SetProperty("id", strconv.Itoa(c.ID))
+	props.SetProperty("name", c.Name)
+	props.SetProperty("description", c.Description)
+	props.SetProperty("url", c.Url)
+	props.SetProperty("organization", strconv.FormatInt(int64(c.Organization), 10))
+	props.SetProperty("credential_type", strconv.FormatInt(int64(c.CredentialType), 10))
+	props.SetProperty("managed", strconv.FormatBool(c.Managed))
+	props.SetProperty("cloud", strconv.FormatBool(c.Cloud))
+	props.SetProperty("kubernetes", strconv.FormatBool(c.Kubernetes))
+	n, _ = node.NewNode(c.OID, []string{"ATCredential"}, props)
+
+	return n
 }
 
 type CredentialType struct {
@@ -58,22 +57,16 @@ func (ct CredentialType) MarshalJSON() ([]byte, error) {
 	return json.MarshalIndent((credentialType)(ct), "", "  ")
 }
 
-func (ct *CredentialType) ToBHNode() (node opengraph.Node) {
-	node.Kinds = []string{
-		"ATCredentialType",
-	}
-	node.Id = ct.OID
-
-	node.Properties = map[string]string{
-		"id":          strconv.Itoa(ct.ID),
-		"name":        ct.Name,
-		"description": ct.Description,
-		"url":         ct.Url,
-		"namespace":   ct.Namespace,
-		"managed":     strconv.FormatBool(ct.Managed),
-		"cloud":       strconv.FormatBool(ct.Cloud),
-		"kubernetes":  strconv.FormatBool(ct.Kubernetes),
-	}
+func (ct *CredentialType) ToBHNode() (n *node.Node) {
+	props := properties.NewProperties()
+	props.SetProperty("id", strconv.Itoa(ct.ID))
+	props.SetProperty("name", ct.Name)
+	props.SetProperty("description", ct.Description)
+	props.SetProperty("url", ct.Url)
+	props.SetProperty("namespace", ct.Namespace)
+	props.SetProperty("managed", strconv.FormatBool(ct.Managed))
+	props.SetProperty("cloud", strconv.FormatBool(ct.Cloud))
+	props.SetProperty("kubernetes", strconv.FormatBool(ct.Kubernetes))
 
 	var ok bool
 	// TODO: Create object to manage `inputs`, the any is getting annoying to manage.
@@ -87,16 +80,16 @@ func (ct *CredentialType) ToBHNode() (node opengraph.Node) {
 			id := field["id"].(string) // ID and Label are needed fields and should never be missing empty.
 
 			if _, ok = field["help_text"]; ok {
-				node.Properties["field_"+id+"_help"] = field["help_text"].(string)
+				props.SetProperty("field_"+id+"_help", field["help_text"].(string))
 			}
 			if _, ok = field["type"]; ok {
-				node.Properties["field_"+id+"_type"] = field["type"].(string)
+				props.SetProperty("field_"+id+"_type", field["type"].(string))
 			}
 			if _, ok = field["secret"]; ok {
-				node.Properties["field_"+id+"_secret"] = strconv.FormatBool(field["secret"].(bool))
+				props.SetProperty("field_"+id+"_secret", strconv.FormatBool(field["secret"].(bool)))
 			}
 			if _, ok = field["help_text"]; ok {
-				node.Properties["field_"+id+"_help"] = field["help_text"].(string)
+				props.SetProperty("field_"+id+"_help", field["help_text"].(string))
 			}
 		}
 
@@ -109,27 +102,29 @@ func (ct *CredentialType) ToBHNode() (node opengraph.Node) {
 				required = append(required, entry)
 			}
 		}
-		node.Properties["fields_required"] = strings.Join(required, ", ")
+		props.SetProperty("fields_required", strings.Join(required, ", "))
 
 	}
 
 	if _, ok = ct.Injectors["file"]; ok {
 		fileInjectors := ct.Injectors["file"].(map[string]any)
 		for k, v := range fileInjectors {
-			node.Properties["injector_file_"+k] = v.(string)
+			props.SetProperty("injector_file_"+k, v.(string))
 		}
 	}
 	if _, ok = ct.Injectors["extra_vars"]; ok {
 		fileInjectors := ct.Injectors["extra_vars"].(map[string]any)
 		for k, v := range fileInjectors {
-			node.Properties["injector_extra_vars_"+k] = v.(string)
+			props.SetProperty("injector_extra_vars_"+k, v.(string))
 		}
 	}
 	if _, ok = ct.Injectors["env"]; ok {
 		fileInjectors := ct.Injectors["env"].(map[string]any)
 		for k, v := range fileInjectors {
-			node.Properties["injector_env_"+k] = v.(string)
+			props.SetProperty("injector_env_"+k, v.(string))
 		}
 	}
-	return node
+	n, _ = node.NewNode(ct.OID, []string{"ATCredentialType"}, props)
+
+	return n
 }

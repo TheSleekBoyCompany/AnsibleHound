@@ -1,9 +1,11 @@
 package ansible
 
 import (
-	"ansible-hound/core/opengraph"
 	"encoding/json"
 	"strconv"
+
+	"github.com/TheManticoreProject/gopengraph/node"
+	"github.com/TheManticoreProject/gopengraph/properties"
 )
 
 type Project struct {
@@ -39,40 +41,37 @@ func (p Project) MarshalJSON() ([]byte, error) {
 	return json.MarshalIndent((project)(p), "", "  ")
 }
 
-func (p *Project) ToBHNode() (node opengraph.Node) {
-	node.Kinds = []string{
-		"ATProject",
-	}
-	node.Id = p.OID
-	node.Properties = map[string]string{
-		"id":                              strconv.Itoa(p.ID),
-		"name":                            p.Name,
-		"description":                     p.Description,
-		"url":                             p.Url,
-		"organization":                    strconv.FormatInt(int64(p.Organization), 10),
-		"credential":                      strconv.FormatInt(int64(p.Credential), 10),
-		"timeout":                         strconv.FormatInt(int64(p.Timeout), 10),
-		"status":                          p.Status,
-		"local_path":                      p.LocalPath,
-		"scm_type":                        p.ScmType,
-		"scm_url":                         p.ScmUrl,
-		"scm_branch":                      p.ScmBranch,
-		"scm_ref_spec":                    p.ScmRefSpec,
-		"scm_clean":                       strconv.FormatBool(p.ScmClean),
-		"scm_track_submodules":            strconv.FormatBool(p.ScmTrackSubmodules),
-		"scm_delete_on_update":            strconv.FormatBool(p.ScmDeleteOnUpdate),
-		"scm_revision":                    p.ScmRevision,
-		"last_job_run":                    p.LastJobRun,
-		"next_job_run":                    p.NextJobRun,
-		"last_job_failed":                 strconv.FormatBool(p.LastJobFailed),
-		"scm_update_on_launch":            strconv.FormatBool(p.ScmUpdateOnLaunch),
-		"scm_update_cache_timeout":        strconv.FormatInt(int64(p.ScmUpdateCacheTimeout), 10),
-		"allow_override":                  strconv.FormatBool(p.AllowOverride),
-		"custom_virtualenv":               p.CustomVirtualenv,
-		"default_environment":             strconv.FormatInt(int64(p.DefaultEnvironment), 10),
-		"signature_validation_credential": strconv.FormatInt(int64(p.SignatureValidationCredential), 10),
-		"last_update_failed":              strconv.FormatBool(p.LastUpdateFailed),
-		"last_update":                     p.LastUpdate,
-	}
-	return node
+func (p *Project) ToBHNode() (n *node.Node) {
+	props := properties.NewProperties()
+	props.SetProperty("id", strconv.Itoa(p.ID))
+	props.SetProperty("name", p.Name)
+	props.SetProperty("description", p.Description)
+	props.SetProperty("url", p.Url)
+	props.SetProperty("organization", strconv.FormatInt(int64(p.Organization), 10))
+	props.SetProperty("credential", strconv.FormatInt(int64(p.Credential), 10))
+	props.SetProperty("timeout", strconv.FormatInt(int64(p.Timeout), 10))
+	props.SetProperty("status", p.Status)
+	props.SetProperty("local_path", p.LocalPath)
+	props.SetProperty("scm_type", p.ScmType)
+	props.SetProperty("scm_url", p.ScmUrl)
+	props.SetProperty("scm_branch", p.ScmBranch)
+	props.SetProperty("scm_ref_spec", p.ScmRefSpec)
+	props.SetProperty("scm_clean", strconv.FormatBool(p.ScmClean))
+	props.SetProperty("scm_track_submodules", strconv.FormatBool(p.ScmTrackSubmodules))
+	props.SetProperty("scm_delete_on_update", strconv.FormatBool(p.ScmDeleteOnUpdate))
+	props.SetProperty("scm_revision", p.ScmRevision)
+	props.SetProperty("last_job_run", p.LastJobRun)
+	props.SetProperty("next_job_run", p.NextJobRun)
+	props.SetProperty("last_job_failed", strconv.FormatBool(p.LastJobFailed))
+	props.SetProperty("scm_update_on_launch", strconv.FormatBool(p.ScmUpdateOnLaunch))
+	props.SetProperty("scm_update_cache_timeout", strconv.FormatInt(int64(p.ScmUpdateCacheTimeout), 10))
+	props.SetProperty("allow_override", strconv.FormatBool(p.AllowOverride))
+	props.SetProperty("custom_virtualenv", p.CustomVirtualenv)
+	props.SetProperty("default_environment", strconv.FormatInt(int64(p.DefaultEnvironment), 10))
+	props.SetProperty("signature_validation_credential", strconv.FormatInt(int64(p.SignatureValidationCredential), 10))
+	props.SetProperty("last_update_failed", strconv.FormatBool(p.LastUpdateFailed))
+	props.SetProperty("last_update", p.LastUpdate)
+	n, _ = node.NewNode(p.OID, []string{"ATProject"}, props)
+
+	return n
 }

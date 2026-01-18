@@ -2,38 +2,26 @@ package core
 
 import (
 	"ansible-hound/core/ansible"
-	"ansible-hound/core/opengraph"
 	"fmt"
 	"os"
 	"time"
 
+	"github.com/TheManticoreProject/gopengraph/edge"
+	"github.com/TheManticoreProject/gopengraph/node"
 	"github.com/charmbracelet/log"
 )
 
-func GenerateEdge(edgeKind string, startId string, endId string, startKind ...string) opengraph.Edge {
+func GenerateEdge(edgeKind string, startId string, endId string, startKind ...string) (e *edge.Edge) {
 
-	start := opengraph.StartEndNode{
-		Value: startId,
+	e, err := edge.NewEdge(startId, endId, edgeKind, nil)
+	if err != nil {
+		log.Error(err)
 	}
 
-	if len(startKind) > 0 {
-		start.Kind = startKind[0]
-	}
-
-	end := opengraph.StartEndNode{
-		Value: endId,
-	}
-
-	edge := opengraph.Edge{
-		Kind:  edgeKind,
-		Start: start,
-		End:   end,
-	}
-
-	return edge
+	return e
 }
 
-func GenerateNodes[T ansible.AnsibleType](objects map[int]T) (nodes []opengraph.Node) {
+func GenerateNodes[T ansible.AnsibleType](objects map[int]T) (nodes []*node.Node) {
 	for _, object := range objects {
 		nodes = append(nodes, object.ToBHNode())
 	}

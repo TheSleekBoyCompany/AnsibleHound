@@ -1,9 +1,11 @@
 package ansible
 
 import (
-	"ansible-hound/core/opengraph"
 	"encoding/json"
 	"strconv"
+
+	"github.com/TheManticoreProject/gopengraph/node"
+	"github.com/TheManticoreProject/gopengraph/properties"
 )
 
 type User struct {
@@ -25,24 +27,21 @@ func (u *User) MarshalJSON() ([]byte, error) {
 	return json.MarshalIndent((*user)(u), "", "  ")
 }
 
-func (u *User) ToBHNode() (node opengraph.Node) {
-	node.Kinds = []string{
-		"ATUser",
-	}
-	node.Id = u.OID
-	node.Properties = map[string]string{
-		"id":                strconv.Itoa(u.ID),
-		"name":              u.Username,
-		"description":       u.Description,
-		"url":               u.Url,
-		"firstname":         u.FirstName,
-		"lastname":          u.LastName,
-		"email":             u.Email,
-		"is_super_user":     strconv.FormatBool(u.IsSuperUser),
-		"is_system_auditor": strconv.FormatBool(u.IsSystemAuditor),
-		"ldap_dn":           u.LdapDn,
-		"last_login":        u.LastLogin,
-		"external_account":  u.ExternalAccount,
-	}
-	return node
+func (u *User) ToBHNode() (n *node.Node) {
+	props := properties.NewProperties()
+	props.SetProperty("id", strconv.Itoa(u.ID))
+	props.SetProperty("name", u.Username)
+	props.SetProperty("description", u.Description)
+	props.SetProperty("url", u.Url)
+	props.SetProperty("firstname", u.FirstName)
+	props.SetProperty("lastname", u.LastName)
+	props.SetProperty("email", u.Email)
+	props.SetProperty("is_super_user", strconv.FormatBool(u.IsSuperUser))
+	props.SetProperty("is_system_auditor", strconv.FormatBool(u.IsSystemAuditor))
+	props.SetProperty("ldap_dn", u.LdapDn)
+	props.SetProperty("last_login", u.LastLogin)
+	props.SetProperty("external_account", u.ExternalAccount)
+	n, _ = node.NewNode(u.OID, []string{"ATUser"}, props)
+
+	return n
 }

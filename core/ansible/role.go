@@ -1,8 +1,9 @@
 package ansible
 
 import (
-	"ansible-hound/core/opengraph"
 	"encoding/json"
+
+	"github.com/TheManticoreProject/gopengraph/node"
 )
 
 type Role struct {
@@ -23,8 +24,8 @@ func (r Role) MarshalJSON() ([]byte, error) {
 	return json.MarshalIndent((role)(r), "", "  ")
 }
 
-func (r *Role) ToBHNode() (node opengraph.Node) {
-	return opengraph.Node{}
+func (r *Role) ToBHNode() (n *node.Node) {
+	return n
 }
 
 // -- Future proofing, current RBAC APIs has been deprecated, it will eventually switch to these APIs --

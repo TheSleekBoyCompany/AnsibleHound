@@ -1,7 +1,6 @@
 package ansible
 
 import (
-	"ansible-hound/core/opengraph"
 	"crypto/sha1"
 	"encoding/hex"
 	"encoding/json"
@@ -45,7 +44,7 @@ type AnsibleType interface {
 	GetID() int
 	GetOID() string
 	InitOID(string)
-	ToBHNode() opengraph.Node
+	ToBHNode() *node.Node
 }
 
 type Response[T any] struct {
