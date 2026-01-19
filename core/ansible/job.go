@@ -1,9 +1,11 @@
 package ansible
 
 import (
-	"ansible-hound/core/opengraph"
 	"encoding/json"
 	"strconv"
+
+	"github.com/TheManticoreProject/gopengraph/node"
+	"github.com/TheManticoreProject/gopengraph/properties"
 )
 
 type Job struct {
@@ -58,58 +60,55 @@ func (j Job) MarshalJSON() ([]byte, error) {
 	return json.MarshalIndent((job)(j), "", "  ")
 }
 
-func (j *Job) ToBHNode() (node opengraph.Node) {
-	node.Kinds = []string{
-		"ATJob",
-	}
-	node.Id = j.OID
-	node.Properties = map[string]string{
-		"id":                       strconv.FormatInt(int64(j.ID), 10),
-		"name":                     j.Name,
-		"description":              j.Description,
-		"url":                      j.Url,
-		"type":                     j.Type,
-		"created":                  j.Created,
-		"modified":                 j.Modified,
-		"playbook":                 j.Playbook,
-		"scm_branch":               j.ScmBranch,
-		"forks":                    strconv.FormatInt(int64(j.Forks), 10),
-		"limit":                    j.Limit,
-		"verbosity":                strconv.FormatInt(int64(j.Verbosity), 10),
-		"extra_vars":               j.ExtraVars,
-		"started":                  j.Started,
-		"finished":                 j.Finished,
-		"canceled_on":              j.CanceledOn,
-		"elapsed":                  strconv.FormatFloat(float64(j.Elapsed), 'e', 10, 32),
-		"job_explanation":          j.JobExplanation,
-		"launch_type":              j.LaunchType,
-		"unified_job_template":     strconv.FormatInt(int64(j.UnifiedJobTemplate), 10),
-		"organization":             strconv.FormatInt(int64(j.Organization), 10),
-		"inventory":                strconv.FormatInt(int64(j.Inventory), 10),
-		"project":                  strconv.FormatInt(int64(j.Project), 10),
-		"failed":                   strconv.FormatBool(j.Failed),
-		"status":                   j.Status,
-		"execution_environment":    strconv.FormatInt(int64(j.ExecutionEnvironment), 10),
-		"execution_node":           j.ExecutionNode,
-		"controller_node":          j.ControllerNode,
-		"work_unit_id":             j.WorkUnitId,
-		"job_tags":                 j.JobTags,
-		"job_type":                 j.JobType,
-		"force_handler":            strconv.FormatBool(j.ForceHandler),
-		"skip_tags":                j.SkipTags,
-		"start_at_task":            j.StartAtTask,
-		"timeout":                  strconv.FormatInt(int64(j.Timeout), 10),
-		"use_fact_cache":           strconv.FormatBool(j.UseFactCache),
-		"password_needed_to_start": j.PasswordNeededToStart,
-		"allow_simultaneous":       strconv.FormatBool(j.AllowSimultaneous),
-		"scm_revision":             j.ScmRevision,
-		"instance_group":           strconv.FormatInt(int64(j.InstanceGroup), 10),
-		"diff_mode":                strconv.FormatBool(j.DiffMode),
-		"job_slice_number":         strconv.FormatInt(int64(j.JobSliceNumber), 10),
-		"job_slice_count":          strconv.FormatInt(int64(j.JobSliceCount), 10),
-		"webhook_guid":             j.WebhookGuid,
-		"webhook_service":          j.WebhookService,
-		"webhook_credential":       strconv.FormatInt(int64(j.WebhookCredential), 10),
-	}
-	return node
+func (j *Job) ToBHNode() (n *node.Node) {
+	props := properties.NewProperties()
+	props.SetProperty("id", strconv.FormatInt(int64(j.ID), 10))
+	props.SetProperty("name", j.Name)
+	props.SetProperty("description", j.Description)
+	props.SetProperty("url", j.Url)
+	props.SetProperty("type", j.Type)
+	props.SetProperty("created", j.Created)
+	props.SetProperty("modified", j.Modified)
+	props.SetProperty("playbook", j.Playbook)
+	props.SetProperty("scm_branch", j.ScmBranch)
+	props.SetProperty("forks", strconv.FormatInt(int64(j.Forks), 10))
+	props.SetProperty("limit", j.Limit)
+	props.SetProperty("verbosity", strconv.FormatInt(int64(j.Verbosity), 10))
+	props.SetProperty("extra_vars", j.ExtraVars)
+	props.SetProperty("started", j.Started)
+	props.SetProperty("finished", j.Finished)
+	props.SetProperty("canceled_on", j.CanceledOn)
+	props.SetProperty("elapsed", strconv.FormatFloat(float64(j.Elapsed), 'e', 10, 32))
+	props.SetProperty("job_explanation", j.JobExplanation)
+	props.SetProperty("launch_type", j.LaunchType)
+	props.SetProperty("unified_job_template", strconv.FormatInt(int64(j.UnifiedJobTemplate), 10))
+	props.SetProperty("organization", strconv.FormatInt(int64(j.Organization), 10))
+	props.SetProperty("inventory", strconv.FormatInt(int64(j.Inventory), 10))
+	props.SetProperty("project", strconv.FormatInt(int64(j.Project), 10))
+	props.SetProperty("failed", strconv.FormatBool(j.Failed))
+	props.SetProperty("status", j.Status)
+	props.SetProperty("execution_environment", strconv.FormatInt(int64(j.ExecutionEnvironment), 10))
+	props.SetProperty("execution_node", j.ExecutionNode)
+	props.SetProperty("controller_node", j.ControllerNode)
+	props.SetProperty("work_unit_id", j.WorkUnitId)
+	props.SetProperty("job_tags", j.JobTags)
+	props.SetProperty("job_type", j.JobType)
+	props.SetProperty("force_handler", strconv.FormatBool(j.ForceHandler))
+	props.SetProperty("skip_tags", j.SkipTags)
+	props.SetProperty("start_at_task", j.StartAtTask)
+	props.SetProperty("timeout", strconv.FormatInt(int64(j.Timeout), 10))
+	props.SetProperty("use_fact_cache", strconv.FormatBool(j.UseFactCache))
+	props.SetProperty("password_needed_to_start", j.PasswordNeededToStart)
+	props.SetProperty("allow_simultaneous", strconv.FormatBool(j.AllowSimultaneous))
+	props.SetProperty("scm_revision", j.ScmRevision)
+	props.SetProperty("instance_group", strconv.FormatInt(int64(j.InstanceGroup), 10))
+	props.SetProperty("diff_mode", strconv.FormatBool(j.DiffMode))
+	props.SetProperty("job_slice_number", strconv.FormatInt(int64(j.JobSliceNumber), 10))
+	props.SetProperty("job_slice_count", strconv.FormatInt(int64(j.JobSliceCount), 10))
+	props.SetProperty("webhook_guid", j.WebhookGuid)
+	props.SetProperty("webhook_service", j.WebhookService)
+	props.SetProperty("webhook_credential", strconv.FormatInt(int64(j.WebhookCredential), 10))
+	n, _ = node.NewNode(j.OID, []string{"ATJob"}, props)
+
+	return n
 }

@@ -1,9 +1,11 @@
 package ansible
 
 import (
-	"ansible-hound/core/opengraph"
 	"encoding/json"
 	"strconv"
+
+	"github.com/TheManticoreProject/gopengraph/node"
+	"github.com/TheManticoreProject/gopengraph/properties"
 )
 
 type JobTemplate struct {
@@ -62,61 +64,58 @@ func (j JobTemplate) MarshalJSON() ([]byte, error) {
 	return json.MarshalIndent((jobTemplate)(j), "", "  ")
 }
 
-func (j *JobTemplate) ToBHNode() (node opengraph.Node) {
-	node.Kinds = []string{
-		"ATJobTemplate",
-	}
-	node.Id = j.OID
-	node.Properties = map[string]string{
-		"id":                                  strconv.Itoa(j.ID),
-		"name":                                j.Name,
-		"description":                         j.Description,
-		"url":                                 j.Url,
-		"job_type":                            j.JobType,
-		"project":                             strconv.FormatInt(int64(j.Project), 10),
-		"organization":                        strconv.FormatInt(int64(j.Organization), 10),
-		"playbook":                            j.Playbook,
-		"scm_branch":                          j.SCMBranch,
-		"limit":                               j.Limit,
-		"verbosity":                           strconv.FormatInt(int64(j.Verbosity), 10),
-		"extra_vars":                          j.ExtraVars,
-		"status":                              j.Status,
-		"job_tags":                            j.JobTags,
-		"forks":                               strconv.FormatInt(int64(j.Forks), 10),
-		"skip_tags":                           j.SkipTags,
-		"start_at_task":                       j.StartAtTask,
-		"timeout":                             strconv.FormatInt(int64(j.Timeout), 10),
-		"use_fact_cache":                      strconv.FormatBool(j.UseFactCache),
-		"force_handler":                       strconv.FormatBool(j.ForceHandler),
-		"last_job_run":                        j.LastJobRun,
-		"next_job_run":                        j.NextJobRun,
-		"last_job_failed":                     strconv.FormatBool(j.LastJobFailed),
-		"execution_environment":               strconv.FormatInt(int64(j.ExecutionEnvironment), 10),
-		"host_config_key":                     j.HostConfigKey,
-		"ask_scm_branch_on_launch":            strconv.FormatBool(j.AskScmBranchOnLaunch),
-		"ask_diff_mode_on_launch":             strconv.FormatBool(j.AskDiffModeOnLaunch),
-		"ask_variables_on_launch":             strconv.FormatBool(j.AskVariablesOnLaunch),
-		"ask_limit_on_launch":                 strconv.FormatBool(j.AskLimitOnLaunch),
-		"ask_tags_on_launch":                  strconv.FormatBool(j.AskTagsOnLaunch),
-		"ask_job_type_on_launch":              strconv.FormatBool(j.AskJobTypeOnLaunch),
-		"ask_verbosity_on_launch":             strconv.FormatBool(j.AskVerbosityOnLaunch),
-		"ask_inventory_on_launch":             strconv.FormatBool(j.AskInventoryOnLaunch),
-		"ask_credential_on_launch":            strconv.FormatBool(j.AskCredentialOnLaunch),
-		"ask_execution_environment_on_launch": strconv.FormatBool(j.AskExecutionEnvironmentOnLaunch),
-		"ask_labels_on_launch":                strconv.FormatBool(j.AskLabelsOnLaunch),
-		"ask_forks_on_launch":                 strconv.FormatBool(j.AskForksOnLaunch),
-		"ask_job_slice_count_on_launch":       strconv.FormatBool(j.AskJobSliceCountOnLaunch),
-		"ask_timeout_on_launch":               strconv.FormatBool(j.AskTimeoutOnLaunch),
-		"ask_instance_groups_on_launch":       strconv.FormatBool(j.AskInstanceGroupsOnLaunch),
-		"survey_enabled":                      strconv.FormatBool(j.SurveyEnabled),
-		"become_enabled":                      strconv.FormatBool(j.BecomeEnabled),
-		"diff_mode":                           strconv.FormatBool(j.DiffMode),
-		"allow_simultaneous":                  strconv.FormatBool(j.AllowSimultaneous),
-		"custom_virtualenv":                   j.CustomVirtualenv,
-		"job_slice_count":                     strconv.FormatInt(int64(j.JobSliceCount), 10),
-		"webhook_service":                     j.WebhookService,
-		"webhook_credential":                  strconv.FormatInt(int64(j.WebhookCredential), 10),
-		"prevent_instance_group_fallback":     strconv.FormatBool(j.PreventInstanceGroupFallback),
-	}
-	return node
+func (j *JobTemplate) ToBHNode() (n *node.Node) {
+	props := properties.NewProperties()
+	props.SetProperty("id", strconv.Itoa(j.ID))
+	props.SetProperty("name", j.Name)
+	props.SetProperty("description", j.Description)
+	props.SetProperty("url", j.Url)
+	props.SetProperty("job_type", j.JobType)
+	props.SetProperty("project", strconv.FormatInt(int64(j.Project), 10))
+	props.SetProperty("organization", strconv.FormatInt(int64(j.Organization), 10))
+	props.SetProperty("playbook", j.Playbook)
+	props.SetProperty("scm_branch", j.SCMBranch)
+	props.SetProperty("limit", j.Limit)
+	props.SetProperty("verbosity", strconv.FormatInt(int64(j.Verbosity), 10))
+	props.SetProperty("extra_vars", j.ExtraVars)
+	props.SetProperty("status", j.Status)
+	props.SetProperty("job_tags", j.JobTags)
+	props.SetProperty("forks", strconv.FormatInt(int64(j.Forks), 10))
+	props.SetProperty("skip_tags", j.SkipTags)
+	props.SetProperty("start_at_task", j.StartAtTask)
+	props.SetProperty("timeout", strconv.FormatInt(int64(j.Timeout), 10))
+	props.SetProperty("use_fact_cache", strconv.FormatBool(j.UseFactCache))
+	props.SetProperty("force_handler", strconv.FormatBool(j.ForceHandler))
+	props.SetProperty("last_job_run", j.LastJobRun)
+	props.SetProperty("next_job_run", j.NextJobRun)
+	props.SetProperty("last_job_failed", strconv.FormatBool(j.LastJobFailed))
+	props.SetProperty("execution_environment", strconv.FormatInt(int64(j.ExecutionEnvironment), 10))
+	props.SetProperty("host_config_key", j.HostConfigKey)
+	props.SetProperty("ask_scm_branch_on_launch", strconv.FormatBool(j.AskScmBranchOnLaunch))
+	props.SetProperty("ask_diff_mode_on_launch", strconv.FormatBool(j.AskDiffModeOnLaunch))
+	props.SetProperty("ask_variables_on_launch", strconv.FormatBool(j.AskVariablesOnLaunch))
+	props.SetProperty("ask_limit_on_launch", strconv.FormatBool(j.AskLimitOnLaunch))
+	props.SetProperty("ask_tags_on_launch", strconv.FormatBool(j.AskTagsOnLaunch))
+	props.SetProperty("ask_job_type_on_launch", strconv.FormatBool(j.AskJobTypeOnLaunch))
+	props.SetProperty("ask_verbosity_on_launch", strconv.FormatBool(j.AskVerbosityOnLaunch))
+	props.SetProperty("ask_inventory_on_launch", strconv.FormatBool(j.AskInventoryOnLaunch))
+	props.SetProperty("ask_credential_on_launch", strconv.FormatBool(j.AskCredentialOnLaunch))
+	props.SetProperty("ask_execution_environment_on_launch", strconv.FormatBool(j.AskExecutionEnvironmentOnLaunch))
+	props.SetProperty("ask_labels_on_launch", strconv.FormatBool(j.AskLabelsOnLaunch))
+	props.SetProperty("ask_forks_on_launch", strconv.FormatBool(j.AskForksOnLaunch))
+	props.SetProperty("ask_job_slice_count_on_launch", strconv.FormatBool(j.AskJobSliceCountOnLaunch))
+	props.SetProperty("ask_timeout_on_launch", strconv.FormatBool(j.AskTimeoutOnLaunch))
+	props.SetProperty("ask_instance_groups_on_launch", strconv.FormatBool(j.AskInstanceGroupsOnLaunch))
+	props.SetProperty("survey_enabled", strconv.FormatBool(j.SurveyEnabled))
+	props.SetProperty("become_enabled", strconv.FormatBool(j.BecomeEnabled))
+	props.SetProperty("diff_mode", strconv.FormatBool(j.DiffMode))
+	props.SetProperty("allow_simultaneous", strconv.FormatBool(j.AllowSimultaneous))
+	props.SetProperty("custom_virtualenv", j.CustomVirtualenv)
+	props.SetProperty("job_slice_count", strconv.FormatInt(int64(j.JobSliceCount), 10))
+	props.SetProperty("webhook_service", j.WebhookService)
+	props.SetProperty("webhook_credential", strconv.FormatInt(int64(j.WebhookCredential), 10))
+	props.SetProperty("prevent_instance_group_fallback", strconv.FormatBool(j.PreventInstanceGroupFallback))
+	n, _ = node.NewNode(j.OID, []string{"ATJobTemplate"}, props)
+
+	return n
 }

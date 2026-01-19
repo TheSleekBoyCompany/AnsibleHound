@@ -1,9 +1,11 @@
 package ansible
 
 import (
-	"ansible-hound/core/opengraph"
 	"encoding/json"
 	"strconv"
+
+	"github.com/TheManticoreProject/gopengraph/node"
+	"github.com/TheManticoreProject/gopengraph/properties"
 )
 
 type Team struct {
@@ -18,19 +20,16 @@ func (u *Team) MarshalJSON() ([]byte, error) {
 	return json.MarshalIndent((*team)(u), "", "  ")
 }
 
-func (t *Team) ToBHNode() (node opengraph.Node) {
-	node.Kinds = []string{
-		"ATTeam",
-	}
-	node.Id = t.OID
-	node.Properties = map[string]string{
-		"id":          strconv.Itoa(t.ID),
-		"name":        t.Name,
-		"description": t.Description,
-		"url":         t.Url,
-		"type":        t.Type,
-		"created":     t.Created,
-		"modified":    t.Modified,
-	}
-	return node
+func (t *Team) ToBHNode() (n *node.Node) {
+	props := properties.NewProperties()
+	props.SetProperty("id", strconv.Itoa(t.ID))
+	props.SetProperty("name", t.Name)
+	props.SetProperty("description", t.Description)
+	props.SetProperty("url", t.Url)
+	props.SetProperty("type", t.Type)
+	props.SetProperty("created", t.Created)
+	props.SetProperty("modified", t.Modified)
+	n, _ = node.NewNode(t.OID, []string{"ATTeam"}, props)
+
+	return n
 }

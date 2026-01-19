@@ -1,32 +1,47 @@
 package opengraph
 
-type OutputJson struct {
-	Metadata Metadata `json:"metadata"`
-	Graph    Graph    `json:"graph"`
+import (
+	"ansible-hound/core/ansible"
+
+	"github.com/TheManticoreProject/gopengraph"
+	"github.com/TheManticoreProject/gopengraph/edge"
+	"github.com/TheManticoreProject/gopengraph/node"
+	"github.com/charmbracelet/log"
+)
+
+const SOURCE_KIND = "AnsibleBase"
+
+func InitGraph() (graph gopengraph.OpenGraph) {
+	graph = *gopengraph.NewOpenGraph(SOURCE_KIND)
+	return graph
 }
 
-type Metadata struct {
-	SourceKind string `json:"source_kind,omitempty"`
+func AddNodes(graph *gopengraph.OpenGraph, nodes []*node.Node) {
+	for _, n := range nodes {
+		graph.AddNode(n)
+	}
 }
 
-type Graph struct {
-	Nodes []Node `json:"nodes"`
-	Edges []Edge `json:"edges"`
+func AddEdge(graph *gopengraph.OpenGraph, edge *edge.Edge) {
+	if !graph.AddEdge(edge) {
+		log.Debugf("Edge failed validation, it was either a duplicate or one of the nodes did not exist in the graph.")
+		log.Debugf("(%s)-[%s]-(%s)", edge.GetStartNodeID(), edge.GetKind(), edge.GetEndNodeID())
+	}
 }
 
-type Node struct {
-	Id         string            `json:"id"`
-	Kinds      []string          `json:"kinds,omitempty"`
-	Properties map[string]string `json:"properties"`
+func GenerateEdge(edgeKind string, startId string, endId string, startKind ...string) (e *edge.Edge) {
+
+	e, err := edge.NewEdge(startId, endId, edgeKind, nil)
+	if err != nil {
+		log.Error(err)
+	}
+
+	return e
 }
 
-type Edge struct {
-	Kind  string       `json:"kind"`
-	Start StartEndNode `json:"start"`
-	End   StartEndNode `json:"end"`
-}
-
-type StartEndNode struct {
-	Value string `json:"value"`
-	Kind  string `json:"kind,omitempty"`
+func GenerateNodes[T ansible.AnsibleType](objects map[int]T) (nodes []*node.Node) {
+	for _, object := range objects {
+		nodes = append(nodes, object.ToBHNode())
+	}
+	return nodes
 }
