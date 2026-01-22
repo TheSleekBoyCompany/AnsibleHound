@@ -5,8 +5,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/TheManticoreProject/gopengraph/node"
-	"github.com/TheManticoreProject/gopengraph/properties"
+	"github.com/Ramoreik/gopengraph/node"
+	"github.com/Ramoreik/gopengraph/properties"
 )
 
 type Credential struct {

@@ -11,7 +11,7 @@ import (
 	"ansible-hound/core/ansible"
 	"ansible-hound/core/opengraph"
 
-	"github.com/TheManticoreProject/gopengraph/edge"
+	"github.com/Ramoreik/gopengraph/edge"
 	"github.com/charmbracelet/log"
 	"github.com/spf13/cobra"
 )
@@ -438,7 +438,6 @@ func launchGathering(client core.AHClient, targetUrl *url.URL, outdir string, ld
 
 		log.Info("Linking LDAP Users.")
 		edgeKind = "SyncedToAHUser"
-		startKind := "Base"
 
 		conn, err := core.Connect(ldap)
 
@@ -452,7 +451,7 @@ func launchGathering(client core.AHClient, targetUrl *url.URL, outdir string, ld
 				if user.LdapDn != "" {
 					ldap_dn := user.LdapDn
 					objectSid, _ := core.Search(conn, ldap_dn)
-					edge := opengraph.GenerateEdge(edgeKind, objectSid, user.OID, startKind)
+					edge := opengraph.GenerateEdge(edgeKind, objectSid, user.OID)
 					graph.AddEdgeWithoutValidation(edge)
 				}
 			}
