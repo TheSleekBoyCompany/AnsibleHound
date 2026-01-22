@@ -11,6 +11,20 @@ import (
 	"github.com/charmbracelet/log"
 )
 
+type AHClient struct {
+	Client  *http.Client
+	Headers http.Header
+}
+
+func (ahc *AHClient) Do(req *http.Request) (*http.Response, error) {
+	for k, vals := range ahc.Headers {
+		for _, v := range vals {
+			req.Header.Add(k, v)
+		}
+	}
+	return ahc.Client.Do(req)
+}
+
 func executeReq(client AHClient, req *http.Request) ([]byte, error) {
 
 	resp, err := client.Do(req)

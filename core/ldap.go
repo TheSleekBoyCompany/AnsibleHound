@@ -10,6 +10,15 @@ import (
 	"github.com/charmbracelet/log"
 )
 
+type AHLdap struct {
+	IsLDAPS       bool
+	IP            string
+	BindUsername  string
+	BindPassword  string
+	Domain        string
+	SkipVerifySSL bool
+}
+
 func InitLdap(dc_ip string, username string, password string, domain string, isLDAPS bool, skipVerifySSL bool) AHLdap {
 
 	ldap := AHLdap{
