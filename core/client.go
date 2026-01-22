@@ -25,9 +25,9 @@ func (ahc *AHClient) Do(req *http.Request) (*http.Response, error) {
 	return ahc.Client.Do(req)
 }
 
-func executeReq(client AHClient, req *http.Request) ([]byte, error) {
+func (ahc *AHClient) executeReq(req *http.Request) ([]byte, error) {
 
-	resp, err := client.Do(req)
+	resp, err := ahc.Do(req)
 	if err != nil {
 		return []byte{}, err
 	}
@@ -45,14 +45,14 @@ func executeReq(client AHClient, req *http.Request) ([]byte, error) {
 	return body, nil
 }
 
-func getPage(client AHClient, url string, currentPage int) ([]byte, error) {
+func (ahc *AHClient) getPage(url string, currentPage int) ([]byte, error) {
 
 	req, err := initReq(url, currentPage)
 	if err != nil {
 		return []byte{}, err
 	}
 
-	body, err := executeReq(client, req)
+	body, err := ahc.executeReq(req)
 	if err != nil {
 		return []byte{}, err
 	}

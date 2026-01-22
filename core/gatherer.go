@@ -19,7 +19,7 @@ func Gather[T ansible.AnsibleType](client AHClient, target url.URL,
 
 	url := target.String() + endpoint
 
-	body, err := getPage(client, url, page)
+	body, err := client.getPage(url, page)
 	if err != nil {
 		return nil, err
 	}
@@ -38,7 +38,7 @@ func Gather[T ansible.AnsibleType](client AHClient, target url.URL,
 	if count >= PAGE_SIZE {
 		for {
 			page += 1
-			body, err := getPage(client, url, page)
+			body, err := client.getPage(url, page)
 			if err != nil {
 				return nil, err
 			}
