@@ -5,8 +5,8 @@ import (
 	"ansible-hound/core/gather"
 	"strings"
 
-	"github.com/TheManticoreProject/gopengraph"
-	"github.com/TheManticoreProject/gopengraph/edge"
+	"github.com/Ramoreik/gopengraph"
+	"github.com/Ramoreik/gopengraph/edge"
 	"github.com/charmbracelet/log"
 )
 
@@ -237,7 +237,6 @@ func LinkAD(graph *gopengraph.OpenGraph, ldap gather.AHLdap, users map[int]*ansi
 
 		log.Info("Linking LDAP Users.")
 		edgeKind := "SyncedToAHUser"
-		startKind := "Base"
 
 		conn, err := gather.Connect(ldap)
 
@@ -251,7 +250,7 @@ func LinkAD(graph *gopengraph.OpenGraph, ldap gather.AHLdap, users map[int]*ansi
 				if user.LdapDn != "" {
 					ldap_dn := user.LdapDn
 					objectSid, _ := gather.Search(conn, ldap_dn)
-					edge := GenerateEdge(edgeKind, objectSid, user.OID, startKind)
+					edge := GenerateEdge(edgeKind, objectSid, user.OID)
 					graph.AddEdgeWithoutValidation(edge)
 				}
 			}
