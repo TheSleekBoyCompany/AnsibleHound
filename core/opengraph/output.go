@@ -3,18 +3,20 @@ package opengraph
 import (
 	"fmt"
 	"os"
+	"path"
 	"time"
 
+	"github.com/TheManticoreProject/gopengraph"
 	"github.com/charmbracelet/log"
 )
 
-func CalculateName(objectType string) string {
+func calculateName(objectType string) string {
 	now := time.Now()
 	epoch := now.Unix()
 	return fmt.Sprintf("%d_%s.json", epoch, objectType)
 }
 
-func WriteToFile(content []byte, filePath string) error {
+func writeToFile(content []byte, filePath string) error {
 
 	log.Debug(fmt.Sprintf("Writing to file `%s`.", filePath))
 
@@ -30,4 +32,16 @@ func WriteToFile(content []byte, filePath string) error {
 	}
 
 	return nil
+}
+
+func Output(graph *gopengraph.OpenGraph, outdir string) {
+
+	outputJson, err := graph.ExportJSON(false)
+	err = writeToFile(
+		[]byte(outputJson),
+		path.Join(outdir, calculateName("output")))
+	if err != nil {
+		log.Fatal(err)
+	}
+
 }
