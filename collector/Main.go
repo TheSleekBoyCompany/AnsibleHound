@@ -5,7 +5,6 @@ import (
 	"net/url"
 	"os"
 
-	"ansible-hound/core"
 	"ansible-hound/core/gather"
 	"ansible-hound/core/opengraph"
 
@@ -13,7 +12,8 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func launch(client gather.AHClient, targetUrl *url.URL, outdir string, ldap core.AHLdap) {
+func launch(client gather.AHClient, targetUrl *url.URL,
+	outdir string, ldap gather.AHLdap) {
 
 	graph := opengraph.InitGraph()
 
@@ -192,10 +192,10 @@ var ingestCmd = &cobra.Command{
 
 		client := gather.InitClient(proxyURL, skipVerifySSL, username, password, token)
 
-		var ldap core.AHLdap
+		var ldap gather.AHLdap
 
 		if dc_ipAddress != "" && domain != "" {
-			ldap = core.InitLdap(dc_ipAddress, username, password, domain, isLDAPS, skipVerifySSL)
+			ldap = gather.InitLdap(dc_ipAddress, username, password, domain, isLDAPS, skipVerifySSL)
 		}
 
 		launch(client, targetUrl, outdir, ldap)

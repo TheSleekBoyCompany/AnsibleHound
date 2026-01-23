@@ -1,7 +1,6 @@
 package opengraph
 
 import (
-	"ansible-hound/core"
 	"ansible-hound/core/ansible"
 	"ansible-hound/core/gather"
 	"strings"
@@ -232,15 +231,15 @@ func LinkTeamRoles(graph *gopengraph.OpenGraph, users map[int]*ansible.User,
 	}
 }
 
-func LinkAD(graph *gopengraph.OpenGraph, ldap core.AHLdap, users map[int]*ansible.User) {
+func LinkAD(graph *gopengraph.OpenGraph, ldap gather.AHLdap, users map[int]*ansible.User) {
 
-	if (ldap != core.AHLdap{}) {
+	if (ldap != gather.AHLdap{}) {
 
 		log.Info("Linking LDAP Users.")
 		edgeKind := "SyncedToAHUser"
 		startKind := "Base"
 
-		conn, err := core.Connect(ldap)
+		conn, err := gather.Connect(ldap)
 
 		if err != nil {
 			log.Fatal("Connection failed:", err)
@@ -248,10 +247,10 @@ func LinkAD(graph *gopengraph.OpenGraph, ldap core.AHLdap, users map[int]*ansibl
 		defer conn.Close()
 
 		for _, user := range users {
-			if user.ExternalAccount == core.LDAP_VALUE {
+			if user.ExternalAccount == LDAP_VALUE {
 				if user.LdapDn != "" {
 					ldap_dn := user.LdapDn
-					objectSid, _ := core.Search(conn, ldap_dn)
+					objectSid, _ := gather.Search(conn, ldap_dn)
 					edge := GenerateEdge(edgeKind, objectSid, user.OID, startKind)
 					graph.AddEdgeWithoutValidation(edge)
 				}
