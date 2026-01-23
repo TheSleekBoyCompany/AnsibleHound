@@ -1,4 +1,4 @@
-package core
+package gather
 
 import (
 	"crypto/tls"
