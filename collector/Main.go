@@ -434,6 +434,10 @@ func launchGathering(client core.AHClient, targetUrl *url.URL, outdir string, ld
 				if core.HasAccessTo(jobTemplates, role.SummaryFields.ResourceId) {
 					edge = opengraph.GenerateEdge(edgeKind, user.OID, jobTemplates[role.SummaryFields.ResourceId].OID)
 				}
+			case "workflow_job_template":
+				if core.HasAccessTo(workflowJobTemplates, role.SummaryFields.ResourceId) {
+					edge = opengraph.GenerateEdge(edgeKind, user.OID, workflowJobTemplates[role.SummaryFields.ResourceId].OID)
+				}
 			}
 			if edge != nil {
 				opengraph.AddEdge(&graph, edge)
@@ -469,6 +473,10 @@ func launchGathering(client core.AHClient, targetUrl *url.URL, outdir string, ld
 			case "job_template":
 				if core.HasAccessTo(jobTemplates, role.SummaryFields.ResourceId) {
 					edge = opengraph.GenerateEdge(edgeKind, team.OID, jobTemplates[role.SummaryFields.ResourceId].OID)
+				}
+			case "workflow_job_template":
+				if core.HasAccessTo(workflowJobTemplates, role.SummaryFields.ResourceId) {
+					edge = opengraph.GenerateEdge(edgeKind, team.OID, workflowJobTemplates[role.SummaryFields.ResourceId].OID)
 				}
 			}
 			if edge != nil {
