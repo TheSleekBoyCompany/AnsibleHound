@@ -1,8 +1,6 @@
-package core
+package gather
 
 import "fmt"
-
-const VERSION = "0.0.1"
 
 const API_ENDPOINT = "/api/v2/"
 const ME_ENDPOINT = API_ENDPOINT + "me/"
@@ -22,10 +20,10 @@ const TEAMS_ENDPOINT = API_ENDPOINT + "teams/"
 const TEAM_ROLES_ENDPOINT = API_ENDPOINT + "teams/%d/roles/"
 const TEAM_USERS_ENDPOINT = API_ENDPOINT + "teams/%d/users/"
 const JOB_TEMPLATE_CREDENTIALS_ENDPOINT = API_ENDPOINT + "job_templates/%d/credentials/"
-const PING_ENDPOINT = API_ENDPOINT + "ping"
-const PAGE_SIZE = 200
 
-const LDAP_VALUE = "ldap"
+const PING_ENDPOINT = API_ENDPOINT + "ping"
+
+const PAGE_SIZE = 200
 
 var PAGE_SIZE_ARG = fmt.Sprintf("?page_size=%d", PAGE_SIZE)
 var CURRENT_PAGE_ARG = "&page=%d"
