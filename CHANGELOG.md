@@ -9,6 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Now creates an `ATUses` edge between projects and credentials to map identities used to connect to SCM.
+- Now creates role edges related to Workflows.
+- Now creates `ATContains` edges related to Workflows.
+- Now creates a new Custom Icon for Workflow Job Templates and Workflow Job Template Nodes.
+- Now gather Workflow Job Template and Workflow Job Template Nodes.
 - Now creates a new Custom Icon for Credential Types.
 - Now gathers Credential Types.
 - Now creates an `ATUsesType` edge between, Credentials and their Credential Type.
