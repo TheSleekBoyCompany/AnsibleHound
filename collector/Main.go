@@ -506,6 +506,84 @@ func launchGathering(client core.AHClient, targetUrl *url.URL, outdir string, ld
 		}
 	}
 
+	log.Info("Creating edges for Admin and Auditor users")
+	// Admins have ATAdmin edges to:
+	// JobTemplates, WorkflowJobTemplates, Credentials, Inventories, Projects, Organizations
+	for _, user := range users {
+		if user.IsSuperUser {
+			edgeKind = "ATAdmin"
+			for _, jobTemplate := range jobTemplates {
+				edge := opengraph.GenerateEdge(edgeKind, user.OID, jobTemplate.OID)
+				opengraph.AddEdge(&graph, edge)
+			}
+			for _, workflowJobTemplate := range workflowJobTemplates {
+				edge := opengraph.GenerateEdge(edgeKind, user.OID, workflowJobTemplate.OID)
+				opengraph.AddEdge(&graph, edge)
+			}
+			for _, credential := range credentials {
+				edge := opengraph.GenerateEdge(edgeKind, user.OID, credential.OID)
+				opengraph.AddEdge(&graph, edge)
+			}
+			for _, inventory := range inventories {
+				edge := opengraph.GenerateEdge(edgeKind, user.OID, inventory.OID)
+				opengraph.AddEdge(&graph, edge)
+			}
+			for _, project := range projects {
+				edge := opengraph.GenerateEdge(edgeKind, user.OID, project.OID)
+				opengraph.AddEdge(&graph, edge)
+			}
+			for _, organization := range organizations {
+				edge := opengraph.GenerateEdge(edgeKind, user.OID, organization.OID)
+				opengraph.AddEdge(&graph, edge)
+			}
+			for _, team := range teams {
+				edge := opengraph.GenerateEdge(edgeKind, user.OID, team.OID)
+				opengraph.AddEdge(&graph, edge)
+			}
+			for _, user := range users {
+				edge := opengraph.GenerateEdge(edgeKind, user.OID, user.OID)
+				opengraph.AddEdge(&graph, edge)
+			}
+
+		}
+
+		if user.IsSystemAuditor {
+			edgeKind = "ATAuditor"
+			for _, jobTemplate := range jobTemplates {
+				edge := opengraph.GenerateEdge(edgeKind, user.OID, jobTemplate.OID)
+				opengraph.AddEdge(&graph, edge)
+			}
+			for _, workflowJobTemplate := range workflowJobTemplates {
+				edge := opengraph.GenerateEdge(edgeKind, user.OID, workflowJobTemplate.OID)
+				opengraph.AddEdge(&graph, edge)
+			}
+			for _, credential := range credentials {
+				edge := opengraph.GenerateEdge(edgeKind, user.OID, credential.OID)
+				opengraph.AddEdge(&graph, edge)
+			}
+			for _, inventory := range inventories {
+				edge := opengraph.GenerateEdge(edgeKind, user.OID, inventory.OID)
+				opengraph.AddEdge(&graph, edge)
+			}
+			for _, project := range projects {
+				edge := opengraph.GenerateEdge(edgeKind, user.OID, project.OID)
+				opengraph.AddEdge(&graph, edge)
+			}
+			for _, organization := range organizations {
+				edge := opengraph.GenerateEdge(edgeKind, user.OID, organization.OID)
+				opengraph.AddEdge(&graph, edge)
+			}
+			for _, team := range teams {
+				edge := opengraph.GenerateEdge(edgeKind, user.OID, team.OID)
+				opengraph.AddEdge(&graph, edge)
+			}
+			for _, user := range users {
+				edge := opengraph.GenerateEdge(edgeKind, user.OID, user.OID)
+				opengraph.AddEdge(&graph, edge)
+			}
+		}
+	}
+
 	// -- Link Ansible and Active Directory --
 
 	if (ldap != core.AHLdap{}) {
