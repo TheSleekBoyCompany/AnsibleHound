@@ -17,7 +17,7 @@ func launch(client gather.AHClient, targetUrl *url.URL,
 
 	graph := opengraph.InitGraph()
 
-	// -- Checkif credentials are valid --
+	// -- Check if credentials are valid --
 
 	log.Info("Authenticating on Ansible Worx/Tower instance.")
 	err := gather.ValidateCredentials(client, *targetUrl)

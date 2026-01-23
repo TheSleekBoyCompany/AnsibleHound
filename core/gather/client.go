@@ -64,8 +64,6 @@ func (ahc *AHClient) GetPage(url string, currentPage int) ([]byte, error) {
 
 func InitClient(proxyURL *url.URL, skipVerifySSL bool,
 	username string, password string, token string) AHClient {
-	// Returns a client configured for the gatherer.
-	// For now, this only configures the Proxy, might be useful to handle SSL verification too.
 
 	transport := &http.Transport{}
 
