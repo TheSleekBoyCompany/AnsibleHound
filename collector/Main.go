@@ -68,6 +68,18 @@ func launch(client gather.AHClient, targetUrl *url.URL,
 		opengraph.AddNodes(&graph, jobTemplatesNodes)
 	}
 
+	workflowJobTemplates, err := gather.GatherWorkflowJobTemplates(client, instance.InstallUUID, *targetUrl)
+	if err == nil {
+		workflowJobTemplateNodes := opengraph.GenerateNodes(workflowJobTemplates)
+		opengraph.AddNodes(&graph, workflowJobTemplateNodes)
+	}
+
+	workflowJobTemplateNodes, err := gather.GatherWorkflowJobTemplateNodes(client, instance.InstallUUID, *targetUrl)
+	if err == nil {
+		workflowJobTemplateNodeNodes := opengraph.GenerateNodes(workflowJobTemplateNodes)
+		opengraph.AddNodes(&graph, workflowJobTemplateNodeNodes)
+	}
+
 	inventories, err := gather.GatherInventories(client, instance.InstallUUID, *targetUrl)
 	if err == nil {
 		inventoriesNodes := opengraph.GenerateNodes(inventories)
@@ -108,7 +120,7 @@ func launch(client gather.AHClient, targetUrl *url.URL,
 
 	opengraph.LinkOrganization(&graph,
 		instance.OID, organizations, inventories,
-		jobTemplates, credentials, projects)
+		jobTemplates, credentials, projects, workflowJobTemplates)
 
 	opengraph.LinkInventory(&graph, inventories,
 		hosts, groups)
@@ -118,14 +130,18 @@ func launch(client gather.AHClient, targetUrl *url.URL,
 
 	opengraph.LinkUserRoles(&graph, users, organizations,
 		inventories, teams, credentials,
-		jobTemplates)
+		jobTemplates, workflowJobTemplates)
 
 	opengraph.LinkTeamRoles(&graph, users, organizations,
 		inventories, teams, credentials,
-		jobTemplates)
+		jobTemplates, workflowJobTemplates)
 
-	opengraph.LinkAdministrativeRights(&graph, users, jobTemplates, credentials,
+	opengraph.LinkAdministrativeRights(&graph, users, jobTemplates,
+		workflowJobTemplates, credentials,
 		inventories, projects, organizations, teams)
+
+	opengraph.LinkWorkflowJobTemplates(&graph, workflowJobTemplates,
+		workflowJobTemplateNodes, jobTemplates, inventories)
 
 	// -- Link Ansible and Active Directory --
 

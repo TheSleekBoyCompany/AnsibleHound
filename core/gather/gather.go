@@ -133,6 +133,30 @@ func GatherJobTemplates(client AHClient, installUUID string,
 
 }
 
+func GatherWorkflowJobTemplates(client AHClient, installUUID string,
+	targetUrl url.URL) (workflowJobTemplates map[int]*ansible.WorkflowJobTemplate, err error) {
+
+	log.Info("Gathering Workflow Job Templates.")
+	workflowJobTemplates, err = GatherObject[*ansible.WorkflowJobTemplate](installUUID, client, targetUrl, WORKFLOW_JOB_TEMPLATES_ENDPOINT)
+	if err != nil {
+		log.Error("An error occured while gathering Workflow Job Templates, skipping.")
+		log.Error(err)
+	}
+	return workflowJobTemplates, err
+}
+
+func GatherWorkflowJobTemplateNodes(client AHClient, installUUID string,
+	targetUrl url.URL) (workflowJobTemplateNodes map[int]*ansible.WorkflowJobTemplateNode, err error) {
+
+	log.Info("Gathering Workflow Job Template Nodes.")
+	workflowJobTemplateNodes, err = GatherObject[*ansible.WorkflowJobTemplateNode](installUUID, client, targetUrl, WORKFLOW_JOB_TEMPLATE_NODES_ENDPOINT)
+	if err != nil {
+		log.Error("An error occured while gathering Workflow Job Template Nodes, skipping.")
+		log.Error(err)
+	}
+	return workflowJobTemplateNodes, err
+}
+
 func GatherInventories(client AHClient, installUUID string,
 	targetUrl url.URL) (inventories map[int]*ansible.Inventory, err error) {
 

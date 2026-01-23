@@ -13,7 +13,8 @@ import (
 func LinkOrganization(graph *gopengraph.OpenGraph, instanceOID string,
 	organizations map[int]*ansible.Organization,
 	inventories map[int]*ansible.Inventory, jobTemplates map[int]*ansible.JobTemplate,
-	credentials map[int]*ansible.Credential, projects map[int]*ansible.Project) {
+	credentials map[int]*ansible.Credential, projects map[int]*ansible.Project,
+	workflowJobTemplates map[int]*ansible.WorkflowJobTemplate) {
 
 	log.Info("Linking Instance and Organizations.")
 	edgeKind := "ATContains"
@@ -36,6 +37,15 @@ func LinkOrganization(graph *gopengraph.OpenGraph, instanceOID string,
 	for _, jobTemplate := range jobTemplates {
 		if gather.HasAccessTo(organizations, jobTemplate.Organization) {
 			edge := GenerateEdge(edgeKind, organizations[jobTemplate.Organization].OID, jobTemplate.OID)
+			AddEdge(graph, edge)
+		}
+	}
+
+	log.Info("Linking Organizations and Workflow Job Templates.")
+	edgeKind = "ATContains"
+	for _, workflowJobTemplate := range workflowJobTemplates {
+		if gather.HasAccessTo(organizations, workflowJobTemplate.Organization) {
+			edge := GenerateEdge(edgeKind, organizations[workflowJobTemplate.Organization].OID, workflowJobTemplate.OID)
 			AddEdge(graph, edge)
 		}
 	}
@@ -94,6 +104,42 @@ func LinkInventory(graph *gopengraph.OpenGraph, inventories map[int]*ansible.Inv
 
 }
 
+func LinkWorkflowJobTemplates(graph *gopengraph.OpenGraph, workflowJobTemplates map[int]*ansible.WorkflowJobTemplate,
+	workflowJobTemplateNodes map[int]*ansible.WorkflowJobTemplateNode,
+	jobTemplates map[int]*ansible.JobTemplate, inventories map[int]*ansible.Inventory) {
+
+	log.Info("Linking Workflow Job Templates and Workflow Job Template Nodes.")
+	edgeKind := "ATContains"
+	for _, workflowJobTemplateNode := range workflowJobTemplateNodes {
+		if gather.HasAccessTo(workflowJobTemplates, workflowJobTemplateNode.WorkflowJobTemplate) {
+			edge := GenerateEdge(edgeKind, workflowJobTemplates[workflowJobTemplateNode.WorkflowJobTemplate].OID, workflowJobTemplateNode.OID)
+			AddEdge(graph, edge)
+		}
+	}
+
+	log.Info("Linking Workflow Job Template Nodes and Job Templates.")
+	edgeKind = "ATUses"
+	// For now, this excludes approval nodes, i'm unsure if it is interesting to represent graphically.
+	// Approval nodes represent a stop in the workflow where a user has to approve before it continues
+	// It might be useful in complex attacks, targeting a specific workflow job template node.
+	for _, workflowJobTemplateNode := range workflowJobTemplateNodes {
+		if gather.HasAccessTo(jobTemplates, workflowJobTemplateNode.UnifiedJobTemplate) {
+			edge := GenerateEdge(edgeKind, workflowJobTemplateNode.OID, jobTemplates[workflowJobTemplateNode.UnifiedJobTemplate].OID)
+			AddEdge(graph, edge)
+		}
+	}
+
+	log.Info("Linking Workflow Job Template and Inventories.")
+	edgeKind = "ATUses"
+	for _, workflowJobTemplate := range workflowJobTemplates {
+		if gather.HasAccessTo(inventories, workflowJobTemplate.Inventory) {
+			edge := GenerateEdge(edgeKind, workflowJobTemplate.OID, inventories[workflowJobTemplate.Inventory].OID)
+			AddEdge(graph, edge)
+		}
+	}
+
+}
+
 func LinkJobTemplates(graph *gopengraph.OpenGraph, jobTemplates map[int]*ansible.JobTemplate,
 	jobs map[int]*ansible.Job, projects map[int]*ansible.Project,
 	inventories map[int]*ansible.Inventory, credentials map[int]*ansible.Credential,
@@ -144,12 +190,21 @@ func LinkJobTemplates(graph *gopengraph.OpenGraph, jobTemplates map[int]*ansible
 		}
 	}
 
+	log.Info("Linking Projects and Credentials.")
+	edgeKind = "ATUses"
+	for _, project := range projects {
+		if gather.HasAccessTo(credentials, project.Credential) {
+			edge := GenerateEdge(edgeKind, project.OID, credentials[project.Credential].OID)
+			AddEdge(graph, edge)
+		}
+	}
+
 }
 
 func LinkUserRoles(graph *gopengraph.OpenGraph, users map[int]*ansible.User,
 	organizations map[int]*ansible.Organization, inventories map[int]*ansible.Inventory,
 	teams map[int]*ansible.Team, credentials map[int]*ansible.Credential,
-	jobTemplates map[int]*ansible.JobTemplate) {
+	jobTemplates map[int]*ansible.JobTemplate, workflowJobTemplates map[int]*ansible.WorkflowJobTemplate) {
 
 	log.Info("Linking User Roles.")
 	for _, user := range users {
@@ -181,6 +236,10 @@ func LinkUserRoles(graph *gopengraph.OpenGraph, users map[int]*ansible.User,
 				if gather.HasAccessTo(jobTemplates, role.SummaryFields.ResourceId) {
 					edge = GenerateEdge(edgeKind, user.OID, jobTemplates[role.SummaryFields.ResourceId].OID)
 				}
+			case "workflow_job_template":
+				if gather.HasAccessTo(workflowJobTemplates, role.SummaryFields.ResourceId) {
+					edge = GenerateEdge(edgeKind, user.OID, workflowJobTemplates[role.SummaryFields.ResourceId].OID)
+				}
 			}
 			if edge != nil {
 				AddEdge(graph, edge)
@@ -192,7 +251,7 @@ func LinkUserRoles(graph *gopengraph.OpenGraph, users map[int]*ansible.User,
 func LinkTeamRoles(graph *gopengraph.OpenGraph, users map[int]*ansible.User,
 	organizations map[int]*ansible.Organization, inventories map[int]*ansible.Inventory,
 	teams map[int]*ansible.Team, credentials map[int]*ansible.Credential,
-	jobTemplates map[int]*ansible.JobTemplate) {
+	jobTemplates map[int]*ansible.JobTemplate, workflowJobTemplates map[int]*ansible.WorkflowJobTemplate) {
 
 	log.Info("Linking Team Roles.")
 	for _, team := range teams {
@@ -223,6 +282,10 @@ func LinkTeamRoles(graph *gopengraph.OpenGraph, users map[int]*ansible.User,
 				if gather.HasAccessTo(jobTemplates, role.SummaryFields.ResourceId) {
 					edge = GenerateEdge(edgeKind, team.OID, jobTemplates[role.SummaryFields.ResourceId].OID)
 				}
+			case "workflow_job_template":
+				if gather.HasAccessTo(workflowJobTemplates, role.SummaryFields.ResourceId) {
+					edge = GenerateEdge(edgeKind, team.OID, workflowJobTemplates[role.SummaryFields.ResourceId].OID)
+				}
 			}
 			if edge != nil {
 				AddEdge(graph, edge)
@@ -233,7 +296,7 @@ func LinkTeamRoles(graph *gopengraph.OpenGraph, users map[int]*ansible.User,
 
 func LinkAdministrativeRights(graph *gopengraph.OpenGraph, users map[int]*ansible.User,
 	jobTemplates map[int]*ansible.JobTemplate,
-	// workflowJobTemplates map[int]*ansible.WorkflowJobTemplate,
+	workflowJobTemplates map[int]*ansible.WorkflowJobTemplate,
 	credentials map[int]*ansible.Credential, inventories map[int]*ansible.Inventory,
 	projects map[int]*ansible.Project, organizations map[int]*ansible.Organization, teams map[int]*ansible.Team) {
 
@@ -247,10 +310,10 @@ func LinkAdministrativeRights(graph *gopengraph.OpenGraph, users map[int]*ansibl
 				edge := GenerateEdge(edgeKind, user.OID, jobTemplate.OID)
 				AddEdge(graph, edge)
 			}
-			/* 			for _, workflowJobTemplate := range workflowJobTemplates {
+			for _, workflowJobTemplate := range workflowJobTemplates {
 				edge := GenerateEdge(edgeKind, user.OID, workflowJobTemplate.OID)
 				AddEdge(graph, edge)
-			} */
+			}
 			for _, credential := range credentials {
 				edge := GenerateEdge(edgeKind, user.OID, credential.OID)
 				AddEdge(graph, edge)
@@ -283,10 +346,10 @@ func LinkAdministrativeRights(graph *gopengraph.OpenGraph, users map[int]*ansibl
 				edge := GenerateEdge(edgeKind, user.OID, jobTemplate.OID)
 				AddEdge(graph, edge)
 			}
-			/* 			for _, workflowJobTemplate := range workflowJobTemplates {
+			for _, workflowJobTemplate := range workflowJobTemplates {
 				edge := GenerateEdge(edgeKind, user.OID, workflowJobTemplate.OID)
 				AddEdge(graph, edge)
-			} */
+			}
 			for _, credential := range credentials {
 				edge := GenerateEdge(edgeKind, user.OID, credential.OID)
 				AddEdge(graph, edge)
