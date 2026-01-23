@@ -343,9 +343,21 @@ func launchGathering(client core.AHClient, targetUrl *url.URL, outdir string, ld
 
 	log.Info("Linking Workflow Job Template Nodes and Job Templates.")
 	edgeKind = "ATUses"
+	// For now, this excludes approval nodes, i'm unsure if it is interesting to represent graphically.
+	// Approval nodes represent a stop in the workflow where a user has to approve before it continues
+	// It might be useful in complex attacks, targeting a specific workflow job template node.
 	for _, workflowJobTemplateNode := range workflowJobTemplateNodes {
 		if core.HasAccessTo(jobTemplates, workflowJobTemplateNode.UnifiedJobTemplate) {
 			edge := opengraph.GenerateEdge(edgeKind, workflowJobTemplateNode.OID, jobTemplates[workflowJobTemplateNode.UnifiedJobTemplate].OID)
+			opengraph.AddEdge(&graph, edge)
+		}
+	}
+
+	log.Info("Linking Workflow Job Template and Inventories.")
+	edgeKind = "ATUses"
+	for _, workflowJobTemplate := range workflowJobTemplates {
+		if core.HasAccessTo(inventories, workflowJobTemplate.Inventory) {
+			edge := opengraph.GenerateEdge(edgeKind, workflowJobTemplate.OID, inventories[workflowJobTemplate.Inventory].OID)
 			opengraph.AddEdge(&graph, edge)
 		}
 	}
