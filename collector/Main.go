@@ -147,6 +147,24 @@ func launchGathering(client core.AHClient, targetUrl *url.URL, outdir string, ld
 	jobTemplatesNodes := opengraph.GenerateNodes(jobTemplates)
 	opengraph.AddNodes(&graph, jobTemplatesNodes)
 
+	log.Info("Gathering Workflow Job Templates.")
+	workflowJobTemplates, err := core.GatherObject[*ansible.WorkflowJobTemplate](instance.InstallUUID, client, *targetUrl, core.WORKFLOW_JOB_TEMPLATES_ENDPOINT)
+	if err != nil {
+		log.Error("An error occured while gathering Workflow Job Templates, skipping.")
+		log.Error(err)
+	}
+	workflowJobTemplatesNodes := opengraph.GenerateNodes(workflowJobTemplates)
+	opengraph.AddNodes(&graph, workflowJobTemplatesNodes)
+
+	log.Info("Gathering Workflow Job Template Nodes.")
+	workflowJobTemplateNodes, err := core.GatherObject[*ansible.WorkflowJobTemplateNode](instance.InstallUUID, client, *targetUrl, core.WORKFLOW_JOB_TEMPLATE_NODES_ENDPOINT)
+	if err != nil {
+		log.Error("An error occured while gathering Workflow Job Template Nodes, skipping.")
+		log.Error(err)
+	}
+	workflowJobTemplateNodesNodes := opengraph.GenerateNodes(workflowJobTemplateNodes)
+	opengraph.AddNodes(&graph, workflowJobTemplateNodesNodes)
+
 	log.Info("Gathering Inventories.")
 	inventories, err := core.GatherObject[*ansible.Inventory](
 		instance.InstallUUID, client, *targetUrl, core.INVENTORIES_ENDPOINT,
@@ -301,6 +319,33 @@ func launchGathering(client core.AHClient, targetUrl *url.URL, outdir string, ld
 	for _, jobTemplate := range jobTemplates {
 		if core.HasAccessTo(organizations, jobTemplate.Organization) {
 			edge := opengraph.GenerateEdge(edgeKind, organizations[jobTemplate.Organization].OID, jobTemplate.OID)
+			opengraph.AddEdge(&graph, edge)
+		}
+	}
+
+	log.Info("Linking Organizations and Workflow Job Templates.")
+	edgeKind = "ATContains"
+	for _, workflowJobTemplate := range workflowJobTemplates {
+		if core.HasAccessTo(organizations, workflowJobTemplate.Organization) {
+			edge := opengraph.GenerateEdge(edgeKind, organizations[workflowJobTemplate.Organization].OID, workflowJobTemplate.OID)
+			opengraph.AddEdge(&graph, edge)
+		}
+	}
+
+	log.Info("Linking Workflow Job Templates and Workflow Job Template Nodes.")
+	edgeKind = "ATContains"
+	for _, workflowJobTemplateNode := range workflowJobTemplateNodes {
+		if core.HasAccessTo(workflowJobTemplates, workflowJobTemplateNode.WorkflowJobTemplate) {
+			edge := opengraph.GenerateEdge(edgeKind, workflowJobTemplates[workflowJobTemplateNode.WorkflowJobTemplate].OID, workflowJobTemplateNode.OID)
+			opengraph.AddEdge(&graph, edge)
+		}
+	}
+
+	log.Info("Linking Workflow Job Template Nodes and Job Templates.")
+	edgeKind = "ATUses"
+	for _, workflowJobTemplateNode := range workflowJobTemplateNodes {
+		if core.HasAccessTo(jobTemplates, workflowJobTemplateNode.UnifiedJobTemplate) {
+			edge := opengraph.GenerateEdge(edgeKind, workflowJobTemplateNode.OID, jobTemplates[workflowJobTemplateNode.UnifiedJobTemplate].OID)
 			opengraph.AddEdge(&graph, edge)
 		}
 	}
