@@ -389,6 +389,15 @@ func launchGathering(client core.AHClient, targetUrl *url.URL, outdir string, ld
 		}
 	}
 
+	log.Info("Linking Projects and Credentials.")
+	edgeKind = "ATUses"
+	for _, project := range projects {
+		if core.HasAccessTo(credentials, project.Credential) {
+			edge := opengraph.GenerateEdge(edgeKind, project.OID, credentials[project.Credential].OID)
+			opengraph.AddEdge(&graph, edge)
+		}
+	}
+
 	log.Info("Linking Job Template and Inventories.")
 	edgeKind = "ATUses"
 	for _, jobTemplate := range jobTemplates {
