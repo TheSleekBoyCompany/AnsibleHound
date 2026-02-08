@@ -2,6 +2,12 @@ github.com/Azure/go-ntlmssp v0.0.0-20221128193559-754e69321358 h1:mFRzDkZVAjdal+
 github.com/Azure/go-ntlmssp v0.0.0-20221128193559-754e69321358/go.mod h1:chxPXzSsl7ZWRAuOIE23GDNzjWuZquvFlgA8xmpunjU=
 github.com/Ramoreik/gopengraph v0.0.0-20260122052607-84646666a2b0 h1:Cba43eAc3EpUm8RjYvM7+1qx5OZgkgmjpnQ3vIa/Xzc=
 github.com/Ramoreik/gopengraph v0.0.0-20260122052607-84646666a2b0/go.mod h1:1XIfed4QX9NYa+BChuEObo7q2dnFJdCepc+trngK+0g=
+github.com/Ramoreik/gopengraph v0.0.0-20260126193447-81dd7ea2ccba h1:OZzl7Nof46HB7nV1SdSaqw0+UFzoPZN6+MvTH1U8ogU=
+github.com/Ramoreik/gopengraph v0.0.0-20260126193447-81dd7ea2ccba/go.mod h1:1XIfed4QX9NYa+BChuEObo7q2dnFJdCepc+trngK+0g=
+github.com/Ramoreik/gopengraph v0.0.0-20260130090319-cfd3f6ff25c8 h1:57G7h1FNziUmom9U0iEBF71WzkiEqYTMBE23TFzeR80=
+github.com/Ramoreik/gopengraph v0.0.0-20260130090319-cfd3f6ff25c8/go.mod h1:1XIfed4QX9NYa+BChuEObo7q2dnFJdCepc+trngK+0g=
+github.com/Ramoreik/gopengraph v0.0.0-20260206231827-92df8cbaecd8 h1:7al5uTMAIJxdjH9IlEYwCIbV+hKdyl5BLdJXRizkcto=
+github.com/Ramoreik/gopengraph v0.0.0-20260206231827-92df8cbaecd8/go.mod h1:1XIfed4QX9NYa+BChuEObo7q2dnFJdCepc+trngK+0g=
 github.com/alexbrainman/sspi v0.0.0-20250919150558-7d374ff0d59e h1:4dAU9FXIyQktpoUAgOJK3OTFc/xug0PCXYCqU0FgDKI=
 github.com/alexbrainman/sspi v0.0.0-20250919150558-7d374ff0d59e/go.mod h1:cEWa1LVoE5KvSD9ONXsZrj0z6KqySlCCNKHlLzbqAt4=
 github.com/aymanbagabas/go-osc52/v2 v2.0.1 h1:HwpRHbFMcZLEVr42D4p7XBqjyuxQH5SMiErDT4WkJ2k=

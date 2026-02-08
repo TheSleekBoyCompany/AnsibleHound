@@ -3,6 +3,7 @@ package opengraph
 import (
 	"ansible-hound/core/ansible"
 	"ansible-hound/core/gather"
+	"path"
 	"strings"
 
 	"github.com/Ramoreik/gopengraph"
@@ -250,12 +251,32 @@ func LinkAD(graph *gopengraph.OpenGraph, ldap gather.AHLdap, users map[int]*ansi
 				if user.LdapDn != "" {
 					ldap_dn := user.LdapDn
 					objectSid, _ := gather.Search(conn, ldap_dn)
-					edge := GenerateEdge(edgeKind, objectSid, user.OID)
+					edge := GenerateEdgeCustom(edgeKind, objectSid, user.OID, MATCH_BY_ID, MATCH_BY_ID, ACTIVE_DIRECTORY_BASE, ANSIBLE_BASE)
 					graph.AddEdgeWithoutValidation(edge)
 				}
 			}
 		}
 	} else {
 		log.Warn("Skipping linking LDAP Users since the user used for authentication is a local user")
+	}
+}
+
+func LinkGitHub(graph *gopengraph.OpenGraph, projects map[int]*ansible.Project) {
+
+	if projects != nil {
+
+		log.Info("Linking GitHub Repositories.")
+		edgeKind := "ATIsLinkedTo"
+
+		for _, project := range projects {
+			if project.ScmType == GIT_SCM_TYPE {
+				if project.ScmUrl != "" {
+					scmUrl := project.ScmUrl
+					repositoryName := strings.TrimSuffix(path.Base(scmUrl), DOT_GIT_SCM_TYPE)
+					edge := GenerateEdgeCustom(edgeKind, project.OID, repositoryName, MATCH_BY_ID, MATCH_BY_NAME, ANSIBLE_BASE, GITHUB_BASE)
+					graph.AddEdgeWithoutValidation(edge)
+				}
+			}
+		}
 	}
 }

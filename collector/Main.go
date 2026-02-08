@@ -128,6 +128,10 @@ func launch(client gather.AHClient, targetUrl *url.URL,
 
 	opengraph.LinkAD(&graph, ldap, users)
 
+	// -- Link Ansible and GitHub --
+
+	opengraph.LinkGitHub(&graph, projects)
+
 	// -- Output final graph --
 
 	opengraph.Output(&graph, outdir)

@@ -31,7 +31,7 @@ func AddEdge(graph *gopengraph.OpenGraph, edge *edge.Edge) {
 
 func GenerateEdge(edgeKind string, startId string, endId string) (e *edge.Edge) {
 
-	e, err := edge.NewEdge(startId, endId, edgeKind, "id", "id", nil)
+	e, err := edge.NewEdge(startId, endId, edgeKind, MATCH_BY_ID, MATCH_BY_ID, ANSIBLE_BASE, ANSIBLE_BASE, nil)
 	if err != nil {
 		log.Error(err)
 	}
@@ -39,9 +39,9 @@ func GenerateEdge(edgeKind string, startId string, endId string) (e *edge.Edge) 
 	return e
 }
 
-func GenerateEdgeCustom(edgeKind string, startId string, endId string, startMatchBy string, endMatchBy string) (e *edge.Edge) {
+func GenerateEdgeCustom(edgeKind string, startId string, endId string, startMatchBy string, endMatchBy string, startNodeKind string, endNodeKind string) (e *edge.Edge) {
 
-	e, err := edge.NewEdge(startId, endId, edgeKind, startMatchBy, endMatchBy, nil)
+	e, err := edge.NewEdge(startId, endId, edgeKind, startMatchBy, endMatchBy, startNodeKind, endNodeKind, nil)
 	if err != nil {
 		log.Error(err)
 	}
