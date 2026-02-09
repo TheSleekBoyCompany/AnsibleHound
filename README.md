@@ -63,9 +63,18 @@ To run the collector, provide it with a username and a password:
 ./collector -u 'admin' -p 'tcrA...' -t 'http://10.10.10.10:8080'
 ```
 
-> Provide the domain password for Active Directory / LDAP accounts.
+##### Active Directory accounts
 
-> Using an Active Directory account will allow you to connect Ansible and Active Directory graphs through the `SyncedToAHUser` edge.
+For Active Directory / LDAP accounts accounts, provide the domain username and password:
+
+```bash
+./collector -u '<username>' -p '<password>' -t '<ansible-url>' --dc-ip <dc-ip> --domain <domain-name>
+
+# Example
+./collector -u 'admin' -p 'tcrA...' -t 'http://10.10.10.10:8080' --dc-ip '10.10.10.100' --domain 'sleekboy'
+```
+
+> Using an Active Directory account will allow you to connect Ansible and Active Directory graphs.
 
 ### Load Icons
 
@@ -85,7 +94,7 @@ If you don't have any Ansible WorX or Tower environment, you can just drop `./sa
 
 ## Schema
 
-![](./images/cypher.png)
+![Schema](./images/cypher.png)
 
 ### Nodes
 
@@ -109,6 +118,8 @@ Nodes correspond to each object type.
 ### Edges
 
 All the edges are prefixed by `AT` to make it distinct from other collectors edges.
+
+#### Ansible edges
 
 Ansible edges only create relations between Ansible nodes:
 
@@ -134,17 +145,57 @@ Ansible edges only create relations between Ansible nodes:
 | `ATAuditor`  | `ATUser`            | `ATOrganization` - `ATProject` - `ATInventory` - `ATJobTemplate`                             |
 | `ATAdmin`    | `ATUser`            | `ATOrganization` - `ATTeam` - `ATInventory` - `ATProject` - `ATJobTemplate` - `ATCredential` |
 
-Hybrid edges are forming connections between Ansible and other technologies:
+#### Hybrid edges
 
-| Edge Type        | Source              | Target     |
-| ---------------- | ------------------- | ---------- |
-| `SyncedToAHUser` | User                | ATUser     |
+Hybrid edges establish connections between Ansible and other technologies. AnsibleHound currently handles two types of hybrid edge:
 
-## Bugs
+| Edge Type        | Source Graph      | Target Graph | Source Node  | Target Node  |
+| ---------------- | ----------------- | ------------ | ------------ | ----------   |
+| `SyncedToAHUser` | Active Directory  | Ansible      | User         | ATUser       |
+| `ATIsLinkedTo`   | Ansible           | GitHub       | ATProject    | GHRepository |
+
+The following collectors must be used in order to use those hybrid graphs:
+
+- [SharpHound](https://github.com/SpecterOps/SharpHound) for Active Directory
+- [GitHound](https://github.com/SpecterOps/GitHound) for GitHub
+
+The output results of these collectors must be uploaded on BloodHound before the Ansible output is uploaded. BloodHound will then automatically establish the connection between the graphs.
+
+##### SyncedToAHUser
+
+The `SyncedToAHUser` edge will allows you to connect Ansible and Active Directory graphs:
+
+![SyncedToAHUser hybrid edge](./images/syncedToAHUser.png)
+
+This edge highlights the ability of an Active Directory user to authenticate on the Ansible instance.
+
+The `security identifier` (SID) of the Active Directory user is used to link that user with the Ansible user. The `distinguished name` (DN) stored in the Ansible instance is used to recover the SID of the Active Directory user.
+
+> Since the link is based on the `DN`, there is a risk of collision if two or more domains with the same name share a user with the same SID and name..
+
+##### ATIsLinkedTo
+
+The `SyncedToAHUser` edge will allows you to connect Ansible and GitHub graphs:
+
+![ATIsLinkedTo hybrid edge](./images/aTIsLinkedTo.png)
+
+This edge highlights the link between an Ansible project and a Git Source Control Type.
+
+The name of the repository is used to link the GitHub repository with the Ansible project.
+
+> Since the link is name based, there is a risk of collision if two or more repositories with the same name, hosted on different GitHub accounts, are used in the same Ansible instance.
+
+## Requirements
+
+### Postgres
 
 As AnsibleHound uses OpenGraph, which is only officially supported with Postgres as the backend, it is recommended to switch to Postgres to avoid ingestion bugs.
 
 Documentation : <https://github.com/SpecterOps/BloodHound/tree/main/examples/docker-compose>
+
+### Ingestion
+
+A minimal version of `8.5.0` is required to handle properly hybrid graph ingestion.
 
 ## Licensing
 
