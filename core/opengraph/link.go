@@ -236,8 +236,8 @@ func LinkAD(graph *gopengraph.OpenGraph, ldap gather.AHLdap, users map[int]*ansi
 
 	if (ldap != gather.AHLdap{}) {
 
-		log.Info("Linking LDAP Users.")
-		edgeKind := "SyncedToAHUser"
+		log.Info("Linking Ansible and LDAP Users.")
+		edgeKind := "SyncedToATUser"
 
 		conn, err := gather.Connect(ldap)
 
@@ -261,22 +261,46 @@ func LinkAD(graph *gopengraph.OpenGraph, ldap gather.AHLdap, users map[int]*ansi
 	}
 }
 
-func LinkGitHub(graph *gopengraph.OpenGraph, projects map[int]*ansible.Project) {
+func LinkGitHub(graph *gopengraph.OpenGraph, github bool, projects map[int]*ansible.Project, credentials map[int]*ansible.Credential) {
 
-	if projects != nil {
+	if github {
 
-		log.Info("Linking GitHub Repositories.")
-		edgeKind := "ATIsLinkedTo"
+		log.Info("Linking Ansible and GitHub.")
+		log.Warn("Do not forget to upload GitHub graphing on BloodHound to leverage.")
 
-		for _, project := range projects {
-			if project.ScmType == GIT_SCM_TYPE {
-				if project.ScmUrl != "" {
-					scmUrl := project.ScmUrl
-					repositoryName := strings.TrimSuffix(path.Base(scmUrl), DOT_GIT_SCM_TYPE)
-					edge := GenerateEdgeCustom(edgeKind, project.OID, repositoryName, MATCH_BY_ID, MATCH_BY_NAME, ANSIBLE_BASE, GITHUB_BASE)
-					graph.AddEdgeWithoutValidation(edge)
+		if projects != nil {
+
+			log.Info("Linking Ansible projects and GitHub Repositories.")
+			edgeKind := "ATHasSourceControlUrl"
+
+			for _, project := range projects {
+				if project.ScmType == GIT_SCM_TYPE {
+					if project.ScmUrl != "" {
+						scmUrl := project.ScmUrl
+						repositoryName := strings.TrimSuffix(path.Base(scmUrl), DOT_GIT_SCM_TYPE)
+						edge := GenerateEdgeCustom(edgeKind, project.OID, repositoryName, MATCH_BY_ID, MATCH_BY_NAME, ANSIBLE_BASE, GITHUB_BASE)
+						graph.AddEdgeWithoutValidation(edge)
+					}
 				}
 			}
 		}
+
+		if credentials != nil {
+
+			log.Info("Linking Ansible credentials and GitHub users.")
+			edgeKind := "ATIsCredentialOf"
+
+			for _, credential := range credentials {
+				if credential.Kind == CREDENTIAL_KIND {
+					username := credential.Inputs[CREDENTIAL_USERNAME]
+					if username != nil && username != "" {
+						edge := GenerateEdgeCustom(edgeKind, credential.OID, username.(string), MATCH_BY_ID, MATCH_BY_NAME, ANSIBLE_BASE, GITHUB_BASE)
+						graph.AddEdgeWithoutValidation(edge)
+					}
+				}
+			}
+		}
+	} else {
+		log.Warn("Skipping linking Ansible and GitHub")
 	}
 }

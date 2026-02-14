@@ -50,7 +50,7 @@ To run the collector, provide it with a target and a token:
 ./collector -t 'http://localhost:8080/' --token '56KOmh...'
 ```
 
-> Using local authentication will prevent you from connecting the Ansible and Active Directory graphs. In this way, the `SyncedToAHUser` edge will not appear.
+> Using local authentication will prevent you from connecting the Ansible and Active Directory graphs. In this way, the `SyncedToATUser` edge will not appear.
 
 #### Username/Password
 
@@ -136,7 +136,7 @@ Ansible edges only create relations between Ansible nodes:
 | `ATContains` | `ATOrganization`    | `ATProject`                                                                                  |
 | `ATUses`     | `ATJobTemplate`     | `ATProject`                                                                                  |
 | `ATUses`     | `ATJobTemplate`     | `ATInventory`                                                                                |
-| `ATUsesType` | `ATCredential`     | `ATCredentialType`                                                                            |
+| `ATUsesType` | `ATCredential`      | `ATCredentialType`                                                                           |
 | `ATExecute`  | `ATUser`            | `ATJobTemplate`                                                                              |
 | `ATExecute`  | `ATTeam`            | `ATJobTemplate`                                                                              |
 | `ATMember`   | `ATUser`            | `ATOrganization` - `ATTeam`                                                                  |
@@ -149,23 +149,24 @@ Ansible edges only create relations between Ansible nodes:
 
 Hybrid edges establish connections between Ansible and other technologies. AnsibleHound currently handles two types of hybrid edge:
 
-| Edge Type        | Source Graph      | Target Graph | Source Node  | Target Node  |
-| ---------------- | ----------------- | ------------ | ------------ | ----------   |
-| `SyncedToAHUser` | Active Directory  | Ansible      | User         | ATUser       |
-| `ATIsLinkedTo`   | Ansible           | GitHub       | ATProject    | GHRepository |
+| Edge Type               | Source Graph      | Target Graph | Source Node  | Target Node  |
+| ----------------------- | ----------------- | ------------ | ------------ | ------------ |
+| `SyncedToATUser`        | Active Directory  | Ansible      | User         | ATUser       |
+| `ATHasSourceControlUrl` | Ansible           | GitHub       | ATProject    | GHRepository |
+| `ATIsCredentialOf`      | Ansible           | GitHub       | ATCredential | GHUser       |
 
 The following collectors must be used in order to use those hybrid graphs:
 
 - [SharpHound](https://github.com/SpecterOps/SharpHound) for Active Directory
 - [GitHound](https://github.com/SpecterOps/GitHound) for GitHub
 
-The output results of these collectors must be uploaded on BloodHound before the Ansible output is uploaded. BloodHound will then automatically establish the connection between the graphs.
+The output results of these collectors must be uploaded on BloodHound **before** the Ansible output is uploaded. BloodHound will then automatically establish the connection between the graphs.
 
-##### SyncedToAHUser
+##### SyncedToATUser
 
-The `SyncedToAHUser` edge will allows you to connect Ansible and Active Directory graphs:
+The `SyncedToATUser` edge will allows you to connect Ansible and Active Directory graphs:
 
-![SyncedToAHUser hybrid edge](./images/syncedToAHUser.png)
+![SyncedToATUser hybrid edge](./images/SyncedToATUser.png)
 
 This edge highlights the ability of an Active Directory user to authenticate on the Ansible instance.
 
@@ -173,17 +174,29 @@ The `security identifier` (SID) of the Active Directory user is used to link tha
 
 > Since the link is based on the `DN`, there is a risk of collision if two or more domains with the same name share a user with the same SID and name..
 
-##### ATIsLinkedTo
+##### ATHasSourceControlUrl
 
-The `SyncedToAHUser` edge will allows you to connect Ansible and GitHub graphs:
+The `ATHasSourceControlUrl` edge will allows you to connect Ansible and GitHub graphs:
 
-![ATIsLinkedTo hybrid edge](./images/aTIsLinkedTo.png)
+![ATHasSourceControlUrl hybrid edge](./images/ATHasSourceControlUrl.png)
 
 This edge highlights the link between an Ansible project and a Git Source Control Type.
 
 The name of the repository is used to link the GitHub repository with the Ansible project.
 
 > Since the link is name based, there is a risk of collision if two or more repositories with the same name, hosted on different GitHub accounts, are used in the same Ansible instance.
+
+##### ATIsCredentialOf
+
+The `ATIsCredentialOf` edge will allows you to connect Ansible and GitHub graphs:
+
+![ATIsCredentialOf hybrid edge](./images/ATIsCredentialOf.png)
+
+This edge highlights the link between an Ansible credential and a GitHub user.
+
+The username is used to link the GitHub user with the Ansible credential.
+
+> Because the link is username-based, no edge will be created if the username field of the Ansible credential object is left blank or contains an email address.
 
 ## Requirements
 
