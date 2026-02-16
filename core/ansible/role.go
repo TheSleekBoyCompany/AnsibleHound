@@ -3,7 +3,7 @@ package ansible
 import (
 	"encoding/json"
 
-	"github.com/TheManticoreProject/gopengraph/node"
+	"github.com/Ramoreik/gopengraph/node"
 )
 
 type Role struct {
