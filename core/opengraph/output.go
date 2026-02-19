@@ -6,7 +6,7 @@ import (
 	"path"
 	"time"
 
-	"github.com/TheManticoreProject/gopengraph"
+	"github.com/Ramoreik/gopengraph"
 	"github.com/charmbracelet/log"
 )
 

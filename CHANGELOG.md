@@ -27,7 +27,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Migrate the opengraph logic to the gopengraph library from TheManticoreProject. (<https://pkg.go.dev/github.com/TheManticoreProject/gopengraph#section-readme>)
+- Migrate the opengraph logic to the gopengraph library from Ramoreik. (<https://pkg.go.dev/github.com/Ramoreik/gopengraph#section-readme>)
 - Moved `ToBHNode` to the objects themselves and now uses an interface to interact with it.
 - Remodeled the object system to enable better code patterns.
 - Changed Data Structure to handle nodes and edge from `[]AnsibleType` to `map[int]AnsibleType` to enable direct mapping using the Ansible ID.

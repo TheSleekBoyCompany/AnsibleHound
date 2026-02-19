@@ -13,7 +13,7 @@ import (
 )
 
 func launch(client gather.AHClient, targetUrl *url.URL,
-	outdir string, ldap gather.AHLdap) {
+	outdir string, ldap gather.AHLdap, github bool) {
 
 	graph := opengraph.InitGraph()
 
@@ -116,7 +116,7 @@ func launch(client gather.AHClient, targetUrl *url.URL,
 		opengraph.AddNodes(&graph, teamNodes)
 	}
 
-	// -- Creating all edges --
+	// -- Creating Ansible edges --
 
 	opengraph.LinkOrganization(&graph,
 		instance.OID, organizations, inventories,
@@ -139,9 +139,13 @@ func launch(client gather.AHClient, targetUrl *url.URL,
 	opengraph.LinkWorkflowJobTemplates(&graph, workflowJobTemplates,
 		workflowJobTemplateNodes, jobTemplates, inventories)
 
-	// -- Link Ansible and Active Directory --
+	// -- Linking Ansible and Active Directory --
 
 	opengraph.LinkAD(&graph, ldap, users)
+
+	// -- Linking Ansible and GitHub --
+
+	opengraph.LinkGitHub(&graph, github, projects, credentials)
 
 	// -- Output final graph --
 
@@ -192,6 +196,8 @@ var ingestCmd = &cobra.Command{
 			log.SetLevel(log.DebugLevel)
 		}
 
+		github, _ := cmd.Flags().GetBool("github")
+
 		var proxyURL *url.URL
 		proxy, _ := cmd.Flags().GetString("proxy")
 		if proxy != "" {
@@ -213,7 +219,7 @@ var ingestCmd = &cobra.Command{
 			ldap = gather.InitLdap(dc_ipAddress, username, password, domain, isLDAPS, skipVerifySSL)
 		}
 
-		launch(client, targetUrl, outdir, ldap)
+		launch(client, targetUrl, outdir, ldap, github)
 	},
 }
 
@@ -229,6 +235,9 @@ func main() {
 	ingestCmd.Flags().StringP("dc-ip", "", "", "(optional) Target IP of the domain. Required only for LDAP user")
 	ingestCmd.Flags().BoolP("ldaps", "", false, "(optional) Configure LDAPS authentication on the domain controller. Required only for LDAP user")
 	ingestCmd.Flags().StringP("domain", "", "", "(optional) NetBIOS domain name. Required only for LDAP user")
+
+	ingestCmd.Flags().BoolP("github", "", false, "(optional) Enable graphing between Ansible and GitHub")
+
 	ingestCmd.Flags().StringP("proxy", "", "", "(optional) Configure HTTP/HTTPS proxy.")
 	ingestCmd.Flags().StringP("outdir", "", "", "(optional) Output directory for the json files.")
 	ingestCmd.Flags().BoolP("verbose", "v", false, "(optional) Enable debug logs.")

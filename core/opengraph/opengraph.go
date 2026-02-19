@@ -3,9 +3,9 @@ package opengraph
 import (
 	"ansible-hound/core/ansible"
 
-	"github.com/TheManticoreProject/gopengraph"
-	"github.com/TheManticoreProject/gopengraph/edge"
-	"github.com/TheManticoreProject/gopengraph/node"
+	"github.com/Ramoreik/gopengraph"
+	"github.com/Ramoreik/gopengraph/edge"
+	"github.com/Ramoreik/gopengraph/node"
 	"github.com/charmbracelet/log"
 )
 
@@ -29,9 +29,19 @@ func AddEdge(graph *gopengraph.OpenGraph, edge *edge.Edge) {
 	}
 }
 
-func GenerateEdge(edgeKind string, startId string, endId string, startKind ...string) (e *edge.Edge) {
+func GenerateEdge(edgeKind string, startId string, endId string) (e *edge.Edge) {
 
-	e, err := edge.NewEdge(startId, endId, edgeKind, nil)
+	e, err := edge.NewEdge(startId, endId, edgeKind, MATCH_BY_ID, MATCH_BY_ID, ANSIBLE_BASE, ANSIBLE_BASE, nil)
+	if err != nil {
+		log.Error(err)
+	}
+
+	return e
+}
+
+func GenerateEdgeCustom(edgeKind string, startId string, endId string, startMatchBy string, endMatchBy string, startNodeKind string, endNodeKind string) (e *edge.Edge) {
+
+	e, err := edge.NewEdge(startId, endId, edgeKind, startMatchBy, endMatchBy, startNodeKind, endNodeKind, nil)
 	if err != nil {
 		log.Error(err)
 	}
