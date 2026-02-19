@@ -100,20 +100,22 @@ If you don't have any Ansible WorX or Tower environment, you can just drop `./sa
 
 Nodes correspond to each object type.
 
-| Node              | Description                                                                                                           | Icon          | Color   |
-| ----------------- | --------------------------------------------------------------------------------------------------------------------- | ------------- | ------- |
-| ATAnsibleInstance | Complete installation of Ansible                                                                                      | sitemap       | #F59C36 |
-| ATOrganization    | Logical collection of users, teams, projects, and inventories. It is the highest-level object in the object hierarchy | building      | #F59C36 |
-| ATInventory       | Collection of hosts and groups                                                                                        | network-wired | #FF78F2 |
-| ATGroup           | Group of hosts                                                                                                        | object-group  | #159b7c |
-| ATUser            | An individual user account                                                                                            | user          | #7ADEE9 |
-| ATJob             | Instance launching a playbook against an inventory of hosts                                                           | gears         | #7CAAFF |
-| ATJobTemplate     | Combines an Ansible playbook from a project and the settings required to launch it                                    | code          | #493EB0 |
-| ATProject         | Logical collection of Ansible playbooks                                                                               | folder-open   | #EC7589 |
-| ATCredential      | Authenticate the user to launch playbooks (passwords - SSH keys) against inventory hosts                              | key           | #94E16A |
-| ATCredentialType  | Type of the Credential and information about this type.                                                               | key           | #94E16A |
-| ATHost            | These are the target devices (servers, network appliances or any computer) you aim to manage                          | desktop       | #E9E350 |
-| ATTeam            | A group of users                                                                                                      | people-group  | #724752 |
+| Node                      | Description                                                                                                           | Icon          | Color   |
+| ------------------------- | --------------------------------------------------------------------------------------------------------------------- | ------------- | ------- |
+| ATAnsibleInstance         | Complete installation of Ansible                                                                                      | sitemap       | #F59C36 |
+| ATOrganization            | Logical collection of users, teams, projects, and inventories. It is the highest-level object in the object hierarchy | building      | #F59C36 |
+| ATInventory               | Collection of hosts and groups                                                                                        | network-wired | #FF78F2 |
+| ATGroup                   | Group of hosts                                                                                                        | object-group  | #159b7c |
+| ATUser                    | An individual user account                                                                                            | user          | #7ADEE9 |
+| ATJob                     | Instance launching a playbook against an inventory of hosts                                                           | gears         | #7CAAFF |
+| ATJobTemplate             | Combines an Ansible playbook from a project and the settings required to launch it                                    | code          | #493EB0 |
+| ATWorkflowJobTemplate     | Combines multiple nodes (Job Template) into a single Workflow Job Template                                            | circle-nodes  | #15369b |
+| ATWorkflowJobTemplateNode | Single node representing a Job Template in the context of a Workflow Job Template                                     | circle-dot    | #15739b |
+| ATProject                 | Logical collection of Ansible playbooks                                                                               | folder-open   | #EC7589 |
+| ATCredential              | Authenticate the user to launch playbooks (passwords - SSH keys) against inventory hosts                              | key           | #94E16A |
+| ATCredentialType          | Type of the Credential and information about this type.                                                               | key           | #94E16A |
+| ATHost                    | These are the target devices (servers, network appliances or any computer) you aim to manage                          | desktop       | #E9E350 |
+| ATTeam                    | A group of users                                                                                                      | people-group  | #724752 |
 
 ### Edges
 
@@ -123,27 +125,33 @@ All the edges are prefixed by `AT` to make it distinct from other collectors edg
 
 Ansible edges only create relations between Ansible nodes:
 
-| Edge Type    | Source              | Target                                                                                       |
-| ------------ | ------------------- | -------------------------------------------------------------------------------------------- |
-| `ATContains` | `ATAnsibleInstance` | `ATOrganization`                                                                             |
-| `ATContains` | `ATOrganization`    | `ATInventory`                                                                                |
-| `ATContains` | `ATInventory`       | `ATHost`                                                                                     |
-| `ATContains` | `ATInventory`       | `ATGroup`                                                                                    |
-| `ATContains` | `ATGroup`           | `ATHost`                                                                                     |
-| `ATContains` | `ATJobTemplate`     | `ATJob`                                                                                      |
-| `ATContains` | `ATOrganization`    | `ATJobTemplate`                                                                              |
-| `ATContains` | `ATOrganization`    | `ATCredential`                                                                               |
-| `ATContains` | `ATOrganization`    | `ATProject`                                                                                  |
-| `ATUses`     | `ATJobTemplate`     | `ATProject`                                                                                  |
-| `ATUses`     | `ATJobTemplate`     | `ATInventory`                                                                                |
-| `ATUsesType` | `ATCredential`      | `ATCredentialType`                                                                           |
-| `ATExecute`  | `ATUser`            | `ATJobTemplate`                                                                              |
-| `ATExecute`  | `ATTeam`            | `ATJobTemplate`                                                                              |
-| `ATMember`   | `ATUser`            | `ATOrganization` - `ATTeam`                                                                  |
-| `ATRead`     | `ATUser`            | `ATOrganization` - `ATTeam` - `ATInventory` - `ATProject` - `ATJobTemplate`                  |
-| `ATRead`     | `ATTeam`            | `ATOrganization` - `ATUser` - `ATInventory` - `ATProject` - `ATJobTemplate`                  |
-| `ATAuditor`  | `ATUser`            | `ATOrganization` - `ATProject` - `ATInventory` - `ATJobTemplate`                             |
-| `ATAdmin`    | `ATUser`            | `ATOrganization` - `ATTeam` - `ATInventory` - `ATProject` - `ATJobTemplate` - `ATCredential` |
+| Edge Type    | Source                          | Target                                                                                                                 |
+| ------------ | ------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| `ATContains` | `ATAnsibleInstance`             | `ATOrganization`                                                                                                       |
+| `ATContains` | `ATOrganization`                | `ATInventory`                                                                                                          |
+| `ATContains` | `ATInventory`                   | `ATHost`                                                                                                               |
+| `ATContains` | `ATInventory`                   | `ATGroup`                                                                                                              |
+| `ATContains` | `ATGroup`                       | `ATHost`                                                                                                               |
+| `ATContains` | `ATJobTemplate`                 | `ATJob`                                                                                                                |
+| `ATContains` | `ATOrganization`                | `ATJobTemplate`                                                                                                        |
+| `ATContains` | `ATOrganization`                | `ATWorkflowJobTemplate`                                                                                                |
+| `ATContains` | `ATWorkflowJobTemplate`         | `ATWorkflowJobTemplateNode`                                                                                            |
+| `ATContains` | `ATOrganization`                | `ATCredential`                                                                                                         |
+| `ATContains` | `ATOrganization`                | `ATProject`                                                                                                            |
+| `ATUses`     | `ATJobTemplate`                 | `ATProject`                                                                                                            |
+| `ATUses`     | `ATWorkflowJobTemplate`         | `ATInventory`                                                                                                          |
+| `ATUses`     | `ATWorkflowJobTemplateNode`     | `ATJobTemplate`                                                                                                        |
+| `ATUses`     | `ATJobTemplate`                 | `ATInventory`                                                                                                          |
+| `ATUsesType` | `ATCredential`                  | `ATCredentialType`                                                                                                     |
+| `ATExecute`  | `ATUser`                        | `ATJobTemplate`                                                                                                        |
+| `ATExecute`  | `ATTeam`                        | `ATJobTemplate`                                                                                                        |
+| `ATExecute`  | `ATUser`                        | `ATWorkflowJobTemplate`                                                                                                |
+| `ATExecute`  | `ATTeam`                        | `ATWorkflowJobTemplate`                                                                                                |
+| `ATMember`   | `ATUser`                        | `ATOrganization` - `ATTeam`                                                                                            |
+| `ATRead`     | `ATUser`                        | `ATOrganization` - `ATTeam` - `ATInventory` - `ATProject` - `ATJobTemplate` - `ATWorkflowJobTemplate`                  |
+| `ATRead`     | `ATTeam`                        | `ATOrganization` - `ATUser` - `ATInventory` - `ATProject` - `ATJobTemplate` - `ATWorkflowJobTemplate`                  |
+| `ATAuditor`  | `ATUser`                        | `ATOrganization` - `ATProject` - `ATInventory` - `ATJobTemplate` - `ATWorkflowJobTemplate`                             |
+| `ATAdmin`    | `ATUser`                        | `ATOrganization` - `ATTeam` - `ATInventory` - `ATProject` - `ATJobTemplate` - `ATCredential` - `ATWorkflowJobTemplate` |
 
 #### Hybrid edges
 
