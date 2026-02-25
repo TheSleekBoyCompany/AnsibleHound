@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Now creates `ATAdmin/ATAuditor` edges for Admin and Auditor users to all concerned resources.
 - Now creates an `ATUses` edge between projects and credentials to map identities used to connect to SCM.
 - Now creates role edges related to Workflows.
 - Now creates `ATContains` edges related to Workflows.
