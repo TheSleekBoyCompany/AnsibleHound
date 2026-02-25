@@ -120,9 +120,6 @@ func LinkWorkflowJobTemplates(graph *gopengraph.OpenGraph, workflowJobTemplates 
 
 	log.Info("Linking Workflow Job Template Nodes and Job Templates.")
 	edgeKind = "ATUses"
-	// For now, this excludes approval nodes, i'm unsure if it is interesting to represent graphically.
-	// Approval nodes represent a stop in the workflow where a user has to approve before it continues
-	// It might be useful in complex attacks, targeting a specific workflow job template node.
 	for _, workflowJobTemplateNode := range workflowJobTemplateNodes {
 		if gather.HasAccessTo(jobTemplates, workflowJobTemplateNode.UnifiedJobTemplate) {
 			edge := GenerateEdge(edgeKind, workflowJobTemplateNode.OID, jobTemplates[workflowJobTemplateNode.UnifiedJobTemplate].OID)
