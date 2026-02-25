@@ -5,8 +5,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/TheManticoreProject/gopengraph/node"
-	"github.com/TheManticoreProject/gopengraph/properties"
+	"github.com/Ramoreik/gopengraph/node"
+	"github.com/Ramoreik/gopengraph/properties"
 )
 
 type Credential struct {
@@ -36,6 +36,13 @@ func (c *Credential) ToBHNode() (n *node.Node) {
 	props.SetProperty("managed", strconv.FormatBool(c.Managed))
 	props.SetProperty("cloud", strconv.FormatBool(c.Cloud))
 	props.SetProperty("kubernetes", strconv.FormatBool(c.Kubernetes))
+
+	var ok bool
+	if _, ok = c.Inputs["username"]; ok {
+		username := c.Inputs["username"].(string)
+		props.SetProperty("username", username)
+	}
+
 	n, _ = node.NewNode(c.OID, []string{"ATCredential"}, props)
 
 	return n

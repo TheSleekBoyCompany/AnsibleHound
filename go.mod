@@ -3,6 +3,7 @@ module ansible-hound
 go 1.24.2
 
 require (
+	github.com/Ramoreik/gopengraph v0.0.0-20260206231827-92df8cbaecd8
 	github.com/charmbracelet/log v0.4.1
 	github.com/go-ldap/ldap/v3 v3.4.12
 	github.com/spf13/cobra v1.9.1
@@ -10,7 +11,6 @@ require (
 
 require (
 	github.com/Azure/go-ntlmssp v0.0.0-20221128193559-754e69321358 // indirect
-	github.com/TheManticoreProject/gopengraph v1.0.2 // indirect
 	github.com/aymanbagabas/go-osc52/v2 v2.0.1 // indirect
 	github.com/charmbracelet/lipgloss v1.0.0 // indirect
 	github.com/charmbracelet/x/ansi v0.4.2 // indirect

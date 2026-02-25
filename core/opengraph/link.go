@@ -3,10 +3,11 @@ package opengraph
 import (
 	"ansible-hound/core/ansible"
 	"ansible-hound/core/gather"
+	"path"
 	"strings"
 
-	"github.com/TheManticoreProject/gopengraph"
-	"github.com/TheManticoreProject/gopengraph/edge"
+	"github.com/Ramoreik/gopengraph"
+	"github.com/Ramoreik/gopengraph/edge"
 	"github.com/charmbracelet/log"
 )
 
@@ -119,9 +120,6 @@ func LinkWorkflowJobTemplates(graph *gopengraph.OpenGraph, workflowJobTemplates 
 
 	log.Info("Linking Workflow Job Template Nodes and Job Templates.")
 	edgeKind = "ATUses"
-	// For now, this excludes approval nodes, i'm unsure if it is interesting to represent graphically.
-	// Approval nodes represent a stop in the workflow where a user has to approve before it continues
-	// It might be useful in complex attacks, targeting a specific workflow job template node.
 	for _, workflowJobTemplateNode := range workflowJobTemplateNodes {
 		if gather.HasAccessTo(jobTemplates, workflowJobTemplateNode.UnifiedJobTemplate) {
 			edge := GenerateEdge(edgeKind, workflowJobTemplateNode.OID, jobTemplates[workflowJobTemplateNode.UnifiedJobTemplate].OID)
@@ -383,9 +381,8 @@ func LinkAD(graph *gopengraph.OpenGraph, ldap gather.AHLdap, users map[int]*ansi
 
 	if (ldap != gather.AHLdap{}) {
 
-		log.Info("Linking LDAP Users.")
-		edgeKind := "SyncedToAHUser"
-		startKind := "Base"
+		log.Info("Linking Ansible and LDAP Users.")
+		edgeKind := "SyncedToATUser"
 
 		conn, err := gather.Connect(ldap)
 
@@ -399,12 +396,56 @@ func LinkAD(graph *gopengraph.OpenGraph, ldap gather.AHLdap, users map[int]*ansi
 				if user.LdapDn != "" {
 					ldap_dn := user.LdapDn
 					objectSid, _ := gather.Search(conn, ldap_dn)
-					edge := GenerateEdge(edgeKind, objectSid, user.OID, startKind)
+					edge := GenerateEdgeCustom(edgeKind, objectSid, user.OID, MATCH_BY_ID, MATCH_BY_ID, ACTIVE_DIRECTORY_BASE, ANSIBLE_BASE)
 					graph.AddEdgeWithoutValidation(edge)
 				}
 			}
 		}
 	} else {
 		log.Warn("Skipping linking LDAP Users since the user used for authentication is a local user")
+	}
+}
+
+func LinkGitHub(graph *gopengraph.OpenGraph, github bool, projects map[int]*ansible.Project, credentials map[int]*ansible.Credential) {
+
+	if github {
+
+		log.Info("Linking Ansible and GitHub.")
+		log.Warn("Do not forget to upload GitHub graphing on BloodHound to leverage.")
+
+		if projects != nil {
+
+			log.Info("Linking Ansible projects and GitHub Repositories.")
+			edgeKind := "ATHasSourceControlUrl"
+
+			for _, project := range projects {
+				if project.ScmType == GIT_SCM_TYPE {
+					if project.ScmUrl != "" {
+						scmUrl := project.ScmUrl
+						repositoryName := strings.TrimSuffix(path.Base(scmUrl), DOT_GIT_SCM_TYPE)
+						edge := GenerateEdgeCustom(edgeKind, project.OID, repositoryName, MATCH_BY_ID, MATCH_BY_NAME, ANSIBLE_BASE, GITHUB_BASE)
+						graph.AddEdgeWithoutValidation(edge)
+					}
+				}
+			}
+		}
+
+		if credentials != nil {
+
+			log.Info("Linking Ansible credentials and GitHub users.")
+			edgeKind := "ATIsCredentialOf"
+
+			for _, credential := range credentials {
+				if credential.Kind == CREDENTIAL_KIND {
+					username := credential.Inputs[CREDENTIAL_USERNAME]
+					if username != nil && username != "" {
+						edge := GenerateEdgeCustom(edgeKind, credential.OID, username.(string), MATCH_BY_ID, MATCH_BY_NAME, ANSIBLE_BASE, GITHUB_BASE)
+						graph.AddEdgeWithoutValidation(edge)
+					}
+				}
+			}
+		}
+	} else {
+		log.Warn("Skipping linking Ansible and GitHub")
 	}
 }

@@ -50,7 +50,7 @@ To run the collector, provide it with a target and a token:
 ./collector -t 'http://localhost:8080/' --token '56KOmh...'
 ```
 
-> Using local authentication will prevent you from connecting the Ansible and Active Directory graphs. In this way, the `SyncedToAHUser` edge will not appear.
+> Using local authentication will prevent you from connecting the Ansible and Active Directory graphs. In this way, the `SyncedToATUser` edge will not appear.
 
 #### Username/Password
 
@@ -63,9 +63,18 @@ To run the collector, provide it with a username and a password:
 ./collector -u 'admin' -p 'tcrA...' -t 'http://10.10.10.10:8080'
 ```
 
-> Provide the domain password for Active Directory / LDAP accounts.
+##### Active Directory accounts
 
-> Using an Active Directory account will allow you to connect Ansible and Active Directory graphs through the `SyncedToAHUser` edge.
+For Active Directory / LDAP accounts accounts, provide the domain username and password:
+
+```bash
+./collector -u '<username>' -p '<password>' -t '<ansible-url>' --dc-ip <dc-ip> --domain <domain-name>
+
+# Example
+./collector -u 'admin' -p 'tcrA...' -t 'http://10.10.10.10:8080' --dc-ip '10.10.10.100' --domain 'sleekboy'
+```
+
+> Using an Active Directory account will allow you to connect Ansible and Active Directory graphs.
 
 ### Load Icons
 
@@ -85,66 +94,129 @@ If you don't have any Ansible WorX or Tower environment, you can just drop `./sa
 
 ## Schema
 
-![](./images/cypher.png)
+![Schema](./images/cypher.png)
 
 ### Nodes
 
 Nodes correspond to each object type.
 
-| Node              | Description                                                                                                           | Icon          | Color   |
-| ----------------- | --------------------------------------------------------------------------------------------------------------------- | ------------- | ------- |
-| ATAnsibleInstance | Complete installation of Ansible                                                                                      | sitemap       | #F59C36 |
-| ATOrganization    | Logical collection of users, teams, projects, and inventories. It is the highest-level object in the object hierarchy | building      | #F59C36 |
-| ATInventory       | Collection of hosts and groups                                                                                        | network-wired | #FF78F2 |
-| ATGroup           | Group of hosts                                                                                                        | object-group  | #159b7c |
-| ATUser            | An individual user account                                                                                            | user          | #7ADEE9 |
-| ATJob             | Instance launching a playbook against an inventory of hosts                                                           | gears         | #7CAAFF |
-| ATJobTemplate     | Combines an Ansible playbook from a project and the settings required to launch it                                    | code          | #493EB0 |
-| ATProject         | Logical collection of Ansible playbooks                                                                               | folder-open   | #EC7589 |
-| ATCredential      | Authenticate the user to launch playbooks (passwords - SSH keys) against inventory hosts                              | key           | #94E16A |
-| ATCredentialType  | Type of the Credential and information about this type.                                                               | key           | #94E16A |
-| ATHost            | These are the target devices (servers, network appliances or any computer) you aim to manage                          | desktop       | #E9E350 |
-| ATTeam            | A group of users                                                                                                      | people-group  | #724752 |
+| Node                      | Description                                                                                                           | Icon          | Color   |
+| ------------------------- | --------------------------------------------------------------------------------------------------------------------- | ------------- | ------- |
+| ATAnsibleInstance         | Complete installation of Ansible                                                                                      | sitemap       | #F59C36 |
+| ATOrganization            | Logical collection of users, teams, projects, and inventories. It is the highest-level object in the object hierarchy | building      | #F59C36 |
+| ATInventory               | Collection of hosts and groups                                                                                        | network-wired | #FF78F2 |
+| ATGroup                   | Group of hosts                                                                                                        | object-group  | #159b7c |
+| ATUser                    | An individual user account                                                                                            | user          | #7ADEE9 |
+| ATJob                     | Instance launching a playbook against an inventory of hosts                                                           | gears         | #7CAAFF |
+| ATJobTemplate             | Combines an Ansible playbook from a project and the settings required to launch it                                    | code          | #493EB0 |
+| ATWorkflowJobTemplate     | Combines multiple nodes (Job Template) into a single Workflow Job Template                                            | circle-nodes  | #15369b |
+| ATWorkflowJobTemplateNode | Single node representing a Job Template in the context of a Workflow Job Template                                     | circle-dot    | #15739b |
+| ATProject                 | Logical collection of Ansible playbooks                                                                               | folder-open   | #EC7589 |
+| ATCredential              | Authenticate the user to launch playbooks (passwords - SSH keys) against inventory hosts                              | key           | #94E16A |
+| ATCredentialType          | Type of the Credential and information about this type.                                                               | key           | #94E16A |
+| ATHost                    | These are the target devices (servers, network appliances or any computer) you aim to manage                          | desktop       | #E9E350 |
+| ATTeam                    | A group of users                                                                                                      | people-group  | #724752 |
 
 ### Edges
 
 All the edges are prefixed by `AT` to make it distinct from other collectors edges.
 
+#### Ansible edges
+
 Ansible edges only create relations between Ansible nodes:
 
-| Edge Type    | Source              | Target                                                                                       |
-| ------------ | ------------------- | -------------------------------------------------------------------------------------------- |
-| `ATContains` | `ATAnsibleInstance` | `ATOrganization`                                                                             |
-| `ATContains` | `ATOrganization`    | `ATInventory`                                                                                |
-| `ATContains` | `ATInventory`       | `ATHost`                                                                                     |
-| `ATContains` | `ATInventory`       | `ATGroup`                                                                                    |
-| `ATContains` | `ATGroup`           | `ATHost`                                                                                     |
-| `ATContains` | `ATJobTemplate`     | `ATJob`                                                                                      |
-| `ATContains` | `ATOrganization`    | `ATJobTemplate`                                                                              |
-| `ATContains` | `ATOrganization`    | `ATCredential`                                                                               |
-| `ATContains` | `ATOrganization`    | `ATProject`                                                                                  |
-| `ATUses`     | `ATJobTemplate`     | `ATProject`                                                                                  |
-| `ATUses`     | `ATJobTemplate`     | `ATInventory`                                                                                |
-| `ATUsesType` | `ATCredential`     | `ATCredentialType`                                                                            |
-| `ATExecute`  | `ATUser`            | `ATJobTemplate`                                                                              |
-| `ATExecute`  | `ATTeam`            | `ATJobTemplate`                                                                              |
-| `ATMember`   | `ATUser`            | `ATOrganization` - `ATTeam`                                                                  |
-| `ATRead`     | `ATUser`            | `ATOrganization` - `ATTeam` - `ATInventory` - `ATProject` - `ATJobTemplate`                  |
-| `ATRead`     | `ATTeam`            | `ATOrganization` - `ATUser` - `ATInventory` - `ATProject` - `ATJobTemplate`                  |
-| `ATAuditor`  | `ATUser`            | `ATOrganization` - `ATProject` - `ATInventory` - `ATJobTemplate`                             |
-| `ATAdmin`    | `ATUser`            | `ATOrganization` - `ATTeam` - `ATInventory` - `ATProject` - `ATJobTemplate` - `ATCredential` |
+| Edge Type    | Source                          | Target                                                                                                                 |
+| ------------ | ------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| `ATContains` | `ATAnsibleInstance`             | `ATOrganization`                                                                                                       |
+| `ATContains` | `ATOrganization`                | `ATInventory`                                                                                                          |
+| `ATContains` | `ATInventory`                   | `ATHost`                                                                                                               |
+| `ATContains` | `ATInventory`                   | `ATGroup`                                                                                                              |
+| `ATContains` | `ATGroup`                       | `ATHost`                                                                                                               |
+| `ATContains` | `ATJobTemplate`                 | `ATJob`                                                                                                                |
+| `ATContains` | `ATOrganization`                | `ATJobTemplate`                                                                                                        |
+| `ATContains` | `ATOrganization`                | `ATWorkflowJobTemplate`                                                                                                |
+| `ATContains` | `ATWorkflowJobTemplate`         | `ATWorkflowJobTemplateNode`                                                                                            |
+| `ATContains` | `ATOrganization`                | `ATCredential`                                                                                                         |
+| `ATContains` | `ATOrganization`                | `ATProject`                                                                                                            |
+| `ATUses`     | `ATJobTemplate`                 | `ATProject`                                                                                                            |
+| `ATUses`     | `ATWorkflowJobTemplate`         | `ATInventory`                                                                                                          |
+| `ATUses`     | `ATWorkflowJobTemplateNode`     | `ATJobTemplate`                                                                                                        |
+| `ATUses`     | `ATJobTemplate`                 | `ATInventory`                                                                                                          |
+| `ATUsesType` | `ATCredential`                  | `ATCredentialType`                                                                                                     |
+| `ATExecute`  | `ATUser`                        | `ATJobTemplate`                                                                                                        |
+| `ATExecute`  | `ATTeam`                        | `ATJobTemplate`                                                                                                        |
+| `ATExecute`  | `ATUser`                        | `ATWorkflowJobTemplate`                                                                                                |
+| `ATExecute`  | `ATTeam`                        | `ATWorkflowJobTemplate`                                                                                                |
+| `ATMember`   | `ATUser`                        | `ATOrganization` - `ATTeam`                                                                                            |
+| `ATRead`     | `ATUser`                        | `ATOrganization` - `ATTeam` - `ATInventory` - `ATProject` - `ATJobTemplate` - `ATWorkflowJobTemplate`                  |
+| `ATRead`     | `ATTeam`                        | `ATOrganization` - `ATUser` - `ATInventory` - `ATProject` - `ATJobTemplate` - `ATWorkflowJobTemplate`                  |
+| `ATAuditor`  | `ATUser`                        | `ATOrganization` - `ATProject` - `ATInventory` - `ATJobTemplate` - `ATWorkflowJobTemplate`                             |
+| `ATAdmin`    | `ATUser`                        | `ATOrganization` - `ATTeam` - `ATInventory` - `ATProject` - `ATJobTemplate` - `ATCredential` - `ATWorkflowJobTemplate` |
 
-Hybrid edges are forming connections between Ansible and other technologies:
+#### Hybrid edges
 
-| Edge Type        | Source              | Target     |
-| ---------------- | ------------------- | ---------- |
-| `SyncedToAHUser` | User                | ATUser     |
+Hybrid edges establish connections between Ansible and other technologies. AnsibleHound currently handles two types of hybrid edge:
 
-## Bugs
+| Edge Type               | Source Graph      | Target Graph | Source Node  | Target Node  |
+| ----------------------- | ----------------- | ------------ | ------------ | ------------ |
+| `SyncedToATUser`        | Active Directory  | Ansible      | User         | ATUser       |
+| `ATHasSourceControlUrl` | Ansible           | GitHub       | ATProject    | GHRepository |
+| `ATIsCredentialOf`      | Ansible           | GitHub       | ATCredential | GHUser       |
+
+The following collectors must be used in order to use those hybrid graphs:
+
+- [SharpHound](https://github.com/SpecterOps/SharpHound) for Active Directory
+- [GitHound](https://github.com/SpecterOps/GitHound) for GitHub
+
+The output results of these collectors must be uploaded on BloodHound **before** the Ansible output is uploaded. BloodHound will then automatically establish the connection between the graphs.
+
+##### SyncedToATUser
+
+The `SyncedToATUser` edge will allows you to connect Ansible and Active Directory graphs:
+
+![SyncedToATUser hybrid edge](./images/SyncedToATUser.png)
+
+This edge highlights the ability of an Active Directory user to authenticate on the Ansible instance.
+
+The `security identifier` (SID) of the Active Directory user is used to link that user with the Ansible user. The `distinguished name` (DN) stored in the Ansible instance is used to recover the SID of the Active Directory user.
+
+> Since the link is based on the `DN`, there is a risk of collision if two or more domains with the same name share a user with the same SID and name..
+
+##### ATHasSourceControlUrl
+
+The `ATHasSourceControlUrl` edge will allows you to connect Ansible and GitHub graphs:
+
+![ATHasSourceControlUrl hybrid edge](./images/ATHasSourceControlUrl.png)
+
+This edge highlights the link between an Ansible project and a Git Source Control Type.
+
+The name of the repository is used to link the GitHub repository with the Ansible project.
+
+> Since the link is name based, there is a risk of collision if two or more repositories with the same name, hosted on different GitHub accounts, are used in the same Ansible instance.
+
+##### ATIsCredentialOf
+
+The `ATIsCredentialOf` edge will allows you to connect Ansible and GitHub graphs:
+
+![ATIsCredentialOf hybrid edge](./images/ATIsCredentialOf.png)
+
+This edge highlights the link between an Ansible credential and a GitHub user.
+
+The username is used to link the GitHub user with the Ansible credential.
+
+> Because the link is username-based, no edge will be created if the username field of the Ansible credential object is left blank or contains an email address.
+
+## Requirements
+
+### Postgres
 
 As AnsibleHound uses OpenGraph, which is only officially supported with Postgres as the backend, it is recommended to switch to Postgres to avoid ingestion bugs.
 
 Documentation : <https://github.com/SpecterOps/BloodHound/tree/main/examples/docker-compose>
+
+### Ingestion
+
+A minimal version of `8.5.0` is required to handle properly hybrid graph ingestion.
 
 ## Licensing
 
