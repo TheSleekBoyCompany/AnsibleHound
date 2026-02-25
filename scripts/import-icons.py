@@ -1,3 +1,5 @@
+#!/usr/bin/python3
+
 import requests
 import urllib3
 import json
@@ -25,6 +27,8 @@ def define_icon(url, token, icon_type, icon_name, icon_color):
         "Authorization": "Bearer %s" % token ,
         "Content-Type": "application/json"
     }
+
+    requests.delete(f"{url}/{icon_type}", headers=headers, verify=False)
 
     response = requests.post(
         url,
@@ -61,3 +65,5 @@ if __name__ == "__main__":
     define_icon(url, jwt_token, "ATHost", "desktop", "#E9E350")
     define_icon(url, jwt_token, "ATTeam", "people-group", "#724752")
     define_icon(url, jwt_token, "ATGroup", "object-group", "#159b7c")
+    define_icon(url, jwt_token, "ATWorkflowJobTemplate", "circle-nodes", "#15369b")
+    define_icon(url, jwt_token, "ATWorkflowJobTemplateNode", "circle-dot", "#15739b")
