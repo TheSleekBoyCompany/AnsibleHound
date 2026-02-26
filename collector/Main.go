@@ -151,6 +151,10 @@ func launch(client gather.AHClient, targetUrl *url.URL,
 
 	opengraph.LinkGitHub(&graph, github, projects, credentials)
 
+	//
+
+	opengraph.PostProcessingCredentials(&graph)
+
 	// -- Output final graph --
 
 	opengraph.Output(&graph, outdir)

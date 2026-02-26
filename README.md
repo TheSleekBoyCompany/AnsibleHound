@@ -133,7 +133,7 @@ Ansible edges only create relations between Ansible nodes:
 | `ATContains` | `ATInventory`                   | `ATGroup`                                                                                                              |
 | `ATContains` | `ATGroup`                       | `ATHost`                                                                                                               |
 | `ATContains` | `ATJobTemplate`                 | `ATJob`                                                                                                                |
-| `ATContains` | `ATOrganization`                | `ATJobTemplate`                                                                                                        |
+| `ATContains` | `Organization`                  | `ATJobTemplate`                                                                                                        |
 | `ATContains` | `ATOrganization`                | `ATWorkflowJobTemplate`                                                                                                |
 | `ATContains` | `ATWorkflowJobTemplate`         | `ATWorkflowJobTemplateNode`                                                                                            |
 | `ATContains` | `ATOrganization`                | `ATCredential`                                                                                                         |
