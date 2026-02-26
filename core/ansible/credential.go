@@ -37,10 +37,27 @@ func (c *Credential) ToBHNode() (n *node.Node) {
 	props.SetProperty("cloud", strconv.FormatBool(c.Cloud))
 	props.SetProperty("kubernetes", strconv.FormatBool(c.Kubernetes))
 
-	var ok bool
-	if _, ok = c.Inputs["username"]; ok {
-		username := c.Inputs["username"].(string)
-		props.SetProperty("username", username)
+	if c.CredentialType == 1 { // Credential is of type Machine
+
+		var ok bool
+		if _, ok = c.Inputs["username"]; ok {
+			username := c.Inputs["username"].(string)
+			props.SetProperty("username", username)
+		}
+
+		var sshKeyDefined bool
+		var password bool
+		_, sshKeyDefined = c.Inputs["ssh_key_data"]
+		_, password = c.Inputs["password"]
+		if password && sshKeyDefined {
+			props.SetProperty("machine_credential_type", "both")
+		}
+		if password && !sshKeyDefined {
+			props.SetProperty("machine_credential_type", "password")
+		}
+		if !password && sshKeyDefined {
+			props.SetProperty("machine_credential_type", "ssh")
+		}
 	}
 
 	n, _ = node.NewNode(c.OID, []string{"ATCredential"}, props)
