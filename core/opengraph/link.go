@@ -292,6 +292,93 @@ func LinkTeamRoles(graph *gopengraph.OpenGraph, users map[int]*ansible.User,
 	}
 }
 
+func LinkAdministrativeRights(graph *gopengraph.OpenGraph, users map[int]*ansible.User,
+	jobTemplates map[int]*ansible.JobTemplate,
+	workflowJobTemplates map[int]*ansible.WorkflowJobTemplate,
+	credentials map[int]*ansible.Credential, inventories map[int]*ansible.Inventory,
+	projects map[int]*ansible.Project, organizations map[int]*ansible.Organization, teams map[int]*ansible.Team) {
+
+	log.Info("Creating edges for Admin and Auditor users")
+	for _, user := range users {
+		if user.IsSuperUser {
+			edgeKind := "ATAdmin"
+			for _, jobTemplate := range jobTemplates {
+				edge := GenerateEdge(edgeKind, user.OID, jobTemplate.OID)
+				AddEdge(graph, edge)
+			}
+			for _, workflowJobTemplate := range workflowJobTemplates {
+				edge := GenerateEdge(edgeKind, user.OID, workflowJobTemplate.OID)
+				AddEdge(graph, edge)
+			}
+			for _, credential := range credentials {
+				edge := GenerateEdge(edgeKind, user.OID, credential.OID)
+				AddEdge(graph, edge)
+			}
+			for _, inventory := range inventories {
+				edge := GenerateEdge(edgeKind, user.OID, inventory.OID)
+				AddEdge(graph, edge)
+			}
+			for _, project := range projects {
+				edge := GenerateEdge(edgeKind, user.OID, project.OID)
+				AddEdge(graph, edge)
+			}
+			for _, organization := range organizations {
+				edge := GenerateEdge(edgeKind, user.OID, organization.OID)
+				AddEdge(graph, edge)
+			}
+			for _, team := range teams {
+				edge := GenerateEdge(edgeKind, user.OID, team.OID)
+				AddEdge(graph, edge)
+			}
+			for _, targetUser := range users {
+				if user.OID != targetUser.OID {
+					edge := GenerateEdge(edgeKind, user.OID, targetUser.OID)
+					AddEdge(graph, edge)
+				}
+			}
+		}
+
+		if user.IsSystemAuditor {
+			edgeKind := "ATAuditor"
+			for _, jobTemplate := range jobTemplates {
+				edge := GenerateEdge(edgeKind, user.OID, jobTemplate.OID)
+				AddEdge(graph, edge)
+			}
+			for _, workflowJobTemplate := range workflowJobTemplates {
+				edge := GenerateEdge(edgeKind, user.OID, workflowJobTemplate.OID)
+				AddEdge(graph, edge)
+			}
+			for _, credential := range credentials {
+				edge := GenerateEdge(edgeKind, user.OID, credential.OID)
+				AddEdge(graph, edge)
+			}
+			for _, inventory := range inventories {
+				edge := GenerateEdge(edgeKind, user.OID, inventory.OID)
+				AddEdge(graph, edge)
+			}
+			for _, project := range projects {
+				edge := GenerateEdge(edgeKind, user.OID, project.OID)
+				AddEdge(graph, edge)
+			}
+			for _, organization := range organizations {
+				edge := GenerateEdge(edgeKind, user.OID, organization.OID)
+				AddEdge(graph, edge)
+			}
+			for _, team := range teams {
+				edge := GenerateEdge(edgeKind, user.OID, team.OID)
+				AddEdge(graph, edge)
+			}
+			for _, targetUser := range users {
+				if user.OID != targetUser.OID {
+					edge := GenerateEdge(edgeKind, user.OID, targetUser.OID)
+					AddEdge(graph, edge)
+				}
+			}
+		}
+	}
+
+}
+
 func LinkAD(graph *gopengraph.OpenGraph, ldap gather.AHLdap, users map[int]*ansible.User) {
 
 	if (ldap != gather.AHLdap{}) {

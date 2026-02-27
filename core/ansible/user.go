@@ -15,7 +15,7 @@ type User struct {
 	LastName        string        `json:"last_name,omitempty"`
 	Email           string        `json:"email,omitempty"`
 	IsSuperUser     bool          `json:"is_superuser,omitempty"`
-	IsSystemAuditor bool          `json:"is_sytem_auditor,omitempty"`
+	IsSystemAuditor bool          `json:"is_system_auditor,omitempty"`
 	LdapDn          string        `json:"ldap_dn,omitempty"`
 	LastLogin       string        `json:"last_login,omitempty"`
 	ExternalAccount string        `json:"external_account,omitempty"`
