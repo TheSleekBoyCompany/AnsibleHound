@@ -332,9 +332,11 @@ func LinkAdministrativeRights(graph *gopengraph.OpenGraph, users map[int]*ansibl
 				edge := GenerateEdge(edgeKind, user.OID, team.OID)
 				AddEdge(graph, edge)
 			}
-			for _, user := range users {
-				edge := GenerateEdge(edgeKind, user.OID, user.OID)
-				AddEdge(graph, edge)
+			for _, targetUser := range users {
+				if user.OID != targetUser.OID {
+					edge := GenerateEdge(edgeKind, user.OID, targetUser.OID)
+					AddEdge(graph, edge)
+				}
 			}
 		}
 
@@ -368,9 +370,11 @@ func LinkAdministrativeRights(graph *gopengraph.OpenGraph, users map[int]*ansibl
 				edge := GenerateEdge(edgeKind, user.OID, team.OID)
 				AddEdge(graph, edge)
 			}
-			for _, user := range users {
-				edge := GenerateEdge(edgeKind, user.OID, user.OID)
-				AddEdge(graph, edge)
+			for _, targetUser := range users {
+				if user.OID != targetUser.OID {
+					edge := GenerateEdge(edgeKind, user.OID, targetUser.OID)
+					AddEdge(graph, edge)
+				}
 			}
 		}
 	}
