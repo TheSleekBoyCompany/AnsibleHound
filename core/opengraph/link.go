@@ -299,8 +299,6 @@ func LinkAdministrativeRights(graph *gopengraph.OpenGraph, users map[int]*ansibl
 	projects map[int]*ansible.Project, organizations map[int]*ansible.Organization, teams map[int]*ansible.Team) {
 
 	log.Info("Creating edges for Admin and Auditor users")
-	// Admins have ATAdmin edges to:
-	// JobTemplates, WorkflowJobTemplates, Credentials, Inventories, Projects, Organizations
 	for _, user := range users {
 		if user.IsSuperUser {
 			edgeKind := "ATAdmin"
