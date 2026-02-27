@@ -8,8 +8,24 @@ import (
 	"github.com/Ramoreik/gopengraph/node"
 )
 
+//TODO Crazy idea:
+
+// 1: Check for ATUses edge between ATCredential and ATProject
+// 2: Check for ATUses edge between ATProject and ATJobTemplate
+// 3: Check for the `limit` value of the JobTemplate and the Inventory
+// 4: Find the hosts matching the `limit` and `inventory` values. (https://docs.ansible.com/projects/ansible/latest/inventory_guide/intro_patterns.html)
+// 5: Create ATValidFor edge between `ATCredential` and `ATHost`
+
 func isInEndNodeKinds(graph *gopengraph.OpenGraph, edge *edge.Edge, kind string) (ok bool) {
 	endNode := graph.GetNode(edge.GetEndNodeID())
+	if slices.Contains(endNode.GetKinds(), kind) {
+		ok = true
+	}
+	return ok
+}
+
+func isInStartNodeKinds(graph *gopengraph.OpenGraph, edge *edge.Edge, kind string) (ok bool) {
+	endNode := graph.GetNode(edge.GetStartNodeID())
 	if slices.Contains(endNode.GetKinds(), kind) {
 		ok = true
 	}
@@ -101,28 +117,42 @@ func PostProcessingCredentials(graph *gopengraph.OpenGraph) {
 
 			case "Machine":
 				machineCredentialType := credentialNode.GetProperty("machine_credential_type").(string)
-				if machineCredentialType == "ssh" && (edge.GetKind() == "ATUse" || edge.GetKind() == "ATAdmin") {
-					// NEEDED: Control over the ansible playbook, to execute arbitrary commands on the execution environment with `delegate_to`
-					for _, ie := range identityEdges {
-						if identityCanControlJobTemplate(graph, ie) || identityCanControlPlaybook(graph, ie) {
-							edge = GenerateEdge("ATSSHHijackAgent",
-								edge.GetStartNodeID(), credentialNode.GetID())
-							graph.AddEdge(edge)
-							break
-						}
-					}
-				}
 
-				if machineCredentialType == "password" && (edge.GetKind() == "ATUse" || edge.GetKind() == "ATAdmin") {
-					// NEEDED: user able to modify any inventory, in order to target an attacker controlled server.
+				if edge.GetKind() == "ATUse" || edge.GetKind() == "ATAdmin" {
+
+					if machineCredentialType == "ssh" {
+						// NEEDED: Control over the ansible playbook, to execute arbitrary commands on the execution environment with `delegate_to`
+						for _, ie := range identityEdges {
+							if identityCanControlJobTemplate(graph, ie) || identityCanControlPlaybook(graph, ie) {
+								edge = GenerateEdge("ATSSHHijackAgent",
+									edge.GetStartNodeID(), credentialNode.GetID())
+								graph.AddEdge(edge)
+								break
+							}
+						}
+					}
+
+					if machineCredentialType == "password" {
+						// NEEDED: user able to modify any inventory, in order to target an attacker controlled server.
+						for _, ie := range identityEdges {
+							if identityCanControlInventory(graph, ie) {
+								edge = GenerateEdge("ATCompromiseWithHoneypot",
+									edge.GetStartNodeID(), credentialNode.GetID())
+								graph.AddEdge(edge)
+								break
+							}
+						}
+					}
+
 					for _, ie := range identityEdges {
-						if identityCanControlInventory(graph, ie) {
-							edge = GenerateEdge("ATCompromiseWithHoneypot",
+						if identityCanControlInventory(graph, ie) || identityCanControlPlaybook(graph, ie) {
+							edge = GenerateEdge("ATCanUseInADHOCCommands",
 								edge.GetStartNodeID(), credentialNode.GetID())
 							graph.AddEdge(edge)
 							break
 						}
 					}
+
 				}
 
 			default:
