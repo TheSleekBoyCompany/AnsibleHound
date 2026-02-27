@@ -137,12 +137,14 @@ func (ct *CredentialType) ToBHNode() (n *node.Node) {
 		}
 	}
 	if _, ok = ct.Injectors["extra_vars"]; ok {
+		props.SetProperty("injector_extra_vars", true)
 		fileInjectors := ct.Injectors["extra_vars"].(map[string]any)
 		for k, v := range fileInjectors {
 			props.SetProperty("injector_extra_vars_"+k, v.(string))
 		}
 	}
 	if _, ok = ct.Injectors["env"]; ok {
+		props.SetProperty("injector_env", true)
 		fileInjectors := ct.Injectors["env"].(map[string]any)
 		for k, v := range fileInjectors {
 			props.SetProperty("injector_env_"+k, v.(string))
