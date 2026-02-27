@@ -19,38 +19,66 @@ func PostProcessingCredentials(graph *gopengraph.OpenGraph) {
 
 		edges := graph.GetEdgesToNode(node.GetID())
 		for _, edge := range edges {
+			identityNode := graph.GetNode(edge.GetStartNodeID())
+			identityEdges := graph.GetEdgesFromNode(identityNode.GetID())
+			switch credentialType {
 
-			if credentialType == "Thycotic Secret Server" {
+			case "Source Control":
+				// NEEDED: User has to be able to modify a Project to configure a malicious SCM Server
+				// Edge case: If a project uses an SCM credential that the user does not have `ATUse` on, they can compromise it anyway.
+				var ok bool
+				if edge.GetKind() == "ATUse" || edge.GetKind() == "ATAdmin" {
+					for _, ie := range identityEdges {
+						if slices.Contains(graph.GetNode(ie.GetEndNodeID()).GetKinds(), "ATProject") {
+							if ie.GetKind() == "ATAdmin" {
+								ok = true
+								break
+							}
+						}
+						if slices.Contains(graph.GetNode(ie.GetEndNodeID()).GetKinds(), "ATOrganization") {
+							if ie.GetKind() == "ATAdmin" || ie.GetKind() == "ATProjectAdmin" {
+								ok = true
+								break
+							}
+						}
+					}
+				}
+				if ok {
+					edge = GenerateEdge("ATCompromiseWithFakeSCM", edge.GetStartNodeID(), node.GetID())
+					graph.AddEdge(edge)
+				}
+
+			case "Thycotic Secret Server":
 				if edge.GetKind() == "ATAdmin" {
 					edge = GenerateEdge("ATCompromiseWithRequestbin", edge.GetStartNodeID(), node.GetID())
 					graph.AddEdge(edge)
 				}
-			}
 
-			if credentialType == "Machine" {
+			case "Machine":
 				machineCredentialType := node.GetProperty("machine_credential_type").(string)
-				identityNode := graph.GetNode(edge.GetStartNodeID())
-				identityEdges := graph.GetEdgesFromNode(identityNode.GetID())
 
 				if machineCredentialType == "ssh" && (edge.GetKind() == "ATUse" || edge.GetKind() == "ATAdmin") {
 					// NEEDED: Control over the ansible playbook, to execute arbitrary commands on the execution environment with `delegate_to`
 					var ok bool
-					for _, edge := range identityEdges {
-						if slices.Contains(graph.GetNode(edge.GetEndNodeID()).GetKinds(), "ATJobTemplate") {
+					for _, ie := range identityEdges {
+						if slices.Contains(graph.GetNode(ie.GetEndNodeID()).GetKinds(), "ATJobTemplate") {
 							// If Admin of a Job Template you can potentially exploit an injection in the playbook.
-							if edge.GetKind() == "ATAdmin" {
+							if ie.GetKind() == "ATAdmin" {
 								ok = true
+								break
 							}
 						}
-						if slices.Contains(graph.GetNode(edge.GetEndNodeID()).GetKinds(), "ATOrganization") {
-							if edge.GetKind() == "ATAdmin" || edge.GetKind() == "ATJobTemplateAdmin" || edge.GetKind() == "ATProjectAdmin" {
+						if slices.Contains(graph.GetNode(ie.GetEndNodeID()).GetKinds(), "ATOrganization") {
+							if ie.GetKind() == "ATAdmin" || ie.GetKind() == "ATJobTemplateAdmin" || ie.GetKind() == "ATProjectAdmin" {
 								ok = true
+								break
 							}
 						}
-						if slices.Contains(graph.GetNode(edge.GetEndNodeID()).GetKinds(), "ATProject") {
+						if slices.Contains(graph.GetNode(ie.GetEndNodeID()).GetKinds(), "ATProject") {
 							// If ATAdmin of a project you can change the repo and configure a public one.
-							if edge.GetKind() == "ATAdmin" {
+							if ie.GetKind() == "ATAdmin" {
 								ok = true
+								break
 							}
 						}
 					}
@@ -63,15 +91,17 @@ func PostProcessingCredentials(graph *gopengraph.OpenGraph) {
 				if machineCredentialType == "password" && (edge.GetKind() == "ATUse" || edge.GetKind() == "ATAdmin") {
 					// NEEDED: user able to modify any inventory, in order to target an attacker controlled server.
 					var ok bool
-					for _, edge := range identityEdges {
-						if slices.Contains(graph.GetNode(edge.GetEndNodeID()).GetKinds(), "ATInventory") {
-							if edge.GetKind() == "ATAdmin" {
+					for _, ie := range identityEdges {
+						if slices.Contains(graph.GetNode(ie.GetEndNodeID()).GetKinds(), "ATInventory") {
+							if ie.GetKind() == "ATAdmin" {
 								ok = true
+								break
 							}
 						}
-						if slices.Contains(graph.GetNode(edge.GetEndNodeID()).GetKinds(), "ATOrganization") {
-							if edge.GetKind() == "ATInventoryAdmin" || edge.GetKind() == "ATAdmin" {
+						if slices.Contains(graph.GetNode(ie.GetEndNodeID()).GetKinds(), "ATOrganization") {
+							if ie.GetKind() == "ATInventoryAdmin" || ie.GetKind() == "ATAdmin" {
 								ok = true
+								break
 							}
 						}
 					}
