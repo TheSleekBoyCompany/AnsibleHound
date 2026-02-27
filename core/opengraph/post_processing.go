@@ -3,18 +3,12 @@ package opengraph
 import (
 	"slices"
 
+	"github.com/Ramoreik/awxlimit/pkg/awxlimit"
 	"github.com/Ramoreik/gopengraph"
 	"github.com/Ramoreik/gopengraph/edge"
 	"github.com/Ramoreik/gopengraph/node"
+	"github.com/charmbracelet/log"
 )
-
-//TODO Crazy idea:
-
-// 1: Check for ATUses edge between ATCredential and ATProject
-// 2: Check for ATUses edge between ATProject and ATJobTemplate
-// 3: Check for the `limit` value of the JobTemplate and the Inventory
-// 4: Find the hosts matching the `limit` and `inventory` values. (https://docs.ansible.com/projects/ansible/latest/inventory_guide/intro_patterns.html)
-// 5: Create ATValidFor edge between `ATCredential` and `ATHost`
 
 func isInEndNodeKinds(graph *gopengraph.OpenGraph, edge *edge.Edge, kind string) (ok bool) {
 	endNode := graph.GetNode(edge.GetEndNodeID())
@@ -75,7 +69,46 @@ func identityCanControlInventory(graph *gopengraph.OpenGraph, identity *edge.Edg
 	return ok
 }
 
+func getInventoryMembers(graph *gopengraph.OpenGraph, inv *node.Node) (inventory awxlimit.Inventory) {
+	edges := graph.GetEdgesFromNode(inv.GetID())
+	hosts := []string{}
+	groups := []awxlimit.Group{}
+	for _, edge := range edges {
+		if edge.GetKind() == "ATContains" {
+
+			if isInEndNodeKinds(graph, edge, "ATGroup") {
+				groupNode := graph.GetNode(edge.GetEndNodeID())
+				groupEdges := graph.GetEdgesFromNode(groupNode.GetID())
+				groupHosts := []string{}
+				for _, groupEdge := range groupEdges {
+					groupHost := graph.GetNode(groupEdge.GetEndNodeID())
+					groupHosts = append(groupHosts, groupHost.GetProperty("name").(string))
+				}
+				group := awxlimit.Group{
+					Name:     groupNode.GetProperty("name").(string),
+					Hosts:    groupHosts,
+					Children: []string{},
+				}
+				groups = append(groups, group)
+			}
+
+			if isInEndNodeKinds(graph, edge, "ATHost") {
+				hostNode := graph.GetNode(edge.GetEndNodeID())
+				hosts = append(hosts, hostNode.GetProperty("name").(string))
+			}
+		}
+	}
+	inventory = awxlimit.Inventory{
+		Hosts:  hosts,
+		Groups: groups,
+	}
+	return inventory
+}
+
 func PostProcessingCredentials(graph *gopengraph.OpenGraph) {
+
+	log.Info("Handling post processing edges for Credentials.")
+
 	credentialNodes := graph.GetNodesByKind("ATCredential")
 	for _, credentialNode := range credentialNodes {
 
@@ -117,6 +150,37 @@ func PostProcessingCredentials(graph *gopengraph.OpenGraph) {
 
 			case "Machine":
 				machineCredentialType := credentialNode.GetProperty("machine_credential_type").(string)
+
+				// ATValidFor - Maps credentials directly to machines, based on JobTemplates using them
+				// 1: Check for ATUses edge between Credential and ATJobTemplate
+				// 2: Check for the `limit` value of the JobTemplate and the Inventory
+				// 3: Find the hosts matching the `limit` and `inventory` values. (https://docs.ansible.com/projects/ansible/latest/inventory_guide/intro_patterns.html)
+				// 4: Create ATValidFor edge between `ATCredential` and `ATHost`
+				if edge.GetKind() == "ATUses" && isInStartNodeKinds(graph, edge, "ATJobTemplate") {
+					var inventoryNode *node.Node
+					jobTemplateNode := graph.GetNode(edge.GetStartNodeID())
+					limit := jobTemplateNode.GetProperty("limit", "")
+					jobTemplateEdges := graph.GetEdgesFromNode(jobTemplateNode.GetID())
+					for _, jobTemplateEdge := range jobTemplateEdges {
+						if jobTemplateEdge.GetKind() == "ATUses" && isInEndNodeKinds(graph, jobTemplateEdge, "ATInventory") {
+							inventoryNode = graph.GetNode(jobTemplateEdge.GetEndNodeID())
+						}
+					}
+					if inventoryNode != nil {
+						matched := []string{}
+						if limit != "" {
+							inventory := getInventoryMembers(graph, inventoryNode)
+							matched, _ = awxlimit.MatchHosts(limit.(string), inventory)
+						}
+						hostEdges := graph.GetEdgesFromNode(inventoryNode.GetID())
+						for _, hostEdge := range hostEdges {
+							if limit == "" || slices.Contains(matched, graph.GetNode(hostEdge.GetEndNodeID()).GetProperty("name").(string)) {
+								e := GenerateEdge("ATValidFor", credentialNode.GetID(), hostEdge.GetEndNodeID())
+								graph.AddEdge(e)
+							}
+						}
+					}
+				}
 
 				if edge.GetKind() == "ATUse" || edge.GetKind() == "ATAdmin" {
 
