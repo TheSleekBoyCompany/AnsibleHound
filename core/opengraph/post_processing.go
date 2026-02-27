@@ -17,6 +17,14 @@ func PostProcessingCredentials(graph *gopengraph.OpenGraph) {
 
 		edges := graph.GetEdgesToNode(node.GetID())
 		for _, edge := range edges {
+
+			if credentialType == "Thycotic Secret Server" {
+				if edge.GetKind() == "ATAdmin" {
+					edge = GenerateEdge("ATCompromiseWithRequestbin", edge.GetStartNodeID(), node.GetID())
+					graph.AddEdge(edge)
+				}
+			}
+
 			if credentialType == "Machine" {
 				machineCredentialType := node.GetProperty("machine_credential_type").(string)
 
