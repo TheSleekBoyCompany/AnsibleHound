@@ -1,5 +1,7 @@
 github.com/Azure/go-ntlmssp v0.0.0-20221128193559-754e69321358 h1:mFRzDkZVAjdal+s7s0MwaRv9igoPqLRdzOLzw/8Xvq8=
 github.com/Azure/go-ntlmssp v0.0.0-20221128193559-754e69321358/go.mod h1:chxPXzSsl7ZWRAuOIE23GDNzjWuZquvFlgA8xmpunjU=
+github.com/Ramoreik/awxlimit v0.0.0-20260227202319-cc2d5d4c0fe9 h1:0BgOe+/U20HbNOuG1II+Lvhpq6Wd+dKiSxA7AhIq+v8=
+github.com/Ramoreik/awxlimit v0.0.0-20260227202319-cc2d5d4c0fe9/go.mod h1:Wq1ifLkXVvIhSDmFhDo78lSMMxzdPqQm4WtJHj/7guE=
 github.com/Ramoreik/gopengraph v0.0.0-20260206231827-92df8cbaecd8 h1:7al5uTMAIJxdjH9IlEYwCIbV+hKdyl5BLdJXRizkcto=
 github.com/Ramoreik/gopengraph v0.0.0-20260206231827-92df8cbaecd8/go.mod h1:1XIfed4QX9NYa+BChuEObo7q2dnFJdCepc+trngK+0g=
 github.com/alexbrainman/sspi v0.0.0-20250919150558-7d374ff0d59e h1:4dAU9FXIyQktpoUAgOJK3OTFc/xug0PCXYCqU0FgDKI=
