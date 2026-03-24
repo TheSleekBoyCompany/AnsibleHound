@@ -26,6 +26,9 @@ const SCM_CREDENTIAL_TYPE = "Source Control"
 const SECRET_SERVER_CREDENTIAL_TYPE = "Thycotic Secret Server"
 const MACHINE_CREDENTIAL_TYPE = "Machine"
 
+const MACHINE_CREDENTIAL_SSH_SUBTYPE = "ssh"
+const MACHINE_CREDENTIAL_PASSWORD_SUBTYPE = "password"
+
 const ADMIN_ROLE_EDGE = "ATAdmin"
 const AUTIDOR_ROLE_EDGE = "ATAuditor"
 const USE_ROLE_EDGE = "ATUse"

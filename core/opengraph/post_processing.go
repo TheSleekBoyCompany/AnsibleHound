@@ -128,8 +128,6 @@ func PostProcessingCredentials(graph *gopengraph.OpenGraph) {
 			switch credentialTypeName {
 
 			case SCM_CREDENTIAL_TYPE:
-				// NEEDED: User has to be able to modify a Project to configure a malicious SCM Server
-				// Edge case: If a project uses an SCM credential that the user does not have `ATUse` on, they can compromise it anyway.
 				if edge.GetKind() == USE_ROLE_EDGE || edge.GetKind() == ADMIN_ROLE_EDGE {
 					for _, ie := range identityEdges {
 						if identityCanControlPlaybook(graph, ie) {
@@ -150,12 +148,6 @@ func PostProcessingCredentials(graph *gopengraph.OpenGraph) {
 
 			case MACHINE_CREDENTIAL_TYPE:
 				machineCredentialType := credentialNode.GetProperty("machine_credential_type").(string)
-
-				// ATValidFor - Maps credentials directly to machines, based on JobTemplates using them
-				// 1: Check for ATUses edge between Credential and ATJobTemplate
-				// 2: Check for the `limit` value of the JobTemplate and the Inventory
-				// 3: Find the hosts matching the `limit` and `inventory` values. (https://docs.ansible.com/projects/ansible/latest/inventory_guide/intro_patterns.html)
-				// 4: Create ATValidFor edge between `ATCredential` and `ATHost`
 				if edge.GetKind() == USES_EDGE && isInStartNodeKinds(graph, edge, JOB_TEMPLATE_NODE) {
 					var inventoryNode *node.Node
 					jobTemplateNode := graph.GetNode(edge.GetStartNodeID())
@@ -175,7 +167,7 @@ func PostProcessingCredentials(graph *gopengraph.OpenGraph) {
 						hostEdges := graph.GetEdgesFromNode(inventoryNode.GetID())
 						for _, hostEdge := range hostEdges {
 							if limit == "" || slices.Contains(matched, graph.GetNode(hostEdge.GetEndNodeID()).GetProperty("name").(string)) {
-								e := GenerateEdge("ATValidFor", credentialNode.GetID(), hostEdge.GetEndNodeID())
+								e := GenerateEdge(VALID_FOR_POST_PROCESSING_EDGE, credentialNode.GetID(), hostEdge.GetEndNodeID())
 								graph.AddEdge(e)
 							}
 						}
@@ -184,8 +176,7 @@ func PostProcessingCredentials(graph *gopengraph.OpenGraph) {
 
 				if edge.GetKind() == USE_ROLE_EDGE || edge.GetKind() == ADMIN_ROLE_EDGE {
 
-					if machineCredentialType == "ssh" {
-						// NEEDED: Control over the ansible playbook, to execute arbitrary commands on the execution environment with `delegate_to`
+					if machineCredentialType == MACHINE_CREDENTIAL_SSH_SUBTYPE {
 						for _, ie := range identityEdges {
 							if identityCanControlJobTemplate(graph, ie) || identityCanControlPlaybook(graph, ie) {
 								edge = GenerateEdge(SSH_HIJACK_AGENT_POST_PROCESSING_EDGE,
@@ -196,8 +187,7 @@ func PostProcessingCredentials(graph *gopengraph.OpenGraph) {
 						}
 					}
 
-					if machineCredentialType == "password" {
-						// NEEDED: user able to modify any inventory, in order to target an attacker controlled server.
+					if machineCredentialType == MACHINE_CREDENTIAL_PASSWORD_SUBTYPE {
 						for _, ie := range identityEdges {
 							if identityCanControlInventory(graph, ie) {
 								edge = GenerateEdge(COMPROMISE_WITH_HONEYPOT_POST_PROCESSING_EDGE,
@@ -220,8 +210,6 @@ func PostProcessingCredentials(graph *gopengraph.OpenGraph) {
 				}
 
 			default:
-				// NEEDED: User can control the playbook being executed.
-				// NEEDED: Credential Type has injectors
 				if edge.GetKind() == USE_ROLE_EDGE || edge.GetKind() == ADMIN_ROLE_EDGE {
 					hasEnvInjectors := credentialTypeNode.GetProperty(
 						"injector_env", false).(bool)
