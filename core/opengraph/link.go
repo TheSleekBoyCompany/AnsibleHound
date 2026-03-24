@@ -18,53 +18,47 @@ func LinkOrganization(graph *gopengraph.OpenGraph, instanceOID string,
 	workflowJobTemplates map[int]*ansible.WorkflowJobTemplate) {
 
 	log.Info("Linking Instance and Organizations.")
-	edgeKind := "ATContains"
 	for _, organization := range organizations {
-		edge := GenerateEdge(edgeKind, instanceOID, organization.OID)
+		edge := GenerateEdge(CONTAINS_EDGE, instanceOID, organization.OID)
 		AddEdge(graph, edge)
 	}
 
 	log.Info("Linking Organizations and Inventories.")
-	edgeKind = "ATContains"
 	for _, inventory := range inventories {
 		if gather.HasAccessTo(organizations, inventory.Organization) {
-			edge := GenerateEdge(edgeKind, organizations[inventory.Organization].OID, inventory.OID)
+			edge := GenerateEdge(CONTAINS_EDGE, organizations[inventory.Organization].OID, inventory.OID)
 			AddEdge(graph, edge)
 		}
 	}
 
 	log.Info("Linking Organizations and Job Templates.")
-	edgeKind = "ATContains"
 	for _, jobTemplate := range jobTemplates {
 		if gather.HasAccessTo(organizations, jobTemplate.Organization) {
-			edge := GenerateEdge(edgeKind, organizations[jobTemplate.Organization].OID, jobTemplate.OID)
+			edge := GenerateEdge(CONTAINS_EDGE, organizations[jobTemplate.Organization].OID, jobTemplate.OID)
 			AddEdge(graph, edge)
 		}
 	}
 
 	log.Info("Linking Organizations and Workflow Job Templates.")
-	edgeKind = "ATContains"
 	for _, workflowJobTemplate := range workflowJobTemplates {
 		if gather.HasAccessTo(organizations, workflowJobTemplate.Organization) {
-			edge := GenerateEdge(edgeKind, organizations[workflowJobTemplate.Organization].OID, workflowJobTemplate.OID)
+			edge := GenerateEdge(CONTAINS_EDGE, organizations[workflowJobTemplate.Organization].OID, workflowJobTemplate.OID)
 			AddEdge(graph, edge)
 		}
 	}
 
 	log.Info("Linking Organizations and Credentials.")
-	edgeKind = "ATContains"
 	for _, credential := range credentials {
 		if gather.HasAccessTo(organizations, credential.Organization) {
-			edge := GenerateEdge(edgeKind, organizations[credential.Organization].OID, credential.OID)
+			edge := GenerateEdge(CONTAINS_EDGE, organizations[credential.Organization].OID, credential.OID)
 			AddEdge(graph, edge)
 		}
 	}
 
 	log.Info("Linking Organizations and Projects")
-	edgeKind = "ATContains"
 	for _, project := range projects {
 		if gather.HasAccessTo(organizations, project.Organization) {
-			edge := GenerateEdge(edgeKind, organizations[project.Organization].OID, project.OID)
+			edge := GenerateEdge(CONTAINS_EDGE, organizations[project.Organization].OID, project.OID)
 			AddEdge(graph, edge)
 		}
 	}
@@ -75,29 +69,26 @@ func LinkInventory(graph *gopengraph.OpenGraph, inventories map[int]*ansible.Inv
 	hosts map[int]*ansible.Host, groups map[int]*ansible.Group) {
 
 	log.Info("Linking Inventories and Hosts.")
-	edgeKind := "ATContains"
 	for _, host := range hosts {
 		if gather.HasAccessTo(inventories, host.Inventory) {
-			edge := GenerateEdge(edgeKind, inventories[host.Inventory].OID, host.OID)
+			edge := GenerateEdge(CONTAINS_EDGE, inventories[host.Inventory].OID, host.OID)
 			AddEdge(graph, edge)
 		}
 	}
 
 	log.Info("Linking Inventories and Groups.")
-	edgeKind = "ATContains"
 	for _, group := range groups {
 		if gather.HasAccessTo(inventories, group.Inventory) {
-			edge := GenerateEdge(edgeKind, inventories[group.Inventory].OID, group.OID)
+			edge := GenerateEdge(CONTAINS_EDGE, inventories[group.Inventory].OID, group.OID)
 			AddEdge(graph, edge)
 		}
 	}
 
 	log.Info("Linking Groups and Hosts.")
-	edgeKind = "ATContains"
 	for _, group := range groups {
 		for _, host := range group.Hosts {
 			if gather.HasAccessTo(hosts, host.ID) {
-				edge := GenerateEdge(edgeKind, groups[group.ID].OID, host.OID)
+				edge := GenerateEdge(CONTAINS_EDGE, groups[group.ID].OID, host.OID)
 				AddEdge(graph, edge)
 			}
 		}
@@ -110,28 +101,25 @@ func LinkWorkflowJobTemplates(graph *gopengraph.OpenGraph, workflowJobTemplates 
 	jobTemplates map[int]*ansible.JobTemplate, inventories map[int]*ansible.Inventory) {
 
 	log.Info("Linking Workflow Job Templates and Workflow Job Template Nodes.")
-	edgeKind := "ATContains"
 	for _, workflowJobTemplateNode := range workflowJobTemplateNodes {
 		if gather.HasAccessTo(workflowJobTemplates, workflowJobTemplateNode.WorkflowJobTemplate) {
-			edge := GenerateEdge(edgeKind, workflowJobTemplates[workflowJobTemplateNode.WorkflowJobTemplate].OID, workflowJobTemplateNode.OID)
+			edge := GenerateEdge(CONTAINS_EDGE, workflowJobTemplates[workflowJobTemplateNode.WorkflowJobTemplate].OID, workflowJobTemplateNode.OID)
 			AddEdge(graph, edge)
 		}
 	}
 
 	log.Info("Linking Workflow Job Template Nodes and Job Templates.")
-	edgeKind = "ATUses"
 	for _, workflowJobTemplateNode := range workflowJobTemplateNodes {
 		if gather.HasAccessTo(jobTemplates, workflowJobTemplateNode.UnifiedJobTemplate) {
-			edge := GenerateEdge(edgeKind, workflowJobTemplateNode.OID, jobTemplates[workflowJobTemplateNode.UnifiedJobTemplate].OID)
+			edge := GenerateEdge(USES_EDGE, workflowJobTemplateNode.OID, jobTemplates[workflowJobTemplateNode.UnifiedJobTemplate].OID)
 			AddEdge(graph, edge)
 		}
 	}
 
 	log.Info("Linking Workflow Job Template and Inventories.")
-	edgeKind = "ATUses"
 	for _, workflowJobTemplate := range workflowJobTemplates {
 		if gather.HasAccessTo(inventories, workflowJobTemplate.Inventory) {
-			edge := GenerateEdge(edgeKind, workflowJobTemplate.OID, inventories[workflowJobTemplate.Inventory].OID)
+			edge := GenerateEdge(USES_EDGE, workflowJobTemplate.OID, inventories[workflowJobTemplate.Inventory].OID)
 			AddEdge(graph, edge)
 		}
 	}
@@ -144,55 +132,49 @@ func LinkJobTemplates(graph *gopengraph.OpenGraph, jobTemplates map[int]*ansible
 	credentialTypes map[int]*ansible.CredentialType) {
 
 	log.Info("Linking Job Templates and Jobs.")
-	edgeKind := "ATContains"
 	for _, job := range jobs {
 		if gather.HasAccessTo(jobTemplates, job.UnifiedJobTemplate) {
-			edge := GenerateEdge(edgeKind, jobTemplates[job.UnifiedJobTemplate].OID, job.OID)
+			edge := GenerateEdge(CONTAINS_EDGE, jobTemplates[job.UnifiedJobTemplate].OID, job.OID)
 			AddEdge(graph, edge)
 		}
 	}
 
 	log.Info("Linking Job Templates and Projects.")
-	edgeKind = "ATUses"
 	for _, jobTemplate := range jobTemplates {
 		if gather.HasAccessTo(projects, jobTemplate.Project) {
-			edge := GenerateEdge(edgeKind, jobTemplate.OID, projects[jobTemplate.Project].OID)
+			edge := GenerateEdge(USES_EDGE, jobTemplate.OID, projects[jobTemplate.Project].OID)
 			AddEdge(graph, edge)
 		}
 	}
 
 	log.Info("Linking Job Template and Inventories.")
-	edgeKind = "ATUses"
 	for _, jobTemplate := range jobTemplates {
 		if gather.HasAccessTo(inventories, jobTemplate.Inventory) {
-			edge := GenerateEdge(edgeKind, jobTemplate.OID, inventories[jobTemplate.Inventory].OID)
+			edge := GenerateEdge(USES_EDGE, jobTemplate.OID, inventories[jobTemplate.Inventory].OID)
 			AddEdge(graph, edge)
 		}
 	}
 
 	log.Info("Linking Job Template and Credentials.")
-	edgeKind = "ATUses"
 	for _, jobTemplate := range jobTemplates {
 		for _, credential := range jobTemplate.Credentials {
-			edge := GenerateEdge(edgeKind, jobTemplate.OID, credential.OID)
+			edge := GenerateEdge(USES_EDGE, jobTemplate.OID, credential.OID)
 			AddEdge(graph, edge)
 		}
 	}
 
 	log.Info("Linking Credentials to Credential Type.")
-	edgeKind = "ATUsesType"
 	for _, credential := range credentials {
 		if gather.HasAccessTo(credentialTypes, credential.CredentialType) {
-			edge := GenerateEdge(edgeKind, credential.OID, credentialTypes[credential.CredentialType].OID)
+			edge := GenerateEdge(USES_TYPE_EDGE, credential.OID, credentialTypes[credential.CredentialType].OID)
 			AddEdge(graph, edge)
 		}
 	}
 
 	log.Info("Linking Projects and Credentials.")
-	edgeKind = "ATUses"
 	for _, project := range projects {
 		if gather.HasAccessTo(credentials, project.Credential) {
-			edge := GenerateEdge(edgeKind, project.OID, credentials[project.Credential].OID)
+			edge := GenerateEdge(USES_EDGE, project.OID, credentials[project.Credential].OID)
 			AddEdge(graph, edge)
 		}
 	}
@@ -214,27 +196,27 @@ func LinkUserRoles(graph *gopengraph.OpenGraph, users map[int]*ansible.User,
 
 			switch role.SummaryFields.ResourceType {
 
-			case "organization":
+			case ORGANIZATION_RESOURCE_TYPE:
 				if gather.HasAccessTo(organizations, role.SummaryFields.ResourceId) {
 					edge = GenerateEdge(edgeKind, user.OID, organizations[role.SummaryFields.ResourceId].OID)
 				}
-			case "inventory":
+			case INVENTORY_RESOURCE_TYPE:
 				if gather.HasAccessTo(inventories, role.SummaryFields.ResourceId) {
 					edge = GenerateEdge(edgeKind, user.OID, inventories[role.SummaryFields.ResourceId].OID)
 				}
-			case "team":
+			case TEAM_RESOURCE_TYPE:
 				if gather.HasAccessTo(teams, role.SummaryFields.ResourceId) {
 					edge = GenerateEdge(edgeKind, user.OID, teams[role.SummaryFields.ResourceId].OID)
 				}
-			case "credential":
+			case CREDENTIAL_RESOURCE_TYPE:
 				if gather.HasAccessTo(credentials, role.SummaryFields.ResourceId) {
 					edge = GenerateEdge(edgeKind, user.OID, credentials[role.SummaryFields.ResourceId].OID)
 				}
-			case "job_template":
+			case JOB_TEMPLATE_RESOURCE_TYPE:
 				if gather.HasAccessTo(jobTemplates, role.SummaryFields.ResourceId) {
 					edge = GenerateEdge(edgeKind, user.OID, jobTemplates[role.SummaryFields.ResourceId].OID)
 				}
-			case "workflow_job_template":
+			case WORKFLOW_JOB_TEMPLATE_RESOURCE_TYPE:
 				if gather.HasAccessTo(workflowJobTemplates, role.SummaryFields.ResourceId) {
 					edge = GenerateEdge(edgeKind, user.OID, workflowJobTemplates[role.SummaryFields.ResourceId].OID)
 				}
@@ -260,27 +242,27 @@ func LinkTeamRoles(graph *gopengraph.OpenGraph, users map[int]*ansible.User,
 
 			switch role.SummaryFields.ResourceType {
 
-			case "organization":
+			case ORGANIZATION_RESOURCE_TYPE:
 				if gather.HasAccessTo(organizations, role.SummaryFields.ResourceId) {
 					edge = GenerateEdge(edgeKind, team.OID, organizations[role.SummaryFields.ResourceId].OID)
 				}
-			case "inventory":
+			case INVENTORY_RESOURCE_TYPE:
 				if gather.HasAccessTo(inventories, role.SummaryFields.ResourceId) {
 					edge = GenerateEdge(edgeKind, team.OID, inventories[role.SummaryFields.ResourceId].OID)
 				}
-			case "team":
+			case TEAM_RESOURCE_TYPE:
 				if gather.HasAccessTo(teams, role.SummaryFields.ResourceId) {
 					edge = GenerateEdge(edgeKind, team.OID, teams[role.SummaryFields.ResourceId].OID)
 				}
-			case "credential":
+			case CREDENTIAL_RESOURCE_TYPE:
 				if gather.HasAccessTo(credentials, role.SummaryFields.ResourceId) {
 					edge = GenerateEdge(edgeKind, team.OID, credentials[role.SummaryFields.ResourceId].OID)
 				}
-			case "job_template":
+			case JOB_TEMPLATE_RESOURCE_TYPE:
 				if gather.HasAccessTo(jobTemplates, role.SummaryFields.ResourceId) {
 					edge = GenerateEdge(edgeKind, team.OID, jobTemplates[role.SummaryFields.ResourceId].OID)
 				}
-			case "workflow_job_template":
+			case WORKFLOW_JOB_TEMPLATE_RESOURCE_TYPE:
 				if gather.HasAccessTo(workflowJobTemplates, role.SummaryFields.ResourceId) {
 					edge = GenerateEdge(edgeKind, team.OID, workflowJobTemplates[role.SummaryFields.ResourceId].OID)
 				}
@@ -303,76 +285,74 @@ func LinkAdministrativeRights(graph *gopengraph.OpenGraph, users map[int]*ansibl
 	// JobTemplates, WorkflowJobTemplates, Credentials, Inventories, Projects, Organizations
 	for _, user := range users {
 		if user.IsSuperUser {
-			edgeKind := "ATAdmin"
 			for _, jobTemplate := range jobTemplates {
-				edge := GenerateEdge(edgeKind, user.OID, jobTemplate.OID)
+				edge := GenerateEdge(ADMIN_ROLE_EDGE, user.OID, jobTemplate.OID)
 				AddEdge(graph, edge)
 			}
 			for _, workflowJobTemplate := range workflowJobTemplates {
-				edge := GenerateEdge(edgeKind, user.OID, workflowJobTemplate.OID)
+				edge := GenerateEdge(ADMIN_ROLE_EDGE, user.OID, workflowJobTemplate.OID)
 				AddEdge(graph, edge)
 			}
 			for _, credential := range credentials {
-				edge := GenerateEdge(edgeKind, user.OID, credential.OID)
+				edge := GenerateEdge(ADMIN_ROLE_EDGE, user.OID, credential.OID)
 				AddEdge(graph, edge)
 			}
 			for _, inventory := range inventories {
-				edge := GenerateEdge(edgeKind, user.OID, inventory.OID)
+				edge := GenerateEdge(ADMIN_ROLE_EDGE, user.OID, inventory.OID)
 				AddEdge(graph, edge)
 			}
 			for _, project := range projects {
-				edge := GenerateEdge(edgeKind, user.OID, project.OID)
+				edge := GenerateEdge(ADMIN_ROLE_EDGE, user.OID, project.OID)
 				AddEdge(graph, edge)
 			}
 			for _, organization := range organizations {
-				edge := GenerateEdge(edgeKind, user.OID, organization.OID)
+				edge := GenerateEdge(ADMIN_ROLE_EDGE, user.OID, organization.OID)
 				AddEdge(graph, edge)
 			}
 			for _, team := range teams {
-				edge := GenerateEdge(edgeKind, user.OID, team.OID)
+				edge := GenerateEdge(ADMIN_ROLE_EDGE, user.OID, team.OID)
 				AddEdge(graph, edge)
 			}
 			for _, targetUser := range users {
 				if user.OID != targetUser.OID {
-					edge := GenerateEdge(edgeKind, user.OID, targetUser.OID)
+					edge := GenerateEdge(ADMIN_ROLE_EDGE, user.OID, targetUser.OID)
 					AddEdge(graph, edge)
 				}
 			}
 		}
 
 		if user.IsSystemAuditor {
-			edgeKind := "ATAuditor"
 			for _, jobTemplate := range jobTemplates {
-				edge := GenerateEdge(edgeKind, user.OID, jobTemplate.OID)
+				edge := GenerateEdge(AUTIDOR_ROLE_EDGE, user.OID, jobTemplate.OID)
 				AddEdge(graph, edge)
 			}
 			for _, workflowJobTemplate := range workflowJobTemplates {
-				edge := GenerateEdge(edgeKind, user.OID, workflowJobTemplate.OID)
+				edge := GenerateEdge(AUTIDOR_ROLE_EDGE, user.OID, workflowJobTemplate.OID)
 				AddEdge(graph, edge)
 			}
 			for _, credential := range credentials {
-				edge := GenerateEdge(edgeKind, user.OID, credential.OID)
+				edge := GenerateEdge(AUTIDOR_ROLE_EDGE, user.OID, credential.OID)
 				AddEdge(graph, edge)
 			}
 			for _, inventory := range inventories {
-				edge := GenerateEdge(edgeKind, user.OID, inventory.OID)
+				edge := GenerateEdge(AUTIDOR_ROLE_EDGE, user.OID, inventory.OID)
 				AddEdge(graph, edge)
 			}
 			for _, project := range projects {
-				edge := GenerateEdge(edgeKind, user.OID, project.OID)
+				edge := GenerateEdge(AUTIDOR_ROLE_EDGE, user.OID, project.OID)
 				AddEdge(graph, edge)
 			}
 			for _, organization := range organizations {
-				edge := GenerateEdge(edgeKind, user.OID, organization.OID)
+				edge := GenerateEdge(AUTIDOR_ROLE_EDGE, user.OID, organization.OID)
 				AddEdge(graph, edge)
 			}
 			for _, team := range teams {
-				edge := GenerateEdge(edgeKind, user.OID, team.OID)
+				edge := GenerateEdge(AUTIDOR_ROLE_EDGE, user.OID, team.OID)
 				AddEdge(graph, edge)
 			}
 			for _, targetUser := range users {
 				if user.OID != targetUser.OID {
-					edge := GenerateEdge(edgeKind, user.OID, targetUser.OID)
+					edge := GenerateEdge(AUTIDOR_ROLE_EDGE, user.OID, targetUser.OID)
 					AddEdge(graph, edge)
 				}
 			}
@@ -386,7 +366,6 @@ func LinkAD(graph *gopengraph.OpenGraph, ldap gather.AHLdap, users map[int]*ansi
 	if (ldap != gather.AHLdap{}) {
 
 		log.Info("Linking Ansible and LDAP Users.")
-		edgeKind := "SyncedToATUser"
 
 		conn, err := gather.Connect(ldap)
 
@@ -400,7 +379,7 @@ func LinkAD(graph *gopengraph.OpenGraph, ldap gather.AHLdap, users map[int]*ansi
 				if user.LdapDn != "" {
 					ldap_dn := user.LdapDn
 					objectSid, _ := gather.Search(conn, ldap_dn)
-					edge := GenerateEdgeCustom(edgeKind, objectSid, user.OID, MATCH_BY_ID, MATCH_BY_ID, ACTIVE_DIRECTORY_BASE, ANSIBLE_BASE)
+					edge := GenerateEdgeCustom(SYNCED_TO_USER_AD_EDGE, objectSid, user.OID, MATCH_BY_ID, MATCH_BY_ID, ACTIVE_DIRECTORY_BASE, ANSIBLE_BASE)
 					graph.AddEdgeWithoutValidation(edge)
 				}
 			}
@@ -420,14 +399,14 @@ func LinkGitHub(graph *gopengraph.OpenGraph, github bool, projects map[int]*ansi
 		if projects != nil {
 
 			log.Info("Linking Ansible projects and GitHub Repositories.")
-			edgeKind := "ATHasSourceControlUrl"
 
 			for _, project := range projects {
 				if project.ScmType == GIT_SCM_TYPE {
 					if project.ScmUrl != "" {
 						scmUrl := project.ScmUrl
 						repositoryName := strings.TrimSuffix(path.Base(scmUrl), DOT_GIT_SCM_TYPE)
-						edge := GenerateEdgeCustom(edgeKind, project.OID, repositoryName, MATCH_BY_ID, MATCH_BY_NAME, ANSIBLE_BASE, GITHUB_BASE)
+						edge := GenerateEdgeCustom(HAS_SOURCE_CONTROL_URL_GITHUB_EDGE,
+							project.OID, repositoryName, MATCH_BY_ID, MATCH_BY_NAME, ANSIBLE_BASE, GITHUB_BASE)
 						graph.AddEdgeWithoutValidation(edge)
 					}
 				}
@@ -437,13 +416,13 @@ func LinkGitHub(graph *gopengraph.OpenGraph, github bool, projects map[int]*ansi
 		if credentials != nil {
 
 			log.Info("Linking Ansible credentials and GitHub users.")
-			edgeKind := "ATIsCredentialOf"
 
 			for _, credential := range credentials {
 				if credential.Kind == CREDENTIAL_KIND {
 					username := credential.Inputs[CREDENTIAL_USERNAME]
 					if username != nil && username != "" {
-						edge := GenerateEdgeCustom(edgeKind, credential.OID, username.(string), MATCH_BY_ID, MATCH_BY_NAME, ANSIBLE_BASE, GITHUB_BASE)
+						edge := GenerateEdgeCustom(IS_CREDENTIAL_OF_GITHUB_EDGE,
+							credential.OID, username.(string), MATCH_BY_ID, MATCH_BY_NAME, ANSIBLE_BASE, GITHUB_BASE)
 						graph.AddEdgeWithoutValidation(edge)
 					}
 				}

@@ -27,13 +27,13 @@ func isInStartNodeKinds(graph *gopengraph.OpenGraph, edge *edge.Edge, kind strin
 }
 
 func identityCanControlPlaybook(graph *gopengraph.OpenGraph, identity *edge.Edge) (ok bool) {
-	if isInEndNodeKinds(graph, identity, "ATProject") {
-		if identity.GetKind() == "ATAdmin" {
+	if isInEndNodeKinds(graph, identity, PROJECT_NODE) {
+		if identity.GetKind() == ADMIN_ROLE_EDGE {
 			ok = true
 		}
 	}
-	if isInEndNodeKinds(graph, identity, "ATOrganization") {
-		if identity.GetKind() == "ATAdmin" || identity.GetKind() == "ATProjectAdmin" {
+	if isInEndNodeKinds(graph, identity, ORGANIZATION_NODE) {
+		if identity.GetKind() == ADMIN_ROLE_EDGE || identity.GetKind() == "ATProjectAdmin" {
 			ok = true
 		}
 	}
@@ -41,14 +41,14 @@ func identityCanControlPlaybook(graph *gopengraph.OpenGraph, identity *edge.Edge
 }
 
 func identityCanControlJobTemplate(graph *gopengraph.OpenGraph, identity *edge.Edge) (ok bool) {
-	if isInEndNodeKinds(graph, identity, "ATJobTemplate") {
-		if identity.GetKind() == "ATAdmin" {
+	if isInEndNodeKinds(graph, identity, JOB_TEMPLATE_NODE) {
+		if identity.GetKind() == ADMIN_ROLE_EDGE {
 			ok = true
 		}
 	}
 
-	if isInEndNodeKinds(graph, identity, "ATOrganization") {
-		if identity.GetKind() == "ATAdmin" || identity.GetKind() == "ATProjectAdmin" {
+	if isInEndNodeKinds(graph, identity, ORGANIZATION_NODE) {
+		if identity.GetKind() == ADMIN_ROLE_EDGE || identity.GetKind() == "ATProjectAdmin" {
 			ok = true
 		}
 	}
@@ -56,13 +56,13 @@ func identityCanControlJobTemplate(graph *gopengraph.OpenGraph, identity *edge.E
 }
 
 func identityCanControlInventory(graph *gopengraph.OpenGraph, identity *edge.Edge) (ok bool) {
-	if isInEndNodeKinds(graph, identity, "ATInventory") {
-		if identity.GetKind() == "ATAdmin" {
+	if isInEndNodeKinds(graph, identity, INVENTORY_NODE) {
+		if identity.GetKind() == ADMIN_ROLE_EDGE {
 			ok = true
 		}
 	}
-	if isInEndNodeKinds(graph, identity, "ATOrganization") {
-		if identity.GetKind() == "ATInventoryAdmin" || identity.GetKind() == "ATAdmin" {
+	if isInEndNodeKinds(graph, identity, ORGANIZATION_NODE) {
+		if identity.GetKind() == INVENTORY_ADMIN_ROLE_EDGE || identity.GetKind() == "ATAdmin" {
 			ok = true
 		}
 	}
@@ -74,9 +74,9 @@ func getInventoryMembers(graph *gopengraph.OpenGraph, inv *node.Node) (inventory
 	hosts := []string{}
 	groups := []awxlimit.Group{}
 	for _, edge := range edges {
-		if edge.GetKind() == "ATContains" {
+		if edge.GetKind() == CONTAINS_EDGE {
 
-			if isInEndNodeKinds(graph, edge, "ATGroup") {
+			if isInEndNodeKinds(graph, edge, GROUP_NODE) {
 				groupNode := graph.GetNode(edge.GetEndNodeID())
 				groupEdges := graph.GetEdgesFromNode(groupNode.GetID())
 				groupHosts := []string{}
@@ -92,7 +92,7 @@ func getInventoryMembers(graph *gopengraph.OpenGraph, inv *node.Node) (inventory
 				groups = append(groups, group)
 			}
 
-			if isInEndNodeKinds(graph, edge, "ATHost") {
+			if isInEndNodeKinds(graph, edge, HOST_NODE) {
 				hostNode := graph.GetNode(edge.GetEndNodeID())
 				hosts = append(hosts, hostNode.GetProperty("name").(string))
 			}
@@ -109,13 +109,13 @@ func PostProcessingCredentials(graph *gopengraph.OpenGraph) {
 
 	log.Info("Handling post processing edges for Credentials.")
 
-	credentialNodes := graph.GetNodesByKind("ATCredential")
+	credentialNodes := graph.GetNodesByKind(CREDENTIAL_NODE)
 	for _, credentialNode := range credentialNodes {
 
 		var credentialTypeName string
 		var credentialTypeNode *node.Node
 		for _, edge := range graph.GetEdgesFromNode(credentialNode.GetID()) {
-			if edge.GetKind() == "ATUsesType" {
+			if edge.GetKind() == USES_TYPE_EDGE {
 				credentialTypeNode = graph.GetNode(edge.GetEndNodeID())
 				credentialTypeName = credentialTypeNode.GetProperty("name").(string)
 			}
@@ -127,13 +127,13 @@ func PostProcessingCredentials(graph *gopengraph.OpenGraph) {
 			identityEdges := graph.GetEdgesFromNode(identityNode.GetID())
 			switch credentialTypeName {
 
-			case "Source Control":
+			case SCM_CREDENTIAL_TYPE:
 				// NEEDED: User has to be able to modify a Project to configure a malicious SCM Server
 				// Edge case: If a project uses an SCM credential that the user does not have `ATUse` on, they can compromise it anyway.
-				if edge.GetKind() == "ATUse" || edge.GetKind() == "ATAdmin" {
+				if edge.GetKind() == USE_ROLE_EDGE || edge.GetKind() == ADMIN_ROLE_EDGE {
 					for _, ie := range identityEdges {
 						if identityCanControlPlaybook(graph, ie) {
-							edge = GenerateEdge("ATCompromiseWithFakeSCM",
+							edge = GenerateEdge(COMPROMISE_WITH_FAKE_SCM_SERVER_POST_PROCESSING_EDGE,
 								edge.GetStartNodeID(), credentialNode.GetID())
 							graph.AddEdge(edge)
 							break
@@ -141,14 +141,14 @@ func PostProcessingCredentials(graph *gopengraph.OpenGraph) {
 					}
 				}
 
-			case "Thycotic Secret Server":
-				if edge.GetKind() == "ATAdmin" {
-					edge = GenerateEdge("ATCompromiseWithRequestbin",
+			case SECRET_SERVER_CREDENTIAL_TYPE:
+				if edge.GetKind() == ADMIN_ROLE_EDGE {
+					edge = GenerateEdge(COMPROMISE_WITH_REQUESTBIN_POST_PROCESSING_EDGE,
 						edge.GetStartNodeID(), credentialNode.GetID())
 					graph.AddEdge(edge)
 				}
 
-			case "Machine":
+			case MACHINE_CREDENTIAL_TYPE:
 				machineCredentialType := credentialNode.GetProperty("machine_credential_type").(string)
 
 				// ATValidFor - Maps credentials directly to machines, based on JobTemplates using them
@@ -156,13 +156,13 @@ func PostProcessingCredentials(graph *gopengraph.OpenGraph) {
 				// 2: Check for the `limit` value of the JobTemplate and the Inventory
 				// 3: Find the hosts matching the `limit` and `inventory` values. (https://docs.ansible.com/projects/ansible/latest/inventory_guide/intro_patterns.html)
 				// 4: Create ATValidFor edge between `ATCredential` and `ATHost`
-				if edge.GetKind() == "ATUses" && isInStartNodeKinds(graph, edge, "ATJobTemplate") {
+				if edge.GetKind() == USES_EDGE && isInStartNodeKinds(graph, edge, JOB_TEMPLATE_NODE) {
 					var inventoryNode *node.Node
 					jobTemplateNode := graph.GetNode(edge.GetStartNodeID())
 					limit := jobTemplateNode.GetProperty("limit", "")
 					jobTemplateEdges := graph.GetEdgesFromNode(jobTemplateNode.GetID())
 					for _, jobTemplateEdge := range jobTemplateEdges {
-						if jobTemplateEdge.GetKind() == "ATUses" && isInEndNodeKinds(graph, jobTemplateEdge, "ATInventory") {
+						if jobTemplateEdge.GetKind() == USES_EDGE && isInEndNodeKinds(graph, jobTemplateEdge, INVENTORY_NODE) {
 							inventoryNode = graph.GetNode(jobTemplateEdge.GetEndNodeID())
 						}
 					}
@@ -182,13 +182,13 @@ func PostProcessingCredentials(graph *gopengraph.OpenGraph) {
 					}
 				}
 
-				if edge.GetKind() == "ATUse" || edge.GetKind() == "ATAdmin" {
+				if edge.GetKind() == USE_ROLE_EDGE || edge.GetKind() == ADMIN_ROLE_EDGE {
 
 					if machineCredentialType == "ssh" {
 						// NEEDED: Control over the ansible playbook, to execute arbitrary commands on the execution environment with `delegate_to`
 						for _, ie := range identityEdges {
 							if identityCanControlJobTemplate(graph, ie) || identityCanControlPlaybook(graph, ie) {
-								edge = GenerateEdge("ATSSHHijackAgent",
+								edge = GenerateEdge(SSH_HIJACK_AGENT_POST_PROCESSING_EDGE,
 									edge.GetStartNodeID(), credentialNode.GetID())
 								graph.AddEdge(edge)
 								break
@@ -200,7 +200,7 @@ func PostProcessingCredentials(graph *gopengraph.OpenGraph) {
 						// NEEDED: user able to modify any inventory, in order to target an attacker controlled server.
 						for _, ie := range identityEdges {
 							if identityCanControlInventory(graph, ie) {
-								edge = GenerateEdge("ATCompromiseWithHoneypot",
+								edge = GenerateEdge(COMPROMISE_WITH_HONEYPOT_POST_PROCESSING_EDGE,
 									edge.GetStartNodeID(), credentialNode.GetID())
 								graph.AddEdge(edge)
 								break
@@ -210,7 +210,7 @@ func PostProcessingCredentials(graph *gopengraph.OpenGraph) {
 
 					for _, ie := range identityEdges {
 						if identityCanControlInventory(graph, ie) || identityCanControlPlaybook(graph, ie) {
-							edge = GenerateEdge("ATCanUseInADHOCCommands",
+							edge = GenerateEdge(CAN_USE_IN_ADHOC_COMMANDS_POST_PROCESSING_EDGE,
 								edge.GetStartNodeID(), credentialNode.GetID())
 							graph.AddEdge(edge)
 							break
@@ -222,7 +222,7 @@ func PostProcessingCredentials(graph *gopengraph.OpenGraph) {
 			default:
 				// NEEDED: User can control the playbook being executed.
 				// NEEDED: Credential Type has injectors
-				if edge.GetKind() == "ATUse" || edge.GetKind() == "ATAdmin" {
+				if edge.GetKind() == USE_ROLE_EDGE || edge.GetKind() == ADMIN_ROLE_EDGE {
 					hasEnvInjectors := credentialTypeNode.GetProperty(
 						"injector_env", false).(bool)
 					hasEVInjectors := credentialTypeNode.GetProperty(
@@ -230,7 +230,7 @@ func PostProcessingCredentials(graph *gopengraph.OpenGraph) {
 					if hasEVInjectors || hasEnvInjectors {
 						for _, ie := range identityEdges {
 							if identityCanControlPlaybook(graph, ie) {
-								edge = GenerateEdge("ATCompromiseWithMaliciousPlaybook",
+								edge = GenerateEdge(COMPROMISE_WITH_PLAYBOOK_POST_PROCESSING_EDGE,
 									edge.GetStartNodeID(), credentialNode.GetID())
 								graph.AddEdge(edge)
 								break
