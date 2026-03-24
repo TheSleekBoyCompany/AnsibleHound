@@ -9,6 +9,8 @@ import (
 	"github.com/Ramoreik/gopengraph/properties"
 )
 
+const MACHINE_CREDENTIAL_TYPE_ID = 1
+
 type Credential struct {
 	Object
 	Organization   int            `json:"organization"`
@@ -51,13 +53,14 @@ func (c *Credential) ToBHNode() (n *node.Node) {
 		_, password = c.Inputs["password"]
 		if password && sshKeyDefined {
 			props.SetProperty("machine_credential_type", "both")
-		}
-		if password && !sshKeyDefined {
+		} else if password && !sshKeyDefined {
 			props.SetProperty("machine_credential_type", "password")
-		}
-		if !password && sshKeyDefined {
+		} else if !password && sshKeyDefined {
 			props.SetProperty("machine_credential_type", "ssh")
+		} else {
+			props.SetProperty("machine_credential_type", "none")
 		}
+
 	}
 
 	n, _ = node.NewNode(c.OID, []string{"ATCredential"}, props)
