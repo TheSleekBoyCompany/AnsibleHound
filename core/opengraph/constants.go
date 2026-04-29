@@ -24,6 +24,7 @@ const WORKFLOW_JOB_TEMPLATE_RESOURCE_TYPE = "workflow_job_template"
 
 const SCM_CREDENTIAL_TYPE = "Source Control"
 const SECRET_SERVER_CREDENTIAL_TYPE = "Thycotic Secret Server"
+const HASHICORP_VAULT_CREDENTIAL_TYPE = "HashiCorp Vault Secret Lookup"
 const MACHINE_CREDENTIAL_TYPE = "Machine"
 
 const MACHINE_CREDENTIAL_SSH_SUBTYPE = "ssh"

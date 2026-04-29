@@ -139,7 +139,7 @@ func PostProcessingCredentials(graph *gopengraph.OpenGraph) {
 					}
 				}
 
-			case SECRET_SERVER_CREDENTIAL_TYPE:
+			case SECRET_SERVER_CREDENTIAL_TYPE, HASHICORP_VAULT_CREDENTIAL_TYPE:
 				if edge.GetKind() == ADMIN_ROLE_EDGE {
 					edge = GenerateEdge(COMPROMISE_WITH_REQUESTBIN_POST_PROCESSING_EDGE,
 						edge.GetStartNodeID(), credentialNode.GetID())
