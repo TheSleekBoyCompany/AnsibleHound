@@ -21,6 +21,7 @@ const TEAM_RESOURCE_TYPE = "team"
 const CREDENTIAL_RESOURCE_TYPE = "credential"
 const JOB_TEMPLATE_RESOURCE_TYPE = "job_template"
 const WORKFLOW_JOB_TEMPLATE_RESOURCE_TYPE = "workflow_job_template"
+const PROJECT_RESOURCE_TYPE = "project"
 
 const SCM_CREDENTIAL_TYPE = "Source Control"
 const SECRET_SERVER_CREDENTIAL_TYPE = "Thycotic Secret Server"

@@ -182,7 +182,7 @@ func LinkJobTemplates(graph *gopengraph.OpenGraph, jobTemplates map[int]*ansible
 }
 
 func LinkUserRoles(graph *gopengraph.OpenGraph, users map[int]*ansible.User,
-	organizations map[int]*ansible.Organization, inventories map[int]*ansible.Inventory,
+	organizations map[int]*ansible.Organization, inventories map[int]*ansible.Inventory, projects map[int]*ansible.Project,
 	teams map[int]*ansible.Team, credentials map[int]*ansible.Credential,
 	jobTemplates map[int]*ansible.JobTemplate, workflowJobTemplates map[int]*ansible.WorkflowJobTemplate) {
 
@@ -220,6 +220,10 @@ func LinkUserRoles(graph *gopengraph.OpenGraph, users map[int]*ansible.User,
 				if gather.HasAccessTo(workflowJobTemplates, role.SummaryFields.ResourceId) {
 					edge = GenerateEdge(edgeKind, user.OID, workflowJobTemplates[role.SummaryFields.ResourceId].OID)
 				}
+			case PROJECT_RESOURCE_TYPE:
+				if gather.HasAccessTo(projects, role.SummaryFields.ResourceId) {
+					edge = GenerateEdge(edgeKind, user.OID, projects[role.SummaryFields.ResourceId].OID)
+				}
 			}
 			if edge != nil {
 				AddEdge(graph, edge)
@@ -229,7 +233,7 @@ func LinkUserRoles(graph *gopengraph.OpenGraph, users map[int]*ansible.User,
 }
 
 func LinkTeamRoles(graph *gopengraph.OpenGraph, users map[int]*ansible.User,
-	organizations map[int]*ansible.Organization, inventories map[int]*ansible.Inventory,
+	organizations map[int]*ansible.Organization, inventories map[int]*ansible.Inventory, projects map[int]*ansible.Project,
 	teams map[int]*ansible.Team, credentials map[int]*ansible.Credential,
 	jobTemplates map[int]*ansible.JobTemplate, workflowJobTemplates map[int]*ansible.WorkflowJobTemplate) {
 
@@ -266,7 +270,12 @@ func LinkTeamRoles(graph *gopengraph.OpenGraph, users map[int]*ansible.User,
 				if gather.HasAccessTo(workflowJobTemplates, role.SummaryFields.ResourceId) {
 					edge = GenerateEdge(edgeKind, team.OID, workflowJobTemplates[role.SummaryFields.ResourceId].OID)
 				}
+			case PROJECT_RESOURCE_TYPE:
+				if gather.HasAccessTo(projects, role.SummaryFields.ResourceId) {
+					edge = GenerateEdge(edgeKind, team.OID, projects[role.SummaryFields.ResourceId].OID)
+				}
 			}
+
 			if edge != nil {
 				AddEdge(graph, edge)
 			}
