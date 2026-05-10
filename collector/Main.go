@@ -129,11 +129,11 @@ func launch(client gather.AHClient, targetUrl *url.URL,
 		projects, inventories, credentials, credentialTypes)
 
 	opengraph.LinkUserRoles(&graph, users, organizations,
-		inventories, teams, credentials,
+		inventories, projects, teams, credentials,
 		jobTemplates, workflowJobTemplates)
 
 	opengraph.LinkTeamRoles(&graph, users, organizations,
-		inventories, teams, credentials,
+		inventories, projects, teams, credentials,
 		jobTemplates, workflowJobTemplates)
 
 	opengraph.LinkAdministrativeRights(&graph, users, jobTemplates,
