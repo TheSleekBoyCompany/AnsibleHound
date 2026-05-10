@@ -9,6 +9,7 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"sync"
 
 	"github.com/charmbracelet/log"
 )
@@ -127,6 +128,7 @@ func Gather[T ansible.AnsibleType](client AHClient, target url.URL,
 	count := 0
 	current := 0
 	page := 1
+	var wg sync.WaitGroup
 
 	url := target.String() + endpoint
 
@@ -148,23 +150,28 @@ func Gather[T ansible.AnsibleType](client AHClient, target url.URL,
 
 	if count >= PAGE_SIZE {
 		for {
-			page += 1
-			body, err := client.GetPage(url, page)
-			if err != nil {
-				return nil, err
-			}
-			r := ansible.Response[T]{}
-			err = json.Unmarshal(body, &r)
-			if err != nil {
-				return nil, err
-			}
-			objectList = append(objectList, r.Results...)
 			current += PAGE_SIZE
+			wg.Add(1)
+			go func() {
+				defer wg.Done()
+				page += 1
+				body, _ := client.GetPage(url, page)
+				// if err != nil {
+				// return nil, err
+				// }
+				r := ansible.Response[T]{}
+				err = json.Unmarshal(body, &r)
+				// if err != nil {
+				// return nil, err
+				// }
+				objectList = append(objectList, r.Results...)
+			}()
 			if current >= count {
 				break
 			}
 		}
 	}
+	wg.Wait()
 
 	return objectList, nil
 
