@@ -9,9 +9,7 @@ import (
 	"github.com/charmbracelet/log"
 )
 
-const maxGatherWorkers = 30
-
-func runBoundedGather[T any](items map[int]T, gather func(int, T)) {
+func runBoundedGather[T any](maxGatherWorkers int, items map[int]T, gather func(int, T)) {
 	jobs := make(chan int)
 	var wg sync.WaitGroup
 
@@ -58,18 +56,19 @@ func GatherUsers(client AHClient, installUUID string,
 	}
 
 	log.Info("Gathering User Roles.")
-	runBoundedGather(users, func(_ int, user *ansible.User) {
-		userRolesEndpoint := fmt.Sprintf(USER_ROLES_ENDPOINT, user.ID)
-		roles, err := GatherObject[*ansible.Role](
-			installUUID, client, targetUrl, userRolesEndpoint,
-		)
-		if err != nil {
-			log.Error("An error occured while gathering User Roles.")
-			log.Error(err)
-			return
-		}
-		user.Roles = roles
-	})
+	runBoundedGather(client.Workers, users,
+		func(_ int, user *ansible.User) {
+			userRolesEndpoint := fmt.Sprintf(USER_ROLES_ENDPOINT, user.ID)
+			roles, err := GatherObject[*ansible.Role](
+				installUUID, client, targetUrl, userRolesEndpoint,
+			)
+			if err != nil {
+				log.Error("An error occured while gathering User Roles.")
+				log.Error(err)
+				return
+			}
+			user.Roles = roles
+		})
 	return users, err
 }
 
@@ -99,18 +98,19 @@ func GatherGroups(client AHClient, installUUID string,
 		log.Error(err)
 	}
 	log.Info("Gathering Group Hosts.")
-	runBoundedGather(groups, func(_ int, group *ansible.Group) {
-		groupHostsEndpoint := fmt.Sprintf(GROUP_HOSTS_ENDPOINT, group.ID)
-		hosts, err := GatherObject[*ansible.Host](
-			installUUID, client, targetUrl, groupHostsEndpoint,
-		)
-		if err != nil {
-			log.Error("An error occured while gathering Group Hosts, skipping Group.")
-			log.Error(err)
-			return
-		}
-		group.Hosts = hosts
-	})
+	runBoundedGather(client.Workers, groups,
+		func(_ int, group *ansible.Group) {
+			groupHostsEndpoint := fmt.Sprintf(GROUP_HOSTS_ENDPOINT, group.ID)
+			hosts, err := GatherObject[*ansible.Host](
+				installUUID, client, targetUrl, groupHostsEndpoint,
+			)
+			if err != nil {
+				log.Error("An error occured while gathering Group Hosts, skipping Group.")
+				log.Error(err)
+				return
+			}
+			group.Hosts = hosts
+		})
 	return groups, err
 }
 
@@ -141,21 +141,22 @@ func GatherJobTemplates(client AHClient, installUUID string,
 	}
 
 	log.Info("Gathering Job Templates Credentials.")
-	runBoundedGather(jobTemplates, func(_ int, jobTemplate *ansible.JobTemplate) {
-		jobTemplatesCredentialsEndpoint := fmt.Sprintf(
-			JOB_TEMPLATE_CREDENTIALS_ENDPOINT, jobTemplate.ID,
-		)
-		credentials, err := GatherObject[*ansible.Credential](
-			installUUID, client, targetUrl, jobTemplatesCredentialsEndpoint,
-		)
-		if err != nil {
-			log.Error("An error occured while gathering Job Template Credentials.")
-			log.Error(err)
-			return
-		}
+	runBoundedGather(client.Workers, jobTemplates,
+		func(_ int, jobTemplate *ansible.JobTemplate) {
+			jobTemplatesCredentialsEndpoint := fmt.Sprintf(
+				JOB_TEMPLATE_CREDENTIALS_ENDPOINT, jobTemplate.ID,
+			)
+			credentials, err := GatherObject[*ansible.Credential](
+				installUUID, client, targetUrl, jobTemplatesCredentialsEndpoint,
+			)
+			if err != nil {
+				log.Error("An error occured while gathering Job Template Credentials.")
+				log.Error(err)
+				return
+			}
 
-		jobTemplate.Credentials = credentials
-	})
+			jobTemplate.Credentials = credentials
+		})
 
 	return jobTemplates, err
 
@@ -273,49 +274,50 @@ func GatherTeams(client AHClient, installUUID string,
 	}
 
 	log.Info("Gathering Team Roles and Members.")
-	runBoundedGather(teams, func(_ int, team *ansible.Team) {
-		var roles map[int]*ansible.Role
-		var members map[int]*ansible.User
-		var rolesErr error
-		var membersErr error
-		var wg sync.WaitGroup
+	runBoundedGather(client.Workers, teams,
+		func(_ int, team *ansible.Team) {
+			var roles map[int]*ansible.Role
+			var members map[int]*ansible.User
+			var rolesErr error
+			var membersErr error
+			var wg sync.WaitGroup
 
-		wg.Add(2)
+			wg.Add(2)
 
-		go func() {
-			defer wg.Done()
+			go func() {
+				defer wg.Done()
 
-			teamRolesEndpoint := fmt.Sprintf(TEAM_ROLES_ENDPOINT, team.ID)
-			roles, rolesErr = GatherObject[*ansible.Role](
-				installUUID, client, targetUrl, teamRolesEndpoint,
-			)
-		}()
+				teamRolesEndpoint := fmt.Sprintf(TEAM_ROLES_ENDPOINT, team.ID)
+				roles, rolesErr = GatherObject[*ansible.Role](
+					installUUID, client, targetUrl, teamRolesEndpoint,
+				)
+			}()
 
-		go func() {
-			defer wg.Done()
+			go func() {
+				defer wg.Done()
 
-			teamMembersEndpoint := fmt.Sprintf(TEAM_USERS_ENDPOINT, team.ID)
-			members, membersErr = GatherObject[*ansible.User](
-				installUUID, client, targetUrl, teamMembersEndpoint,
-			)
-		}()
+				teamMembersEndpoint := fmt.Sprintf(TEAM_USERS_ENDPOINT, team.ID)
+				members, membersErr = GatherObject[*ansible.User](
+					installUUID, client, targetUrl, teamMembersEndpoint,
+				)
+			}()
 
-		wg.Wait()
+			wg.Wait()
 
-		if rolesErr != nil {
-			log.Error("An error occured while gathering Team Roles.")
-			log.Error(rolesErr)
-		} else {
-			team.Roles = roles
-		}
+			if rolesErr != nil {
+				log.Error("An error occured while gathering Team Roles.")
+				log.Error(rolesErr)
+			} else {
+				team.Roles = roles
+			}
 
-		if membersErr != nil {
-			log.Error("An error occured while gathering Team Members.")
-			log.Error(membersErr)
-		} else {
-			team.Members = members
-		}
-	})
+			if membersErr != nil {
+				log.Error("An error occured while gathering Team Members.")
+				log.Error(membersErr)
+			} else {
+				team.Members = members
+			}
+		})
 
 	return teams, err
 }

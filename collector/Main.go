@@ -219,7 +219,12 @@ var ingestCmd = &cobra.Command{
 
 		skipVerifySSL, _ := cmd.Flags().GetBool("skip-verify-ssl")
 
-		client := gather.InitClient(proxyURL, skipVerifySSL, username, password, token)
+		workers, _ := cmd.Flags().GetInt("workers")
+		if workers == 0 {
+			log.Fatal("Cannot collect with 0 workers.")
+		}
+
+		client := gather.InitClient(proxyURL, skipVerifySSL, workers, username, password, token)
 
 		var ldap gather.AHLdap
 
@@ -239,6 +244,8 @@ func main() {
 	ingestCmd.Flags().StringP("username", "u", "", "Username to use for authentication.")
 	ingestCmd.Flags().StringP("token", "", "", "Token to use for authentication.")
 	ingestCmd.Flags().StringP("password", "p", "", "Password to use for authentication.")
+
+	ingestCmd.Flags().IntP("workers", "w", 10, "Number of workers used for the collection.")
 
 	ingestCmd.Flags().StringP("dc-ip", "", "", "(optional) Target IP of the domain. Required only for LDAP user")
 	ingestCmd.Flags().BoolP("ldaps", "", false, "(optional) Configure LDAPS authentication on the domain controller. Required only for LDAP user")
