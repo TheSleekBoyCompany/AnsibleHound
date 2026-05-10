@@ -10,7 +10,7 @@ const MATCH_BY_NAME = "name"
 
 const ACTIVE_DIRECTORY_BASE = "Base"
 const ANSIBLE_BASE = "AnsibleBase"
-const GITHUB_BASE = "GHBase"
+const GITHUB_BASE = "GitHub"
 
 const CREDENTIAL_USERNAME = "username"
 const CREDENTIAL_KIND = "scm"
