@@ -5,10 +5,12 @@ import (
 	"crypto/tls"
 	"encoding/base64"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
 	"net/url"
+	"sync"
 
 	"github.com/charmbracelet/log"
 )
@@ -16,6 +18,7 @@ import (
 type AHClient struct {
 	Client  *http.Client
 	Headers http.Header
+	Workers int
 }
 
 func (ahc *AHClient) Do(req *http.Request) (*http.Response, error) {
@@ -62,7 +65,7 @@ func (ahc *AHClient) GetPage(url string, currentPage int) ([]byte, error) {
 	return body, nil
 }
 
-func InitClient(proxyURL *url.URL, skipVerifySSL bool,
+func InitClient(proxyURL *url.URL, skipVerifySSL bool, workers int,
 	username string, password string, token string) AHClient {
 
 	transport := &http.Transport{}
@@ -102,6 +105,7 @@ func InitClient(proxyURL *url.URL, skipVerifySSL bool,
 	client := AHClient{
 		Client:  httpClient,
 		Headers: headers,
+		Workers: workers,
 	}
 
 	return client
@@ -120,54 +124,112 @@ func initReq(url string, currentPage int) (*http.Request, error) {
 
 }
 
-func Gather[T ansible.AnsibleType](client AHClient, target url.URL,
-	endpoint string) ([]T, error) {
+func Gather[T ansible.AnsibleType](
+	client AHClient, target url.URL, endpoint string,
+) ([]T, error) {
+	baseURL := target.String() + endpoint
 
-	var objectList []T
-	count := 0
-	current := 0
-	page := 1
-
-	url := target.String() + endpoint
-
-	body, err := client.GetPage(url, page)
+	body, err := client.GetPage(baseURL, 1)
 	if err != nil {
 		return nil, err
 	}
 
-	if count == 0 {
-		r := ansible.Response[T]{}
-		err = json.Unmarshal(body, &r)
-		if err != nil {
-			return nil, err
-		}
-		count = r.Count
-		objectList = append(objectList, r.Results...)
+	firstPage := ansible.Response[T]{}
+	if err := json.Unmarshal(body, &firstPage); err != nil {
+		return nil, err
 	}
-	current += PAGE_SIZE
 
-	if count >= PAGE_SIZE {
-		for {
-			page += 1
-			body, err := client.GetPage(url, page)
-			if err != nil {
-				return nil, err
+	objectList := make([]T, 0, firstPage.Count)
+	objectList = append(objectList, firstPage.Results...)
+
+	if firstPage.Count <= PAGE_SIZE {
+		return objectList, nil
+	}
+
+	pageCount := firstPage.Count / PAGE_SIZE
+	if firstPage.Count%PAGE_SIZE != 0 {
+		pageCount++
+	}
+
+	type pageResult struct {
+		page    int
+		results []T
+		err     error
+	}
+
+	jobs := make(chan int)
+	results := make(chan pageResult, pageCount-1)
+
+	var wg sync.WaitGroup
+
+	workerCount := client.Workers
+	if pageCount-1 < workerCount {
+		workerCount = pageCount - 1
+	}
+
+	for i := 0; i < workerCount; i++ {
+		wg.Add(1)
+
+		go func() {
+			defer wg.Done()
+
+			for page := range jobs {
+				body, err := client.GetPage(baseURL, page)
+				if err != nil {
+					results <- pageResult{
+						page: page,
+						err:  err,
+					}
+					continue
+				}
+
+				response := ansible.Response[T]{}
+				if err := json.Unmarshal(body, &response); err != nil {
+					results <- pageResult{
+						page: page,
+						err:  err,
+					}
+					continue
+				}
+
+				results <- pageResult{
+					page:    page,
+					results: response.Results,
+				}
 			}
-			r := ansible.Response[T]{}
-			err = json.Unmarshal(body, &r)
-			if err != nil {
-				return nil, err
-			}
-			objectList = append(objectList, r.Results...)
-			current += PAGE_SIZE
-			if current >= count {
-				break
-			}
+		}()
+	}
+
+	go func() {
+		defer close(jobs)
+
+		for page := 2; page <= pageCount; page++ {
+			jobs <- page
 		}
+	}()
+
+	wg.Wait()
+	close(results)
+
+	var errs []error
+
+	for result := range results {
+		if result.err != nil {
+			errs = append(
+				errs,
+				fmt.Errorf("failed to gather page %d: %w", result.page, result.err),
+			)
+			continue
+		}
+
+		objectList = append(objectList, result.results...)
+	}
+
+	if len(errs) > 0 {
+		return objectList, errors.Join(errs...)
 	}
 
 	return objectList, nil
-
 }
 
 func GatherObject[T ansible.AnsibleType](installUUID string, client AHClient,

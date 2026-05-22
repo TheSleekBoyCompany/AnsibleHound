@@ -9,6 +9,8 @@ import (
 	"github.com/Ramoreik/gopengraph/properties"
 )
 
+const MACHINE_CREDENTIAL_TYPE_ID = 1
+
 type Credential struct {
 	Object
 	Organization   int            `json:"organization"`
@@ -37,10 +39,28 @@ func (c *Credential) ToBHNode() (n *node.Node) {
 	props.SetProperty("cloud", strconv.FormatBool(c.Cloud))
 	props.SetProperty("kubernetes", strconv.FormatBool(c.Kubernetes))
 
-	var ok bool
-	if _, ok = c.Inputs["username"]; ok {
-		username := c.Inputs["username"].(string)
-		props.SetProperty("username", username)
+	if c.CredentialType == 1 { // Credential is of type Machine
+
+		var ok bool
+		if _, ok = c.Inputs["username"]; ok {
+			username := c.Inputs["username"].(string)
+			props.SetProperty("username", username)
+		}
+
+		var sshKeyDefined bool
+		var password bool
+		_, sshKeyDefined = c.Inputs["ssh_key_data"]
+		_, password = c.Inputs["password"]
+		if password && sshKeyDefined {
+			props.SetProperty("machine_credential_type", "both")
+		} else if password && !sshKeyDefined {
+			props.SetProperty("machine_credential_type", "password")
+		} else if !password && sshKeyDefined {
+			props.SetProperty("machine_credential_type", "ssh")
+		} else {
+			props.SetProperty("machine_credential_type", "none")
+		}
+
 	}
 
 	n, _ = node.NewNode(c.OID, []string{"ATCredential"}, props)
@@ -120,12 +140,14 @@ func (ct *CredentialType) ToBHNode() (n *node.Node) {
 		}
 	}
 	if _, ok = ct.Injectors["extra_vars"]; ok {
+		props.SetProperty("injector_extra_vars", true)
 		fileInjectors := ct.Injectors["extra_vars"].(map[string]any)
 		for k, v := range fileInjectors {
 			props.SetProperty("injector_extra_vars_"+k, v.(string))
 		}
 	}
 	if _, ok = ct.Injectors["env"]; ok {
+		props.SetProperty("injector_env", true)
 		fileInjectors := ct.Injectors["env"].(map[string]any)
 		for k, v := range fileInjectors {
 			props.SetProperty("injector_env_"+k, v.(string))
