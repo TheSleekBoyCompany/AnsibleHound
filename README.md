@@ -27,6 +27,16 @@ The collector will then list the access permissions available to the user. The c
 
 > Note : If you have multiple instances of Ansible you need to run the collector against each of them
 
+#### Worker configuration
+
+`-w` / `--workers` controls the number of workers used while collecting data from Ansible. 
+
+Use `--post-process-workers` to set the number of workers used to derive post-processing attack paths. Its default is `0`, which automatically uses the current `GOMAXPROCS` value. Specify a positive value to set an explicit limit.
+
+```bash
+./collector -t '<ansible-url>' --token '<token>' -w 10 --post-process-workers 4
+```
+
 #### Token
 
 To obtain a valid token for **Ansible WorX** or **Ansible Tower**, you can navigate to the **User Details** of your current user.

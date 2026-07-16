@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"net/url"
 	"os"
@@ -12,8 +13,8 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func launch(client gather.AHClient, targetUrl *url.URL,
-	outdir string, ldap gather.AHLdap, github bool) {
+func launch(ctx context.Context, client gather.AHClient, targetUrl *url.URL,
+	outdir string, ldap gather.AHLdap, github bool, postProcessWorkers int) {
 
 	graph := opengraph.InitGraph()
 
@@ -153,7 +154,9 @@ func launch(client gather.AHClient, targetUrl *url.URL,
 
 	// Post Processing
 
-	opengraph.PostProcessingCredentials(&graph)
+	if err := opengraph.PostProcessingCredentials(ctx, &graph, postProcessWorkers); err != nil {
+		log.Fatalf("Unable to post-process credential edges: %s", err)
+	}
 
 	// -- Output final graph --
 
@@ -224,6 +227,11 @@ var ingestCmd = &cobra.Command{
 			log.Fatal("Cannot collect with 0 workers.")
 		}
 
+		postProcessWorkers, _ := cmd.Flags().GetInt("post-process-workers")
+		if postProcessWorkers < 0 {
+			log.Fatal("Post-processing workers cannot be negative.")
+		}
+
 		client := gather.InitClient(proxyURL, skipVerifySSL, workers, username, password, token)
 
 		var ldap gather.AHLdap
@@ -232,7 +240,7 @@ var ingestCmd = &cobra.Command{
 			ldap = gather.InitLdap(dc_ipAddress, username, password, domain, isLDAPS, skipVerifySSL)
 		}
 
-		launch(client, targetUrl, outdir, ldap, github)
+		launch(cmd.Context(), client, targetUrl, outdir, ldap, github, postProcessWorkers)
 	},
 }
 
@@ -246,6 +254,7 @@ func main() {
 	ingestCmd.Flags().StringP("password", "p", "", "Password to use for authentication.")
 
 	ingestCmd.Flags().IntP("workers", "w", 10, "Number of workers used for the collection.")
+	ingestCmd.Flags().Int("post-process-workers", 0, "Number of workers used for credential post-processing (0 uses GOMAXPROCS).")
 
 	ingestCmd.Flags().StringP("dc-ip", "", "", "(optional) Target IP of the domain. Required only for LDAP user")
 	ingestCmd.Flags().BoolP("ldaps", "", false, "(optional) Configure LDAPS authentication on the domain controller. Required only for LDAP user")
