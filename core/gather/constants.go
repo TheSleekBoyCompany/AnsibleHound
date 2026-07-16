@@ -3,7 +3,6 @@ package gather
 import "fmt"
 
 const AAP_CONTROLLER_ENDPOINT = "/api/controller/v2/"
-const AAP_TOKEN_ENDPOINT = "/api/gateway/v1/tokens/"
 const TOWER_API_ENDPOINT = "/api/v2/"
 const ME_ENDPOINT = "%s/me/"
 const ORGANIZATIONS_ENDPOINT = "%s/organizations/"
