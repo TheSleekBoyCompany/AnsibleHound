@@ -13,19 +13,29 @@ Developped by [@Ramoreik](https://github.com/Ramoreik) and [@s_lck](https://gith
 ### Building the tool
 
 ```bash
-go build . -o build/collector
+cd collector
+go build .
 ```
 
 ### Running the Collection
 
 The collector can be run using any of the following authentication materials:
 
-- `token` who is working only for local users
-- `username/password` who is working for both local and LDAP users
+- `token`
+- `username/password`
 
 The collector will then list the access permissions available to the user. The collection's results depend on the user's level of access used for collection.
 
 > Note : If you have multiple instances of Ansible you need to run the collector against each of them
+
+#### AAP
+
+For Ansible Automation Platform instances, the authentication is a bit different than the traditionnal Tower instance.
+The controller API does not handle username/password authentication for non-local users. (admin/auditor should work still)
+Instead, you **need** to get a token for these users to be able to run the collection. 
+The way to do this is described below.
+
+When collecting an AAP instance, you need to pass the `--aap` flag, which will handle the difference in API endpoints between the two products.
 
 #### Token
 
