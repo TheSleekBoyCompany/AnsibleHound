@@ -224,7 +224,9 @@ var ingestCmd = &cobra.Command{
 			log.Fatal("Cannot collect with 0 workers.")
 		}
 
-		client := gather.InitClient(proxyURL, skipVerifySSL, workers, username, password, token)
+		aap, _ := cmd.Flags().GetBool("aap")
+
+		client := gather.InitClient(proxyURL, skipVerifySSL, workers, aap, username, password, token)
 
 		var ldap gather.AHLdap
 
@@ -249,6 +251,7 @@ func main() {
 
 	ingestCmd.Flags().StringP("dc-ip", "", "", "(optional) Target IP of the domain. Required only for LDAP user")
 	ingestCmd.Flags().BoolP("ldaps", "", false, "(optional) Configure LDAPS authentication on the domain controller. Required only for LDAP user")
+	ingestCmd.Flags().BoolP("aap", "", false, "(optional) Target is Ansible Automation Platform and not Tower")
 	ingestCmd.Flags().StringP("domain", "", "", "(optional) NetBIOS domain name. Required only for LDAP user")
 
 	ingestCmd.Flags().BoolP("github", "", false, "(optional) Enable graphing between Ansible and GitHub")

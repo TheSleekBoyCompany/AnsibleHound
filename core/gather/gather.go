@@ -38,7 +38,9 @@ func runBoundedGather[T any](maxGatherWorkers int, items map[int]T, gather func(
 }
 
 func ValidateCredentials(client AHClient, targetUrl url.URL) (err error) {
-	_, err = AuthenticateOnAnsibleInstance(client, targetUrl, ME_ENDPOINT)
+	_, err = AuthenticateOnAnsibleInstance(client, targetUrl,
+		fmt.Sprintf(ME_ENDPOINT, client.GetAPIEndpoint()),
+	)
 	return err
 }
 
@@ -47,7 +49,8 @@ func GatherUsers(client AHClient, installUUID string,
 
 	log.Info("Gathering Users.")
 	users, err = GatherObject[*ansible.User](
-		installUUID, client, targetUrl, USERS_ENDPOINT,
+		installUUID, client, targetUrl,
+		fmt.Sprintf(USERS_ENDPOINT, client.GetAPIEndpoint()),
 	)
 	if err != nil {
 		log.Error("An error occured while gathering Users, skipping.")
@@ -58,7 +61,7 @@ func GatherUsers(client AHClient, installUUID string,
 	log.Info("Gathering User Roles.")
 	runBoundedGather(client.Workers, users,
 		func(_ int, user *ansible.User) {
-			userRolesEndpoint := fmt.Sprintf(USER_ROLES_ENDPOINT, user.ID)
+			userRolesEndpoint := fmt.Sprintf(USER_ROLES_ENDPOINT, client.GetAPIEndpoint(), user.ID)
 			roles, err := GatherObject[*ansible.Role](
 				installUUID, client, targetUrl, userRolesEndpoint,
 			)
@@ -77,7 +80,8 @@ func GatherHosts(client AHClient, installUUID string,
 
 	log.Info("Gathering Hosts.")
 	hosts, err = GatherObject[*ansible.Host](
-		installUUID, client, targetUrl, HOSTS_ENDPOINT,
+		installUUID, client, targetUrl,
+		fmt.Sprintf(HOSTS_ENDPOINT, client.GetAPIEndpoint()),
 	)
 	if err != nil {
 		log.Error("An error occured while gathering Hosts, skipping.")
@@ -91,7 +95,8 @@ func GatherGroups(client AHClient, installUUID string,
 
 	log.Info("Gathering Groups.")
 	groups, err = GatherObject[*ansible.Group](
-		installUUID, client, targetUrl, GROUPS_ENDPOINT,
+		installUUID, client, targetUrl,
+		fmt.Sprintf(GROUPS_ENDPOINT, client.GetAPIEndpoint()),
 	)
 	if err != nil {
 		log.Error("An error occured while gathering Groups, skipping.")
@@ -100,7 +105,7 @@ func GatherGroups(client AHClient, installUUID string,
 	log.Info("Gathering Group Hosts.")
 	runBoundedGather(client.Workers, groups,
 		func(_ int, group *ansible.Group) {
-			groupHostsEndpoint := fmt.Sprintf(GROUP_HOSTS_ENDPOINT, group.ID)
+			groupHostsEndpoint := fmt.Sprintf(GROUP_HOSTS_ENDPOINT, client.GetAPIEndpoint(), group.ID)
 			hosts, err := GatherObject[*ansible.Host](
 				installUUID, client, targetUrl, groupHostsEndpoint,
 			)
@@ -119,7 +124,7 @@ func GatherJobs(client AHClient, installUUID string,
 
 	log.Info("Gathering Jobs.")
 	jobs, err = GatherObject[*ansible.Job](
-		installUUID, client, targetUrl, JOBS_ENDPOINT,
+		installUUID, client, targetUrl, fmt.Sprintf(JOBS_ENDPOINT, client.GetAPIEndpoint()),
 	)
 	if err != nil {
 		log.Error("An error occured while gathering Jobs, skipping.")
@@ -133,7 +138,7 @@ func GatherJobTemplates(client AHClient, installUUID string,
 
 	log.Info("Gathering Job Templates.")
 	jobTemplates, err = GatherObject[*ansible.JobTemplate](
-		installUUID, client, targetUrl, JOB_TEMPLATE_ENDPOINT,
+		installUUID, client, targetUrl, fmt.Sprintf(JOB_TEMPLATE_ENDPOINT, client.GetAPIEndpoint()),
 	)
 	if err != nil {
 		log.Error("An error occured while gathering Job Templates, skipping.")
@@ -144,7 +149,7 @@ func GatherJobTemplates(client AHClient, installUUID string,
 	runBoundedGather(client.Workers, jobTemplates,
 		func(_ int, jobTemplate *ansible.JobTemplate) {
 			jobTemplatesCredentialsEndpoint := fmt.Sprintf(
-				JOB_TEMPLATE_CREDENTIALS_ENDPOINT, jobTemplate.ID,
+				JOB_TEMPLATE_CREDENTIALS_ENDPOINT, client.GetAPIEndpoint(), jobTemplate.ID,
 			)
 			credentials, err := GatherObject[*ansible.Credential](
 				installUUID, client, targetUrl, jobTemplatesCredentialsEndpoint,
@@ -166,7 +171,10 @@ func GatherWorkflowJobTemplates(client AHClient, installUUID string,
 	targetUrl url.URL) (workflowJobTemplates map[int]*ansible.WorkflowJobTemplate, err error) {
 
 	log.Info("Gathering Workflow Job Templates.")
-	workflowJobTemplates, err = GatherObject[*ansible.WorkflowJobTemplate](installUUID, client, targetUrl, WORKFLOW_JOB_TEMPLATES_ENDPOINT)
+	workflowJobTemplates, err = GatherObject[*ansible.WorkflowJobTemplate](
+		installUUID, client, targetUrl,
+		fmt.Sprintf(WORKFLOW_JOB_TEMPLATES_ENDPOINT, client.GetAPIEndpoint()),
+	)
 	if err != nil {
 		log.Error("An error occured while gathering Workflow Job Templates, skipping.")
 		log.Error(err)
@@ -178,7 +186,10 @@ func GatherWorkflowJobTemplateNodes(client AHClient, installUUID string,
 	targetUrl url.URL) (workflowJobTemplateNodes map[int]*ansible.WorkflowJobTemplateNode, err error) {
 
 	log.Info("Gathering Workflow Job Template Nodes.")
-	workflowJobTemplateNodes, err = GatherObject[*ansible.WorkflowJobTemplateNode](installUUID, client, targetUrl, WORKFLOW_JOB_TEMPLATE_NODES_ENDPOINT)
+	workflowJobTemplateNodes, err = GatherObject[*ansible.WorkflowJobTemplateNode](
+		installUUID, client, targetUrl,
+		fmt.Sprintf(WORKFLOW_JOB_TEMPLATE_NODES_ENDPOINT, client.GetAPIEndpoint()),
+	)
 	if err != nil {
 		log.Error("An error occured while gathering Workflow Job Template Nodes, skipping.")
 		log.Error(err)
@@ -191,7 +202,8 @@ func GatherInventories(client AHClient, installUUID string,
 
 	log.Info("Gathering Inventories.")
 	inventories, err = GatherObject[*ansible.Inventory](
-		installUUID, client, targetUrl, INVENTORIES_ENDPOINT,
+		installUUID, client, targetUrl,
+		fmt.Sprintf(INVENTORIES_ENDPOINT, client.GetAPIEndpoint()),
 	)
 	if err != nil {
 		log.Error("An error occured while gathering Inventories, skipping.")
@@ -206,7 +218,8 @@ func GatherOrganizations(client AHClient, installUUID string,
 
 	log.Info("Gathering Organizations.")
 	organizations, err = GatherObject[*ansible.Organization](
-		installUUID, client, targetUrl, ORGANIZATIONS_ENDPOINT,
+		installUUID, client, targetUrl,
+		fmt.Sprintf(ORGANIZATIONS_ENDPOINT, client.GetAPIEndpoint()),
 	)
 	if err != nil {
 		log.Error("An error occured while gathering Organizations, skipping.")
@@ -222,7 +235,8 @@ func GatherCredentials(client AHClient, installUUID string,
 
 	log.Info("Gathering Credentials.")
 	credentials, err = GatherObject[*ansible.Credential](
-		installUUID, client, targetUrl, CREDENTIALS_ENDPOINT,
+		installUUID, client, targetUrl,
+		fmt.Sprintf(CREDENTIALS_ENDPOINT, client.GetAPIEndpoint()),
 	)
 	if err != nil {
 		log.Error("An error occured while gathering Credentials, skipping.")
@@ -236,7 +250,8 @@ func GatherCredentialTypes(client AHClient, installUUID string,
 
 	log.Info("Gathering Credential Types.")
 	credentialTypes, err = GatherObject[*ansible.CredentialType](
-		installUUID, client, targetUrl, CREDENTIAL_TYPES_ENDPOINT,
+		installUUID, client, targetUrl,
+		fmt.Sprintf(CREDENTIAL_TYPES_ENDPOINT, client.GetAPIEndpoint()),
 	)
 	if err != nil {
 		log.Error("An error occured while gathering Credential Types, skipping.")
@@ -251,7 +266,8 @@ func GatherProjects(client AHClient, installUUID string,
 
 	log.Info("Gathering Projects.")
 	projects, err = GatherObject[*ansible.Project](
-		installUUID, client, targetUrl, PROJECTS_ENDPOINT,
+		installUUID, client, targetUrl,
+		fmt.Sprintf(PROJECTS_ENDPOINT, client.GetAPIEndpoint()),
 	)
 	if err != nil {
 		log.Error("An error occured while gathering Projects, skipping.")
@@ -266,7 +282,8 @@ func GatherTeams(client AHClient, installUUID string,
 
 	log.Info("Gathering Teams.")
 	teams, err = GatherObject[*ansible.Team](
-		installUUID, client, targetUrl, TEAMS_ENDPOINT,
+		installUUID, client, targetUrl,
+		fmt.Sprintf(TEAMS_ENDPOINT, client.GetAPIEndpoint()),
 	)
 	if err != nil {
 		log.Error("An error occured while gathering Teams, skipping.")
@@ -287,7 +304,7 @@ func GatherTeams(client AHClient, installUUID string,
 			go func() {
 				defer wg.Done()
 
-				teamRolesEndpoint := fmt.Sprintf(TEAM_ROLES_ENDPOINT, team.ID)
+				teamRolesEndpoint := fmt.Sprintf(TEAM_ROLES_ENDPOINT, client.GetAPIEndpoint(), team.ID)
 				roles, rolesErr = GatherObject[*ansible.Role](
 					installUUID, client, targetUrl, teamRolesEndpoint,
 				)
@@ -296,7 +313,7 @@ func GatherTeams(client AHClient, installUUID string,
 			go func() {
 				defer wg.Done()
 
-				teamMembersEndpoint := fmt.Sprintf(TEAM_USERS_ENDPOINT, team.ID)
+				teamMembersEndpoint := fmt.Sprintf(TEAM_USERS_ENDPOINT, client.GetAPIEndpoint(), team.ID)
 				members, membersErr = GatherObject[*ansible.User](
 					installUUID, client, targetUrl, teamMembersEndpoint,
 				)

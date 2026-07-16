@@ -19,6 +19,7 @@ type AHClient struct {
 	Client  *http.Client
 	Headers http.Header
 	Workers int
+	AAP     bool
 }
 
 func (ahc *AHClient) Do(req *http.Request) (*http.Response, error) {
@@ -65,7 +66,15 @@ func (ahc *AHClient) GetPage(url string, currentPage int) ([]byte, error) {
 	return body, nil
 }
 
-func InitClient(proxyURL *url.URL, skipVerifySSL bool, workers int,
+func (ahc *AHClient) GetAPIEndpoint() (endpoint string) {
+	endpoint = TOWER_API_ENDPOINT
+	if ahc.AAP {
+		endpoint = AAP_CONTROLLER_ENDPOINT
+	}
+	return endpoint
+}
+
+func InitClient(proxyURL *url.URL, skipVerifySSL bool, workers int, aap bool,
 	username string, password string, token string) AHClient {
 
 	transport := &http.Transport{}
@@ -106,6 +115,7 @@ func InitClient(proxyURL *url.URL, skipVerifySSL bool, workers int,
 		Client:  httpClient,
 		Headers: headers,
 		Workers: workers,
+		AAP:     aap,
 	}
 
 	return client
@@ -253,7 +263,7 @@ func GatherObject[T ansible.AnsibleType](installUUID string, client AHClient,
 
 func GatherAnsibleInstance(client AHClient, target url.URL) (instance ansible.AnsibleInstance, err error) {
 
-	url := target.String() + PING_ENDPOINT
+	url := target.String() + fmt.Sprintf(PING_ENDPOINT, client.GetAPIEndpoint())
 
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
